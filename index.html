@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мой Чат Бот</title>
+  
+  <!-- Стили загружаются из интернета -->
+  <link rel="stylesheet" href="https://unpkg.com/tt-chat-n8n/dist/style.css">
+  
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 20px; background: #f4f4f4; text-align: center; }
+    h1 { color: #333; margin-top: 50px; }
+  </style>
+</head>
+<body>
+
+  <h1>Чат подключен! ✅</h1>
+  <p>Нажми на кнопку справа внизу.</p>
+
+  <!-- Скрипт загружается из интернета -->
+  <script src="https://unpkg.com/tt-chat-n8n/dist/tt-chat.bundle.umd.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      TTChatN8N.createChat({
+        // ПОКА ЗАГЛУШКА
+        webhookUrl: 'https://example.com/test', 
+        title: 'Поддержка',
+        subtitle: 'Задай вопрос',
+        mode: 'window'
+      });
+    });
+  </script>
+</body>
+</html>
