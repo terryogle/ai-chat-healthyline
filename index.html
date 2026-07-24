@@ -1,84 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tourtools Chat N8N - Development</title>
+  <title>Tourtools Chat N8N</title>
+  
+  <!-- Подключаем стили ИЗ СОБРАННОЙ ПАПКИ DIST -->
+  <link rel="stylesheet" href="./dist/style.css">
+  
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       margin: 0;
       padding: 20px;
+      background-color: #f9f9f9;
     }
     .container {
       max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
+      margin: 50px auto;
+      text-align: center;
     }
-    h1 {
-      color: #2196f3;
-    }
-    .options-panel {
-      background-color: #f5f5f5;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-    button {
-      background-color: #2196f3;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    button:hover {
-      background-color: #0d8bf2;
-    }
-    #tt-chat-n8n {
-      margin-top: 20px;
-    }
+    h1 { color: #333; }
+    p { color: #666; }
   </style>
 </head>
 <body>
+
   <div class="container">
-    <h1>Development Environment</h1>
-    
-    <div class="options-panel">
-      <h2>Configurazione</h2>
-      <p>Modificare le opzioni di <strong>createChat()</strong> per testare le opzioni</p>
-      <p>Eseguire l'ambiente di dev con 
-        <code>npm run dev</code>
-      </p>
-      <p>
-        Il workflow di test utilizza i comandi speciali markdown e action
-      </p>
-      
-      <button id="initChat">Inizializza la chat</button>
-    </div>
-    
-    <div id="tt-chat-n8n"></div>
+    <h1>Чат-бот готов к работе!</h1>
+    <p>Нажми на синюю кнопку в правом нижнем углу, чтобы начать общение.</p>
   </div>
 
-  <script type="module">
-    import { createChat } from './src/main.ts';
-    
+  <!-- Подключаем СКРИПТ ИЗ СОБРАННОЙ ПАПКИ DIST (UMD версия) -->
+  <script src="./dist/tt-chat.bundle.umd.js"></script>
 
-    const DEMO_WEBHOOK_URL = '';
-    
-    document.getElementById('initChat').addEventListener('click', () => {
-      createChat({
-        webhookUrl: DEMO_WEBHOOK_URL,
+  <script>
+    // Ждем загрузки страницы
+    document.addEventListener('DOMContentLoaded', function() {
+      
+      // Инициализируем чат сразу при загрузке (кнопка больше не нужна)
+      TTChatN8N.createChat({
+        // ВРЕМЕННАЯ ЗАГЛУШКА - ПОКА НЕ СВЯЗАЛИ С N8N
+        webhookUrl: 'https://example.com/webhook/test', 
+        
         mode: 'window',
-        title: 'Chat',
-        subtitle: 'Come posso aiutarti?',
-        placeholder: 'Scrivi un messaggio...',
-        initialMessages: ['Sono qui per aiutarti con domande relative ai servizi che TourTools può offrirti.', 'Quali obiettivi di marketing possiamo aiutarti a raggiungere?'],
+        title: 'Tourtools Support',
+        subtitle: 'Как я могу помочь?',
+        placeholder: 'Напишите сообщение...',
+        initialMessages: [
+          'Привет! 👋', 
+          'Я готов отвечать на вопросы.'
+        ],
         loadPreviousSession: true,
         showTooltip: true,
-        tooltipText: "Prova il nostro chatbot"
+        tooltipText: "Нажми, чтобы написать нам"
       });
+      
     });
   </script>
 </body>
