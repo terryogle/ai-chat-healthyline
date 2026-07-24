@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HealthyLine AI Chat</title>
+
+  <link href="https://unpkg.com/tt-chat-n8n/dist/style.css" rel="stylesheet">
 
   <style>
     body {
@@ -50,6 +53,7 @@
 
 </head>
 
+
 <body>
 
 <div class="container">
@@ -75,19 +79,18 @@
 </div>
 
 
-<script type="module">
-
-import { createChat } from './src/main.ts';
+<script src="https://unpkg.com/tt-chat-n8n/dist/tt-chat.umd.js"></script>
 
 
-const DEMO_WEBHOOK_URL = 'https://app.healthyline.com/webhook/ai-chat';
+<script>
 
+document.getElementById('initChat').addEventListener('click', function () {
 
-document.getElementById('initChat').addEventListener('click', () => {
+  TTChatN8N.createChat({
 
-  createChat({
+    webhookUrl: 'https://app.healthyline.com/webhook/ai-chat',
 
-    webhookUrl: DEMO_WEBHOOK_URL,
+    target: '#tt-chat-n8n',
 
     mode: 'window',
 
@@ -106,15 +109,15 @@ document.getElementById('initChat').addEventListener('click', () => {
 
     showTooltip: true,
 
-    tooltipText: "Chat with AI"
+    tooltipText: 'Chat with AI'
 
   });
 
 });
 
-
 </script>
 
 
 </body>
+
 </html>
