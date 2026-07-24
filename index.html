@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tourtools Chat N8N</title>
   
-  <!-- Подключаем стили ИЗ СОБРАННОЙ ПАПКИ DIST -->
-  <link rel="stylesheet" href="./dist/style.css">
+  <!-- Пути БЕЗ ./dist/, так как index.html уже внутри папки dist -->
+  <link rel="stylesheet" href="./style.css">
   
   <style>
     body {
@@ -31,31 +31,24 @@
     <p>Нажми на синюю кнопку в правом нижнем углу, чтобы начать общение.</p>
   </div>
 
-  <!-- Подключаем СКРИПТ ИЗ СОБРАННОЙ ПАПКИ DIST (UMD версия) -->
-  <script src="./dist/tt-chat.bundle.umd.js"></script>
+  <!-- Подключаем скрипт БЕЗ ./dist/ -->
+  <script src="./tt-chat.bundle.umd.js"></script>
 
   <script>
-    // Ждем загрузки страницы
     document.addEventListener('DOMContentLoaded', function() {
-      
-      // Инициализируем чат сразу при загрузке (кнопка больше не нужна)
       TTChatN8N.createChat({
-        // ВРЕМЕННАЯ ЗАГЛУШКА - ПОКА НЕ СВЯЗАЛИ С N8N
+        // ВРЕМЕННАЯ ЗАГЛУШКА
         webhookUrl: 'https://example.com/webhook/test', 
         
         mode: 'window',
         title: 'Tourtools Support',
         subtitle: 'Как я могу помочь?',
         placeholder: 'Напишите сообщение...',
-        initialMessages: [
-          'Привет! 👋', 
-          'Я готов отвечать на вопросы.'
-        ],
+        initialMessages: ['Привет! 👋', 'Я готов отвечать на вопросы.'],
         loadPreviousSession: true,
         showTooltip: true,
         tooltipText: "Нажми, чтобы написать нам"
       });
-      
     });
   </script>
 </body>
