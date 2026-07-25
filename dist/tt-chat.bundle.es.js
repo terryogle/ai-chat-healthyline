@@ -36768,16 +36768,33 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
           ref: chatBodyRef,
           class: "tt-chat-body"
         }, [
-          unref(messages).length === 0 ? (openBlock(), createElementBlock("div", _hoisted_3, _cache[0] || (_cache[0] = [
-            createBaseVNode("p", null, "Start a conversation!", -1)
-          ]))) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+          unref(messages).length === 0 ? (openBlock(), createElementBlock("div", _hoisted_3, [
+            _cache[4] || (_cache[4] = createBaseVNode("p", { class: "welcome-title" }, " Hi 👋 I'm HealthyLine AI ", -1)),
+            _cache[5] || (_cache[5] = createBaseVNode("p", { class: "welcome-subtitle" }, " How can I help you today? ", -1)),
+            createBaseVNode("button", {
+              class: "welcome-button",
+              onClick: _cache[0] || (_cache[0] = ($event) => handleSendMessage("I want to find the right PEMF mat"))
+            }, " 🛏 Find the right mat "),
+            createBaseVNode("button", {
+              class: "welcome-button",
+              onClick: _cache[1] || (_cache[1] = ($event) => handleSendMessage("Tell me about PEMF technology"))
+            }, " 💡 Learn about PEMF "),
+            createBaseVNode("button", {
+              class: "welcome-button",
+              onClick: _cache[2] || (_cache[2] = ($event) => handleSendMessage("Show me product prices"))
+            }, " 💰 Product prices "),
+            createBaseVNode("button", {
+              class: "welcome-button",
+              onClick: _cache[3] || (_cache[3] = ($event) => handleSendMessage("I want a consultation"))
+            }, " 📅 Book consultation ")
+          ])) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(unref(messages), (message2) => {
               return openBlock(), createBlock(_sfc_main$b, {
                 key: message2.id,
                 message: message2
               }, null, 8, ["message"]);
             }), 128)),
-            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_4, _cache[1] || (_cache[1] = [
+            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_4, _cache[6] || (_cache[6] = [
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1)
