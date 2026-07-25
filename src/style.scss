@@ -6,3 +6,18 @@
 *::after {
   box-sizing: border-box;
 }
+/* Apple Glass Effect */
+
+.tt-chat-window-wrapper .tt-chat-window {
+  background: rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-radius: 24px !important;
+}
+
+
+.tt-chat-header {
+  background: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
