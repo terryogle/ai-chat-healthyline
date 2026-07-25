@@ -3,17 +3,18 @@
   --tt-chat-primary-color: #111827;
   --tt-chat-secondary-color: #007AFF;
 
-  --tt-chat-bg: #FFFFFF;
+  /* Glass background */
+  --tt-chat-bg: rgba(255, 255, 255, 0.78);
 
   /* Messages */
   --tt-chat-user-bg: #007AFF;
-  --tt-chat-bot-bg: #F5F5F7;
+  --tt-chat-bot-bg: rgba(245, 245, 247, 0.85);
 
   --tt-chat-user-color: #FFFFFF;
   --tt-chat-bot-color: #1D1D1F;
 
   /* Header */
-  --tt-chat-header-bg: #FFFFFF;
+  --tt-chat-header-bg: rgba(255, 255, 255, 0.65);
   --tt-chat-header-color: #1D1D1F;
   --tt-chat-subheader-color: #6E6E73;
 
@@ -53,7 +54,7 @@
 
   --tt-chat-tooltip-border-color: #E5E5EA;
 
-  --tt-chat-tooltip-background: #FFFFFF;
+  --tt-chat-tooltip-background: rgba(255, 255, 255, 0.75);
 
   --tt-chat-tooltip-color: #1D1D1F;
 
@@ -73,6 +74,22 @@
 
   --tt-chat-input-line-height: 1.4;
 }
-/* TEST APPLE BUILD */
+
+
+/* TEST APPLE GLASS BUILD */
+
+.tt-chat-window-wrapper .tt-chat-window {
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+
+.tt-chat-header {
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
 
 /* TEST APPLE BUILD */
