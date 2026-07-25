@@ -26,8 +26,10 @@ jobs:
       - name: Build widget
         run: npm run build
 
-      - name: Save build files
-        uses: actions/upload-artifact@v4
-        with:
-          name: tt-chat-build
-          path: dist
+      - name: Update dist folder
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add dist
+          git commit -m "Update dist build" || echo "No changes"
+          git push
