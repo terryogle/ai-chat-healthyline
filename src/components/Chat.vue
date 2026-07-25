@@ -282,7 +282,41 @@ onMounted(async () => {
     
     <div ref="chatBodyRef" class="tt-chat-body">
       <div v-if="messages.length === 0" class="tt-chat-empty">
-        <p>Start a conversation!</p>
+        <p class="welcome-title">
+          Hi 👋 I'm HealthyLine AI
+        </p>
+
+        <p class="welcome-subtitle">
+          How can I help you today?
+        </p>
+
+        <button 
+          class="welcome-button"
+          @click="handleSendMessage('I want to find the right PEMF mat')"
+        >
+          🛏 Find the right mat
+        </button>
+
+        <button 
+          class="welcome-button"
+          @click="handleSendMessage('Tell me about PEMF technology')"
+        >
+          💡 Learn about PEMF
+        </button>
+
+        <button 
+          class="welcome-button"
+          @click="handleSendMessage('Show me product prices')"
+        >
+          💰 Product prices
+        </button>
+
+        <button 
+          class="welcome-button"
+          @click="handleSendMessage('I want a consultation')"
+        >
+          📅 Book consultation
+        </button>
       </div>
       
       <template v-else>
@@ -394,11 +428,48 @@ onMounted(async () => {
   
   &-empty {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100%;
-    color: #888;
-    font-style: italic;
+    gap: 12px;
+    
+    .welcome-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--tt-chat-header-color, #333);
+      margin: 0;
+    }
+    
+    .welcome-subtitle {
+      font-size: 18px;
+      color: var(--tt-chat-subheader-color, #666);
+      margin: 0 0 20px 0;
+    }
+    
+    .welcome-button {
+      padding: 12px 24px;
+      width: 80%;
+      max-width: 400px;
+      background-color: var(--tt-chat-button-bg, #f0f0f0);
+      color: var(--tt-chat-button-color, #333);
+      border: 1px solid var(--tt-chat-light-shade-100, #e0e0e0);
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      
+      &:hover {
+        background-color: var(--tt-chat-button-hover-bg, #e8e8e8);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+    }
   }
   
   &-footer {
