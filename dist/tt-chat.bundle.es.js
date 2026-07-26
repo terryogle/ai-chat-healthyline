@@ -36771,7 +36771,7 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
         }, [
           unref(messages).length === 0 ? (openBlock(), createElementBlock("div", _hoisted_3, [
             createBaseVNode("div", _hoisted_4, [
-              _cache[8] || (_cache[8] = createBaseVNode("h1", null, " Hi 👋 I'm HealthyLine AI test ", -1)),
+              _cache[8] || (_cache[8] = createBaseVNode("h1", null, " Hi 👋 I'm HealthyLine AI ", -1)),
               _cache[9] || (_cache[9] = createBaseVNode("p", null, " How can I help you today? ", -1)),
               _cache[10] || (_cache[10] = createBaseVNode("h3", { class: "quick-title" }, " Quick links ", -1)),
               createBaseVNode("button", {
