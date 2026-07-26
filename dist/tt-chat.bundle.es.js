@@ -36533,28 +36533,29 @@ const _hoisted_3 = {
   key: 0,
   class: "tt-chat-empty"
 };
-const _hoisted_4 = {
+const _hoisted_4 = { class: "welcome-box" };
+const _hoisted_5 = {
   key: 0,
   class: "tt-chat-typing"
 };
-const _hoisted_5 = { class: "tt-chat-footer" };
-const _hoisted_6 = {
+const _hoisted_6 = { class: "tt-chat-footer" };
+const _hoisted_7 = {
   key: 0,
   class: "tt-chat-privacy-container"
 };
-const _hoisted_7 = {
+const _hoisted_8 = {
   key: 1,
   class: "tt-chat-province-container"
 };
-const _hoisted_8 = {
+const _hoisted_9 = {
   key: 2,
   class: "tt-chat-datepicker-container"
 };
-const _hoisted_9 = {
+const _hoisted_10 = {
   key: 3,
   class: "tt-chat-input-component-container"
 };
-const _hoisted_10 = {
+const _hoisted_11 = {
   key: 4,
   class: "tt-chat-input-container"
 };
@@ -36769,24 +36770,22 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
           class: "tt-chat-body"
         }, [
           unref(messages).length === 0 ? (openBlock(), createElementBlock("div", _hoisted_3, [
-            _cache[4] || (_cache[4] = createBaseVNode("p", { class: "welcome-title" }, " Hi 👋 I'm HealthyLine AI ", -1)),
-            _cache[5] || (_cache[5] = createBaseVNode("p", { class: "welcome-subtitle" }, " How can I help you today? ", -1)),
-            createBaseVNode("button", {
-              class: "welcome-button",
-              onClick: _cache[0] || (_cache[0] = ($event) => handleSendMessage("I want to find the right PEMF mat"))
-            }, " 🛏 Find the right mat "),
-            createBaseVNode("button", {
-              class: "welcome-button",
-              onClick: _cache[1] || (_cache[1] = ($event) => handleSendMessage("Tell me about PEMF technology"))
-            }, " 💡 Learn about PEMF "),
-            createBaseVNode("button", {
-              class: "welcome-button",
-              onClick: _cache[2] || (_cache[2] = ($event) => handleSendMessage("Show me product prices"))
-            }, " 💰 Product prices "),
-            createBaseVNode("button", {
-              class: "welcome-button",
-              onClick: _cache[3] || (_cache[3] = ($event) => handleSendMessage("I want a consultation"))
-            }, " 📅 Book consultation ")
+            createBaseVNode("div", _hoisted_4, [
+              _cache[4] || (_cache[4] = createBaseVNode("h1", null, " Hi 👋 I'm HealthyLine AI ", -1)),
+              _cache[5] || (_cache[5] = createBaseVNode("p", null, " How can I help you today? ", -1)),
+              createBaseVNode("button", {
+                onClick: _cache[0] || (_cache[0] = ($event) => handleSendMessage("I want to find the right PEMF mat"))
+              }, " 🛏 Find the right mat "),
+              createBaseVNode("button", {
+                onClick: _cache[1] || (_cache[1] = ($event) => handleSendMessage("Tell me about PEMF technology"))
+              }, " 💡 Learn about PEMF "),
+              createBaseVNode("button", {
+                onClick: _cache[2] || (_cache[2] = ($event) => handleSendMessage("Show me product prices"))
+              }, " 💰 Product prices "),
+              createBaseVNode("button", {
+                onClick: _cache[3] || (_cache[3] = ($event) => handleSendMessage("I want a consultation"))
+              }, " 📅 Book consultation ")
+            ])
           ])) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(unref(messages), (message2) => {
               return openBlock(), createBlock(_sfc_main$b, {
@@ -36794,33 +36793,33 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
                 message: message2
               }, null, 8, ["message"]);
             }), 128)),
-            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_4, _cache[6] || (_cache[6] = [
+            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_5, _cache[6] || (_cache[6] = [
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1)
             ]))) : createCommentVNode("", true)
           ], 64))
         ], 512),
-        createBaseVNode("div", _hoisted_5, [
-          showPrivacyForm.value ? (openBlock(), createElementBlock("div", _hoisted_6, [
+        createBaseVNode("div", _hoisted_6, [
+          showPrivacyForm.value ? (openBlock(), createElementBlock("div", _hoisted_7, [
             createVNode(_sfc_main$7, {
               privacyUrl: (_a2 = currentPrivacyAction.value) == null ? void 0 : _a2.action,
               onConfirm: handlePrivacyConfirm
             }, null, 8, ["privacyUrl"])
-          ])) : showProvinceForm.value ? (openBlock(), createElementBlock("div", _hoisted_7, [
+          ])) : showProvinceForm.value ? (openBlock(), createElementBlock("div", _hoisted_8, [
             createVNode(_sfc_main$6, { onSelect: handleProvinceSelect })
-          ])) : showDatePicker.value ? (openBlock(), createElementBlock("div", _hoisted_8, [
+          ])) : showDatePicker.value ? (openBlock(), createElementBlock("div", _hoisted_9, [
             createVNode(_sfc_main$5, {
               label: (_b = currentDatePickerAction.value) == null ? void 0 : _b.label,
               onSelect: handleDateSelect
             }, null, 8, ["label"])
-          ])) : showInputComponent.value ? (openBlock(), createElementBlock("div", _hoisted_9, [
+          ])) : showInputComponent.value ? (openBlock(), createElementBlock("div", _hoisted_10, [
             createVNode(_sfc_main$4, {
               inputType: ((_c = currentInputAction.value) == null ? void 0 : _c.type) || "input_type_text",
               label: (_d = currentInputAction.value) == null ? void 0 : _d.label,
               onSubmit: handleInputSubmit
             }, null, 8, ["inputType", "label"])
-          ])) : (openBlock(), createElementBlock("div", _hoisted_10, [
+          ])) : (openBlock(), createElementBlock("div", _hoisted_11, [
             createVNode(_sfc_main$8, { onSend: handleSendMessage })
           ]))
         ])
