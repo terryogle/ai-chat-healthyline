@@ -243,7 +243,6 @@ onMounted(async () => {
     </div>
     
     <div ref="chatBodyRef" class="tt-chat-body">
-      <!-- ▼ ИЗМЕНЁННЫЙ БЛОК ▼ -->
       <div v-if="messages.length === 0" class="tt-chat-empty">
         <div class="welcome-box">
           <h1>
@@ -271,7 +270,6 @@ onMounted(async () => {
           </button>
         </div>
       </div>
-      <!-- ▲ ИЗМЕНЁННЫЙ БЛОК ▲ -->
       
       <template v-else>
         <ChatMessage
@@ -380,53 +378,6 @@ onMounted(async () => {
     justify-content: center;
     align-items: center;
     height: 100%;
-
-    .welcome-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      width: 100%;
-
-      h1 {
-        font-size: 28px;
-        font-weight: 600;
-        color: var(--tt-chat-header-color, #333);
-        margin: 0;
-        text-align: center;
-      }
-
-      p {
-        font-size: 18px;
-        color: var(--tt-chat-subheader-color, #666);
-        margin: 0 0 20px 0;
-        text-align: center;
-      }
-
-      button {
-        padding: 12px 24px;
-        width: 80%;
-        max-width: 400px;
-        background-color: var(--tt-chat-button-bg, #f0f0f0);
-        color: var(--tt-chat-button-color, #333);
-        border: 1px solid var(--tt-chat-light-shade-100, #e0e0e0);
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        text-align: left;
-        
-        &:hover {
-          background-color: var(--tt-chat-button-hover-bg, #e8e8e8);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        &:active {
-          transform: translateY(0);
-        }
-      }
-    }
   }
   
   &-footer {
@@ -478,6 +429,45 @@ onMounted(async () => {
   }
   50% {
     transform: translateY(-5px);
+  }
+}
+
+.welcome-box {
+  width: 100%;
+  max-width: 420px;
+  margin: auto;
+  text-align: center;
+  padding: 40px 20px;
+
+  h1 {
+    font-size: 36px;
+    font-weight: 600;
+    color: #24262b;
+    margin-bottom: 20px;
+  }
+
+  p {
+    font-size: 22px;
+    color: #777;
+    margin-bottom: 45px;
+  }
+
+  button {
+    width: 100%;
+    height: 52px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    border: 1px solid #e3e3e3;
+    background: #f5f5f5;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    transition: 0.2s;
+
+    &:hover {
+      background: #eeeeee;
+    }
   }
 }
 </style>
