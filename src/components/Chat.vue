@@ -16,31 +16,24 @@ const chatStore = useChat();
 const options = useOptions();
 const { messages, currentSessionId, waitingForResponse, sendMessage, startNewSession } = chatStore;
 
-// Stato per controllare la visualizzazione del form privacy
 const showPrivacyForm = ref(false);
 const currentPrivacyAction = ref<ChatAction | null>(null);
 
-// Stato per controllare la visualizzazione del form provincia
 const showProvinceForm = ref(false);
 const currentProvinceAction = ref<ChatAction | null>(null);
 
-// Stato per controllare la visualizzazione del datepicker
 const showDatePicker = ref(false);
 const currentDatePickerAction = ref<ChatAction | null>(null);
 
-// Stato per controllare la visualizzazione dell'input component
 const showInputComponent = ref(false);
 const currentInputAction = ref<ChatAction | null>(null);
 
 const lastProcessedMessageId = ref<string | null>(null);
-// Stato per memorizzare il valore callback
 const currentCallbackValue = ref<string | null>(null);
 
-// Computed properties per gli elementi UI
 const title = computed(() => options.value?.title || 'Chat');
 const subtitle = computed(() => options.value?.subtitle || 'How can I help you today?');
 
-// Funzione per scorrere in fondo alla chat
 function scrollToBottom() {
   nextTick(() => {
     if (chatBodyRef.value) {
@@ -49,7 +42,6 @@ function scrollToBottom() {
   });
 }
 
-// Funzione per gestire l'invio di un messaggio standard
 async function handleSendMessage(text: string, files: File[] = []) {
   if (!currentSessionId.value && startNewSession) {
     try {
@@ -66,16 +58,12 @@ async function handleSendMessage(text: string, files: File[] = []) {
   }
 }
 
-// Funzione per controllare un messaggio per azioni speciali (privacy, provincia, datepicker e input)
 function checkMessageForSpecialActions(message: ChatMessageType): void {
-  // Se il messaggio è già stato processato, esci
   if (message.id === lastProcessedMessageId.value) {
     return;
   }
   
-  // Se il messaggio contiene azioni, verifica se c'è un'azione speciale
   if (message?.actions && Array.isArray(message.actions)) {
-    // Controlla prima le azioni di privacy
     const privacyAction = message.actions.find(
       action => action && action.type === 'privacy'
     );
@@ -87,7 +75,6 @@ function checkMessageForSpecialActions(message: ChatMessageType): void {
       return;
     }
     
-    // Controlla le azioni di selezione provincia
     const provinceAction = message.actions.find(
       action => action && action.type === 'select_province'
     );
@@ -99,7 +86,6 @@ function checkMessageForSpecialActions(message: ChatMessageType): void {
       return;
     }
     
-    // Controlla le azioni del datepicker
     const datePickerAction = message.actions.find(
       action => action && action.type === 'datepicker'
     );
@@ -111,7 +97,6 @@ function checkMessageForSpecialActions(message: ChatMessageType): void {
       return;
     }
     
-    // Controlla le azioni di input (iniziano con "input_type_")
     const inputAction = message.actions.find(
       action => action && action.type.startsWith('input_type_')
     );
@@ -125,7 +110,6 @@ function checkMessageForSpecialActions(message: ChatMessageType): void {
   }
 }
 
-// Funzione per gestire la conferma di privacy
 async function handlePrivacyConfirm(privacyAccepted: boolean) {
   console.log("Privacy:", privacyAccepted);
   
@@ -138,9 +122,7 @@ async function handlePrivacyConfirm(privacyAccepted: boolean) {
   }
   
   try {
-    // Invia la risposta di privacy con un messaggio vuoto
     await sendMessage('', [], privacyAccepted);
-    // Nascondi il form di privacy
     showPrivacyForm.value = false;
     currentPrivacyAction.value = null;
   } catch (error) {
@@ -148,7 +130,6 @@ async function handlePrivacyConfirm(privacyAccepted: boolean) {
   }
 }
 
-// Funzione per gestire la selezione della provincia
 async function handleProvinceSelect(province: string) {
   console.log("Provincia selezionata:", province);
   
@@ -161,9 +142,7 @@ async function handleProvinceSelect(province: string) {
   }
   
   try {
-    // Invia la provincia selezionata come messaggio
     await sendMessage(province, []);
-    // Nascondi il form di selezione provincia
     showProvinceForm.value = false;
     currentProvinceAction.value = null;
   } catch (error) {
@@ -171,7 +150,6 @@ async function handleProvinceSelect(province: string) {
   }
 }
 
-// Funzione per gestire la selezione della data
 async function handleDateSelect(date: string) {
   console.log("Data selezionata:", date);
   
@@ -184,9 +162,7 @@ async function handleDateSelect(date: string) {
   }
   
   try {
-    // Invia la data selezionata come messaggio
     await sendMessage(date, []);
-    // Nascondi il datepicker
     showDatePicker.value = false;
     currentDatePickerAction.value = null;
   } catch (error) {
@@ -194,7 +170,6 @@ async function handleDateSelect(date: string) {
   }
 }
 
-// Funzione per gestire il submit dell'input component
 async function handleInputSubmit(value: string) {
   console.log("Input inviato:", value);
   
@@ -207,9 +182,7 @@ async function handleInputSubmit(value: string) {
   }
   
   try {
-    // Invia il valore dell'input come messaggio
     await sendMessage(value, []);
-    // Nascondi l'input component
     showInputComponent.value = false;
     currentInputAction.value = null;
   } catch (error) {
@@ -217,54 +190,43 @@ async function handleInputSubmit(value: string) {
   }
 }
 
-// Controlla i nuovi messaggi per le azioni speciali
 watch(messages, (newMessages) => {
   scrollToBottom();
   
-  // Se ci sono messaggi
   if (newMessages.length > 0) {
-    // Controlla l'ultimo messaggio
     const latestMessage = newMessages[newMessages.length - 1];
     checkMessageForSpecialActions(latestMessage);
   }
 }, { deep: true });
 
-// Inizializzazione della chat
 onMounted(async () => {
   try {
     console.log("Chat component mounted, initializing...");
-    // Se c'è una sessione precedente, caricala
     if (options.value?.loadPreviousSession !== false && chatStore.loadPreviousSession) {
       console.log("Attempting to load previous session...");
       await chatStore.loadPreviousSession();
       console.log("Session loaded:", currentSessionId.value, "Messages:", messages.value.length);
     } 
-    // Se non è possibile caricare una sessione precedente, avvia una nuova sessione
     else if (chatStore.startNewSession) {
       console.log("Starting new session...");
       await chatStore.startNewSession();
       console.log("New session started:", currentSessionId.value);
     }
 
-    // Nel caso in cui non sia stato ancora impostato l'ID di sessione, forzane la creazione
     if (!currentSessionId.value && startNewSession) {
       console.log("Forcing new session creation...");
       await startNewSession();
       console.log("Forced session:", currentSessionId.value);
     }
     
-    // Controlla tutti i messaggi esistenti per azioni speciali
     if (messages.value.length > 0) {
-      // Controlla solo l'ultimo messaggio per semplicità
       const latestMessage = messages.value[messages.value.length - 1];
       checkMessageForSpecialActions(latestMessage);
     }
     
-    // Scorri in fondo alla chat dopo l'inizializzazione
     scrollToBottom();
   } catch (error) {
     console.error('Error initializing chat:', error);
-    // In caso di errore, tenta di iniziare una nuova sessione
     if (chatStore.startNewSession) {
       await chatStore.startNewSession();
     }
@@ -281,43 +243,35 @@ onMounted(async () => {
     </div>
     
     <div ref="chatBodyRef" class="tt-chat-body">
+      <!-- ▼ ИЗМЕНЁННЫЙ БЛОК ▼ -->
       <div v-if="messages.length === 0" class="tt-chat-empty">
-        <p class="welcome-title">
-          Hi 👋 I'm HealthyLine AI
-        </p>
+        <div class="welcome-box">
+          <h1>
+            Hi 👋 I'm HealthyLine AI
+          </h1>
 
-        <p class="welcome-subtitle">
-          How can I help you today?
-        </p>
+          <p>
+            How can I help you today?
+          </p>
 
-        <button 
-          class="welcome-button"
-          @click="handleSendMessage('I want to find the right PEMF mat')"
-        >
-          🛏 Find the right mat
-        </button>
+          <button @click="handleSendMessage('I want to find the right PEMF mat')">
+            🛏 Find the right mat
+          </button>
 
-        <button 
-          class="welcome-button"
-          @click="handleSendMessage('Tell me about PEMF technology')"
-        >
-          💡 Learn about PEMF
-        </button>
+          <button @click="handleSendMessage('Tell me about PEMF technology')">
+            💡 Learn about PEMF
+          </button>
 
-        <button 
-          class="welcome-button"
-          @click="handleSendMessage('Show me product prices')"
-        >
-          💰 Product prices
-        </button>
+          <button @click="handleSendMessage('Show me product prices')">
+            💰 Product prices
+          </button>
 
-        <button 
-          class="welcome-button"
-          @click="handleSendMessage('I want a consultation')"
-        >
-          📅 Book consultation
-        </button>
+          <button @click="handleSendMessage('I want a consultation')">
+            📅 Book consultation
+          </button>
+        </div>
       </div>
+      <!-- ▲ ИЗМЕНЁННЫЙ БЛОК ▲ -->
       
       <template v-else>
         <ChatMessage
@@ -326,7 +280,6 @@ onMounted(async () => {
           :message="message"
         />
         
-        <!-- Indicatore di digitazione -->
         <div v-if="waitingForResponse" class="tt-chat-typing">
           <div class="tt-chat-typing-dot"></div>
           <div class="tt-chat-typing-dot"></div>
@@ -336,7 +289,6 @@ onMounted(async () => {
     </div>
     
     <div class="tt-chat-footer">
-      <!-- Form di privacy quando richiesto -->
       <div v-if="showPrivacyForm" class="tt-chat-privacy-container">
         <ConfirmPrivacy 
           :privacyUrl="currentPrivacyAction?.action"
@@ -344,14 +296,12 @@ onMounted(async () => {
         />
       </div>
       
-      <!-- Form di selezione provincia quando richiesto -->
       <div v-else-if="showProvinceForm" class="tt-chat-province-container">
         <SelectProvince 
           @select="handleProvinceSelect"
         />
       </div>
       
-      <!-- Datepicker quando richiesto -->
       <div v-else-if="showDatePicker" class="tt-chat-datepicker-container">
         <Datepicker 
           :label="currentDatePickerAction?.label"
@@ -359,7 +309,6 @@ onMounted(async () => {
         />
       </div>
       
-      <!-- Input component quando richiesto -->
       <div v-else-if="showInputComponent" class="tt-chat-input-component-container">
         <SpecialInput 
           :inputType="currentInputAction?.type || 'input_type_text'"
@@ -368,7 +317,6 @@ onMounted(async () => {
         />
       </div>
       
-      <!-- Form standard in tutti gli altri casi -->
       <div v-else class="tt-chat-input-container">
         <ChatInput @send="handleSendMessage" />
       </div>
@@ -432,42 +380,51 @@ onMounted(async () => {
     justify-content: center;
     align-items: center;
     height: 100%;
-    gap: 12px;
-    
-    .welcome-title {
-      font-size: 28px;
-      font-weight: 600;
-      color: var(--tt-chat-header-color, #333);
-      margin: 0;
-    }
-    
-    .welcome-subtitle {
-      font-size: 18px;
-      color: var(--tt-chat-subheader-color, #666);
-      margin: 0 0 20px 0;
-    }
-    
-    .welcome-button {
-      padding: 12px 24px;
-      width: 80%;
-      max-width: 400px;
-      background-color: var(--tt-chat-button-bg, #f0f0f0);
-      color: var(--tt-chat-button-color, #333);
-      border: 1px solid var(--tt-chat-light-shade-100, #e0e0e0);
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-align: left;
-      
-      &:hover {
-        background-color: var(--tt-chat-button-hover-bg, #e8e8e8);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    .welcome-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+
+      h1 {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--tt-chat-header-color, #333);
+        margin: 0;
+        text-align: center;
       }
-      
-      &:active {
-        transform: translateY(0);
+
+      p {
+        font-size: 18px;
+        color: var(--tt-chat-subheader-color, #666);
+        margin: 0 0 20px 0;
+        text-align: center;
+      }
+
+      button {
+        padding: 12px 24px;
+        width: 80%;
+        max-width: 400px;
+        background-color: var(--tt-chat-button-bg, #f0f0f0);
+        color: var(--tt-chat-button-color, #333);
+        border: 1px solid var(--tt-chat-light-shade-100, #e0e0e0);
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+        
+        &:hover {
+          background-color: var(--tt-chat-button-hover-bg, #e8e8e8);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        &:active {
+          transform: translateY(0);
+        }
       }
     }
   }
