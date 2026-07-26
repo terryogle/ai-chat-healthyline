@@ -202,8 +202,7 @@ onMounted(async () => {
     <div ref="chatBodyRef" class="tt-chat-body">
       <div v-if="messages.length === 0" class="tt-chat-empty">
         <div class="welcome-box">
-
-          <h1>Hi There, I'm HealthyLine AI</h1>
+          <h1>HealthyLine AI Assistant</h1>
           <p>How can I help you today?</p>
 
           <div class="quick-card">
