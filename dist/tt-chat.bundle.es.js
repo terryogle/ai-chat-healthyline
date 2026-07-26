@@ -17196,50 +17196,10 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const defaultOpenChatIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='35px'%20height='30px'%20viewBox='0%200%2035%2030'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3echat%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%3e%3cg%20id='ChatBOT-chiuso'%20transform='translate(-1542,%20-1022)'%3e%3cg%20id='chat'%20transform='translate(1542,%201022)'%3e%3cpath%20d='M3.75,0%20C1.67925,0%200,1.67925%200,3.75%20L0,21.75%20L6.82470675,17.25%20L20.25,17.25%20C22.32075,17.25%2024,15.57075%2024,13.5%20L24,0%20L3.75,0%20Z'%20id='Shape'%20fill='%23FFFFFF'%20fill-rule='nonzero'%3e%3c/path%3e%3cpath%20d='M26.25,7.5%20L26.25,13.5%20C26.25,16.8075%2023.5575,19.5%2020.25,19.5%20L10.5,19.5%20L10.5,21.75%20C10.5,23.82%2012.18,25.5%2014.25,25.5%20L27.6752932,25.5%20L34.5,30%20L34.5,11.25%20C34.5,9.18%2032.82,7.5%2030.75,7.5%20L26.25,7.5%20Z'%20id='Path'%20fill='%23F3B83B'%3e%3c/path%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
-const defaultCloseChatIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='30px'%20height='30px'%20viewBox='0%200%2030%2030'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3ePath%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%3e%3cg%20id='ChatBOT'%20transform='translate(-1544,%20-1019)'%20fill='%23FFFFFF'%20fill-rule='nonzero'%3e%3cg%20id='Group-5-Copy'%20transform='translate(1192,%20680)'%3e%3cpolygon%20id='Path'%20transform='translate(367.0321,%20354)%20rotate(-315)%20translate(-367.0321,%20-354)'%20points='369.051282%20364%20357%20364%20357%20355.987179%20369.051282%20355.987179%20369.051282%20344%20377.064103%20344%20377.064103%20355.987179%20377.064103%20364'%3e%3c/polygon%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
 const defaultSendIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='24px'%20height='24px'%20viewBox='0%200%2024%2024'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3einvia%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%3e%3cg%20id='ChatBOT-aperto'%20transform='translate(-1545,%20-946)'%20fill='%23FF0000'%20fill-rule='nonzero'%3e%3cg%20id='Group-5'%20transform='translate(1192,%20425)'%3e%3cpath%20d='M376,521%20C375.904026,521.000658%20375.808647,521.01513%20375.716797,521.042969%20C375.68976,521.050307%20375.663044,521.058778%20375.636719,521.068359%20L353.650391,528.060547%20L353.650391,528.064453%20C353.259759,528.21022%20353.000562,528.583058%20353,529%20C353.000741,529.349225%20353.183611,529.672765%20353.482422,529.853516%20L360.164062,535.154297%20L373.373047,524.626953%20L362.845703,537.835938%20L368.142578,544.513672%20C368.323084,544.815172%20368.648596,545%20369,545%20C369.416943,544.999438%20369.78978,544.740241%20369.935547,544.349609%20L369.939453,544.349609%20L376.9375,522.34375%20C376.944651,522.32378%20376.951164,522.303587%20376.957031,522.283203%20C376.98487,522.191353%20376.999342,522.095974%20377,522%20C377,521.447715%20376.552285,521%20376,521%20Z'%20id='invia'%3e%3c/path%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
-const defaultHeaderLogoIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='116px'%20height='120px'%20viewBox='0%200%20116%20120'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3elogoTT%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%20opacity='0.2'%3e%3cg%20id='ChatBOT'%20transform='translate(-1474,%20-681)'%3e%3cg%20id='Group-5-Copy'%20transform='translate(1192,%20680)'%3e%3cg%20id='Group-7'%20transform='translate(1,%201)'%3e%3cg%20id='logoTT'%20transform='translate(281,%200)'%3e%3cpolygon%20id='Fill-1'%20fill='%23FFBB2C'%20points='89%2022%20116%2022%20116%200%2089%200'%3e%3c/polygon%3e%3cpath%20d='M30.8086314,0%20L30.8086314,22.414809%20L58.4573796,22.414809%20L58.4573796,92.2952943%20L84,92.2952943%20L84,33.2264352%20L84,22.414809%20L84,0%20L30.8086314,0%20Z%20M0,27.7047057%20L0,50.1192838%20L27.6487481,50.1192838%20L27.6487481,120%20L53.191138,120%20L53.191138,60.931141%20L53.191138,50.1192838%20L53.191138,27.7047057%20L0,27.7047057%20Z'%20id='Fill-2'%20fill='%23FFFFFF'%3e%3c/path%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
-const _hoisted_1$a = ["src", "alt"];
-const _sfc_main$a = /* @__PURE__ */ defineComponent({
-  __name: "IconLoader",
-  props: {
-    name: {},
-    alt: {},
-    className: {}
-  },
-  setup(__props) {
-    const options = useOptions();
-    const props = __props;
-    const defaultIcons = {
-      openChat: defaultOpenChatIcon,
-      closeChat: defaultCloseChatIcon,
-      send: defaultSendIcon,
-      headerLogo: defaultHeaderLogoIcon
-    };
-    const iconSrc = computed(() => {
-      var _a2, _b;
-      return ((_b = (_a2 = options.value) == null ? void 0 : _a2.icons) == null ? void 0 : _b[props.name]) || defaultIcons[props.name];
-    });
-    const defaultAltTexts = {
-      openChat: "Apri chat",
-      closeChat: "Chiudi chat",
-      send: "Invia messaggio",
-      headerLogo: "Logo"
-    };
-    const altText = computed(() => props.alt || defaultAltTexts[props.name]);
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("img", {
-        src: iconSrc.value,
-        alt: altText.value,
-        class: normalizeClass(_ctx.className)
-      }, null, 10, _hoisted_1$a);
-    };
-  }
-});
-const _hoisted_1$9 = ["disabled"];
+const _hoisted_1$a = ["disabled"];
 const _hoisted_2$7 = ["src"];
-const _sfc_main$9 = /* @__PURE__ */ defineComponent({
+const _sfc_main$a = /* @__PURE__ */ defineComponent({
   __name: "ButtonSend",
   props: {
     disabled: { type: Boolean }
@@ -17262,11 +17222,11 @@ const _sfc_main$9 = /* @__PURE__ */ defineComponent({
           alt: "Send message",
           class: "tt-chat-send-button"
         }, null, 8, _hoisted_2$7)
-      ], 8, _hoisted_1$9);
+      ], 8, _hoisted_1$a);
     };
   }
 });
-const _hoisted_1$8 = { class: "tt-chat-input" };
+const _hoisted_1$9 = { class: "tt-chat-input" };
 const _hoisted_2$6 = ["placeholder"];
 const _hoisted_3$5 = { class: "tt-chat-input-controls" };
 const _hoisted_4$4 = ["disabled"];
@@ -17279,7 +17239,7 @@ const _hoisted_6$2 = {
   key: 0,
   class: "tt-chat-files-preview"
 };
-const _sfc_main$8 = /* @__PURE__ */ defineComponent({
+const _sfc_main$9 = /* @__PURE__ */ defineComponent({
   __name: "ChatInput",
   emits: ["send"],
   setup(__props, { emit: __emit }) {
@@ -17331,7 +17291,7 @@ const _sfc_main$8 = /* @__PURE__ */ defineComponent({
       textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`;
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$8, [
+      return openBlock(), createElementBlock("div", _hoisted_1$9, [
         withDirectives(createBaseVNode("textarea", {
           ref_key: "textareaRef",
           ref: textareaRef,
@@ -17352,7 +17312,7 @@ const _sfc_main$8 = /* @__PURE__ */ defineComponent({
             class: "tt-chat-file-input"
           }, null, 40, _hoisted_4$4)) : createCommentVNode("", true),
           allowFileUploads.value ? (openBlock(), createElementBlock("label", _hoisted_5$3, " 📎 ")) : createCommentVNode("", true),
-          createVNode(_sfc_main$9, {
+          createVNode(_sfc_main$a, {
             onClick: onSubmit,
             disabled: isSubmitDisabled.value
           }, null, 8, ["disabled"])
@@ -17369,14 +17329,14 @@ const _sfc_main$8 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$7 = { class: "tt-chat-privacy" };
+const _hoisted_1$8 = { class: "tt-chat-privacy" };
 const _hoisted_2$5 = { class: "tt-chat-privacy-message" };
 const _hoisted_3$4 = ["href"];
 const _hoisted_4$3 = { class: "tt-chat-privacy-options" };
 const _hoisted_5$2 = { class: "tt-chat-privacy-option" };
 const _hoisted_6$1 = { class: "tt-chat-privacy-option" };
 const _hoisted_7$1 = ["disabled"];
-const _sfc_main$7 = /* @__PURE__ */ defineComponent({
+const _sfc_main$8 = /* @__PURE__ */ defineComponent({
   __name: "ConfirmPrivacy",
   props: {
     privacyUrl: {}
@@ -17389,7 +17349,7 @@ const _sfc_main$7 = /* @__PURE__ */ defineComponent({
       emit2("confirm", selectedOption.value === "accept");
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$7, [
+      return openBlock(), createElementBlock("div", _hoisted_1$8, [
         createBaseVNode("div", _hoisted_2$5, [
           _cache[2] || (_cache[2] = createTextVNode(" Per contattarla è necessario accettare l'utilizzo dei dati secondo la nostra ", -1)),
           _ctx.privacyUrl ? (openBlock(), createElementBlock("a", {
@@ -18203,10 +18163,10 @@ function ve(e, t, s, n, l, i) {
   ], 10, he);
 }
 const Ce$1 = /* @__PURE__ */ S(de, [["render", ve]]);
-const _hoisted_1$6 = { class: "tt-chat-province" };
+const _hoisted_1$7 = { class: "tt-chat-province" };
 const _hoisted_2$4 = { class: "tt-chat-province-select" };
 const _hoisted_3$3 = ["disabled"];
-const _sfc_main$6 = /* @__PURE__ */ defineComponent({
+const _sfc_main$7 = /* @__PURE__ */ defineComponent({
   __name: "SelectProvince",
   emits: ["select"],
   setup(__props, { emit: __emit }) {
@@ -18327,7 +18287,7 @@ const _sfc_main$6 = /* @__PURE__ */ defineComponent({
       }
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$6, [
+      return openBlock(), createElementBlock("div", _hoisted_1$7, [
         _cache[1] || (_cache[1] = createBaseVNode("div", { class: "tt-chat-province-message" }, " Seleziona la tua provincia: ", -1)),
         createBaseVNode("div", _hoisted_2$4, [
           createVNode(unref(Ce$1), {
@@ -26898,11 +26858,11 @@ const io = ({
 Object.entries(To).forEach(([e, t]) => {
   e !== "default" && (Qn[e] = t);
 });
-const _hoisted_1$5 = { class: "tt-chat-datepicker" };
+const _hoisted_1$6 = { class: "tt-chat-datepicker" };
 const _hoisted_2$3 = { class: "tt-chat-datepicker-message" };
 const _hoisted_3$2 = { class: "tt-chat-datepicker-input" };
 const _hoisted_4$2 = ["disabled"];
-const _sfc_main$5 = /* @__PURE__ */ defineComponent({
+const _sfc_main$6 = /* @__PURE__ */ defineComponent({
   __name: "Datepicker",
   props: {
     label: {}
@@ -26918,7 +26878,7 @@ const _sfc_main$5 = /* @__PURE__ */ defineComponent({
       }
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$5, [
+      return openBlock(), createElementBlock("div", _hoisted_1$6, [
         createBaseVNode("div", _hoisted_2$3, toDisplayString(_ctx.label || "Seleziona una data:"), 1),
         createBaseVNode("div", _hoisted_3$2, [
           createVNode(unref(Qn), {
@@ -36398,12 +36358,12 @@ var intlTelInputWithUtils = { exports: {} };
 })(intlTelInputWithUtils);
 var intlTelInputWithUtilsExports = intlTelInputWithUtils.exports;
 const intlTelInput = /* @__PURE__ */ getDefaultExportFromCjs(intlTelInputWithUtilsExports);
-const _hoisted_1$4 = { class: "tt-chat-input-component" };
+const _hoisted_1$5 = { class: "tt-chat-input-component" };
 const _hoisted_2$2 = { class: "tt-chat-input-component-message" };
 const _hoisted_3$1 = { class: "tt-chat-input-component-field" };
 const _hoisted_4$1 = ["type", "placeholder"];
 const _hoisted_5$1 = ["disabled"];
-const _sfc_main$4 = /* @__PURE__ */ defineComponent({
+const _sfc_main$5 = /* @__PURE__ */ defineComponent({
   __name: "SpecialInput",
   props: {
     inputType: {},
@@ -36499,7 +36459,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
       }
     });
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$4, [
+      return openBlock(), createElementBlock("div", _hoisted_1$5, [
         createBaseVNode("div", _hoisted_2$2, toDisplayString(_ctx.label || "Inserisci le informazioni richieste:"), 1),
         createBaseVNode("div", _hoisted_3$1, [
           htmlInputType.value === "tel" ? withDirectives((openBlock(), createElementBlock("input", {
@@ -36532,40 +36492,39 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$3 = { class: "tt-chat" };
-const _hoisted_2$1 = { class: "tt-chat-header" };
-const _hoisted_3 = {
+const _hoisted_1$4 = { class: "tt-chat" };
+const _hoisted_2$1 = {
   key: 0,
   class: "tt-chat-empty"
 };
-const _hoisted_4 = { class: "welcome-box" };
-const _hoisted_5 = { class: "quick-card" };
-const _hoisted_6 = {
+const _hoisted_3 = { class: "welcome-box" };
+const _hoisted_4 = { class: "quick-card" };
+const _hoisted_5 = {
   key: 0,
   class: "tt-chat-typing"
 };
-const _hoisted_7 = { class: "tt-chat-footer" };
-const _hoisted_8 = {
+const _hoisted_6 = { class: "tt-chat-footer" };
+const _hoisted_7 = {
   key: 0,
   class: "tt-chat-privacy-container"
 };
-const _hoisted_9 = {
+const _hoisted_8 = {
   key: 1,
   class: "tt-chat-province-container"
 };
-const _hoisted_10 = {
+const _hoisted_9 = {
   key: 2,
   class: "tt-chat-datepicker-container"
 };
-const _hoisted_11 = {
+const _hoisted_10 = {
   key: 3,
   class: "tt-chat-input-component-container"
 };
-const _hoisted_12 = {
+const _hoisted_11 = {
   key: 4,
   class: "tt-chat-input-container"
 };
-const _sfc_main$3 = /* @__PURE__ */ defineComponent({
+const _sfc_main$4 = /* @__PURE__ */ defineComponent({
   __name: "Chat",
   setup(__props) {
     const chatBodyRef = ref(null);
@@ -36582,11 +36541,11 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
     const currentInputAction = ref(null);
     const lastProcessedMessageId = ref(null);
     ref(null);
-    const title = computed(() => {
+    computed(() => {
       var _a2;
       return ((_a2 = options.value) == null ? void 0 : _a2.title) || "Chat";
     });
-    const subtitle = computed(() => {
+    computed(() => {
       var _a2;
       return ((_a2 = options.value) == null ? void 0 : _a2.subtitle) || "How can I help you today?";
     });
@@ -36750,25 +36709,19 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
     });
     return (_ctx, _cache) => {
       var _a2, _b, _c, _d;
-      return openBlock(), createElementBlock("div", _hoisted_1$3, [
-        createBaseVNode("div", _hoisted_2$1, [
-          createBaseVNode("h2", null, toDisplayString(title.value), 1),
-          createBaseVNode("p", null, toDisplayString(subtitle.value), 1),
-          createVNode(_sfc_main$a, {
-            name: "headerLogo",
-            className: "tt-chat-header-logo"
-          })
-        ]),
+      return openBlock(), createElementBlock("div", _hoisted_1$4, [
+        _cache[12] || (_cache[12] = createBaseVNode("div", { class: "tt-chat-header" }, [
+          createBaseVNode("h2", null, "HealthyLine AI Assistant"),
+          createBaseVNode("p", null, "How can I help you today?")
+        ], -1)),
         createBaseVNode("div", {
           ref_key: "chatBodyRef",
           ref: chatBodyRef,
           class: "tt-chat-body"
         }, [
-          unref(messages).length === 0 ? (openBlock(), createElementBlock("div", _hoisted_3, [
-            createBaseVNode("div", _hoisted_4, [
-              _cache[11] || (_cache[11] = createBaseVNode("h1", null, "HealthyLine AI Assistant", -1)),
-              _cache[12] || (_cache[12] = createBaseVNode("p", null, "How can I help you today?", -1)),
-              createBaseVNode("div", _hoisted_5, [
+          unref(messages).length === 0 ? (openBlock(), createElementBlock("div", _hoisted_2$1, [
+            createBaseVNode("div", _hoisted_3, [
+              createBaseVNode("div", _hoisted_4, [
                 _cache[10] || (_cache[10] = createBaseVNode("h3", { class: "quick-title" }, "Quick links", -1)),
                 createBaseVNode("button", {
                   class: "quick-item",
@@ -36809,37 +36762,77 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
                 message: message2
               }, null, 8, ["message"]);
             }), 128)),
-            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_6, _cache[13] || (_cache[13] = [
+            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_5, _cache[11] || (_cache[11] = [
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1)
             ]))) : createCommentVNode("", true)
           ], 64))
         ], 512),
-        createBaseVNode("div", _hoisted_7, [
-          showPrivacyForm.value ? (openBlock(), createElementBlock("div", _hoisted_8, [
-            createVNode(_sfc_main$7, {
+        createBaseVNode("div", _hoisted_6, [
+          showPrivacyForm.value ? (openBlock(), createElementBlock("div", _hoisted_7, [
+            createVNode(_sfc_main$8, {
               privacyUrl: (_a2 = currentPrivacyAction.value) == null ? void 0 : _a2.action,
               onConfirm: handlePrivacyConfirm
             }, null, 8, ["privacyUrl"])
-          ])) : showProvinceForm.value ? (openBlock(), createElementBlock("div", _hoisted_9, [
-            createVNode(_sfc_main$6, { onSelect: handleProvinceSelect })
-          ])) : showDatePicker.value ? (openBlock(), createElementBlock("div", _hoisted_10, [
-            createVNode(_sfc_main$5, {
+          ])) : showProvinceForm.value ? (openBlock(), createElementBlock("div", _hoisted_8, [
+            createVNode(_sfc_main$7, { onSelect: handleProvinceSelect })
+          ])) : showDatePicker.value ? (openBlock(), createElementBlock("div", _hoisted_9, [
+            createVNode(_sfc_main$6, {
               label: (_b = currentDatePickerAction.value) == null ? void 0 : _b.label,
               onSelect: handleDateSelect
             }, null, 8, ["label"])
-          ])) : showInputComponent.value ? (openBlock(), createElementBlock("div", _hoisted_11, [
-            createVNode(_sfc_main$4, {
+          ])) : showInputComponent.value ? (openBlock(), createElementBlock("div", _hoisted_10, [
+            createVNode(_sfc_main$5, {
               inputType: ((_c = currentInputAction.value) == null ? void 0 : _c.type) || "input_type_text",
               label: (_d = currentInputAction.value) == null ? void 0 : _d.label,
               onSubmit: handleInputSubmit
             }, null, 8, ["inputType", "label"])
-          ])) : (openBlock(), createElementBlock("div", _hoisted_12, [
-            createVNode(_sfc_main$8, { onSend: handleSendMessage })
+          ])) : (openBlock(), createElementBlock("div", _hoisted_11, [
+            createVNode(_sfc_main$9, { onSend: handleSendMessage })
           ]))
         ])
       ]);
+    };
+  }
+});
+const defaultOpenChatIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='35px'%20height='30px'%20viewBox='0%200%2035%2030'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3echat%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%3e%3cg%20id='ChatBOT-chiuso'%20transform='translate(-1542,%20-1022)'%3e%3cg%20id='chat'%20transform='translate(1542,%201022)'%3e%3cpath%20d='M3.75,0%20C1.67925,0%200,1.67925%200,3.75%20L0,21.75%20L6.82470675,17.25%20L20.25,17.25%20C22.32075,17.25%2024,15.57075%2024,13.5%20L24,0%20L3.75,0%20Z'%20id='Shape'%20fill='%23FFFFFF'%20fill-rule='nonzero'%3e%3c/path%3e%3cpath%20d='M26.25,7.5%20L26.25,13.5%20C26.25,16.8075%2023.5575,19.5%2020.25,19.5%20L10.5,19.5%20L10.5,21.75%20C10.5,23.82%2012.18,25.5%2014.25,25.5%20L27.6752932,25.5%20L34.5,30%20L34.5,11.25%20C34.5,9.18%2032.82,7.5%2030.75,7.5%20L26.25,7.5%20Z'%20id='Path'%20fill='%23F3B83B'%3e%3c/path%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
+const defaultCloseChatIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='30px'%20height='30px'%20viewBox='0%200%2030%2030'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3ePath%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%3e%3cg%20id='ChatBOT'%20transform='translate(-1544,%20-1019)'%20fill='%23FFFFFF'%20fill-rule='nonzero'%3e%3cg%20id='Group-5-Copy'%20transform='translate(1192,%20680)'%3e%3cpolygon%20id='Path'%20transform='translate(367.0321,%20354)%20rotate(-315)%20translate(-367.0321,%20-354)'%20points='369.051282%20364%20357%20364%20357%20355.987179%20369.051282%20355.987179%20369.051282%20344%20377.064103%20344%20377.064103%20355.987179%20377.064103%20364'%3e%3c/polygon%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
+const defaultHeaderLogoIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='116px'%20height='120px'%20viewBox='0%200%20116%20120'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3elogoTT%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%20opacity='0.2'%3e%3cg%20id='ChatBOT'%20transform='translate(-1474,%20-681)'%3e%3cg%20id='Group-5-Copy'%20transform='translate(1192,%20680)'%3e%3cg%20id='Group-7'%20transform='translate(1,%201)'%3e%3cg%20id='logoTT'%20transform='translate(281,%200)'%3e%3cpolygon%20id='Fill-1'%20fill='%23FFBB2C'%20points='89%2022%20116%2022%20116%200%2089%200'%3e%3c/polygon%3e%3cpath%20d='M30.8086314,0%20L30.8086314,22.414809%20L58.4573796,22.414809%20L58.4573796,92.2952943%20L84,92.2952943%20L84,33.2264352%20L84,22.414809%20L84,0%20L30.8086314,0%20Z%20M0,27.7047057%20L0,50.1192838%20L27.6487481,50.1192838%20L27.6487481,120%20L53.191138,120%20L53.191138,60.931141%20L53.191138,50.1192838%20L53.191138,27.7047057%20L0,27.7047057%20Z'%20id='Fill-2'%20fill='%23FFFFFF'%3e%3c/path%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
+const _hoisted_1$3 = ["src", "alt"];
+const _sfc_main$3 = /* @__PURE__ */ defineComponent({
+  __name: "IconLoader",
+  props: {
+    name: {},
+    alt: {},
+    className: {}
+  },
+  setup(__props) {
+    const options = useOptions();
+    const props = __props;
+    const defaultIcons = {
+      openChat: defaultOpenChatIcon,
+      closeChat: defaultCloseChatIcon,
+      send: defaultSendIcon,
+      headerLogo: defaultHeaderLogoIcon
+    };
+    const iconSrc = computed(() => {
+      var _a2, _b;
+      return ((_b = (_a2 = options.value) == null ? void 0 : _a2.icons) == null ? void 0 : _b[props.name]) || defaultIcons[props.name];
+    });
+    const defaultAltTexts = {
+      openChat: "Apri chat",
+      closeChat: "Chiudi chat",
+      send: "Invia messaggio",
+      headerLogo: "Logo"
+    };
+    const altText = computed(() => props.alt || defaultAltTexts[props.name]);
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("img", {
+        src: iconSrc.value,
+        alt: altText.value,
+        class: normalizeClass(_ctx.className)
+      }, null, 10, _hoisted_1$3);
     };
   }
 });
@@ -36880,7 +36873,7 @@ const _sfc_main$2 = /* @__PURE__ */ defineComponent({
           class: "tt-chat-toggle",
           onClick: toggleChat
         }, [
-          createVNode(_sfc_main$a, {
+          createVNode(_sfc_main$3, {
             name: iconName.value,
             className: "tt-chat-toggle-icon"
           }, null, 8, ["name"])
@@ -36906,7 +36899,7 @@ const _sfc_main$1 = /* @__PURE__ */ defineComponent({
         createVNode(Transition, { name: "tt-chat-window-transition" }, {
           default: withCtx(() => [
             isOpen.value ? (openBlock(), createElementBlock("div", _hoisted_2, [
-              createVNode(_sfc_main$3)
+              createVNode(_sfc_main$4)
             ])) : createCommentVNode("", true)
           ]),
           _: 1
@@ -36930,7 +36923,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", _hoisted_1, [
-        mode.value === "fullscreen" ? (openBlock(), createBlock(_sfc_main$3, { key: 0 })) : (openBlock(), createBlock(_sfc_main$1, { key: 1 }))
+        mode.value === "fullscreen" ? (openBlock(), createBlock(_sfc_main$4, { key: 0 })) : (openBlock(), createBlock(_sfc_main$1, { key: 1 }))
       ]);
     };
   }
@@ -36980,15 +36973,15 @@ function createChat(options) {
   };
 }
 export {
-  _sfc_main$3 as Chat,
-  _sfc_main$8 as ChatInput,
+  _sfc_main$4 as Chat,
+  _sfc_main$9 as ChatInput,
   _sfc_main$b as ChatMessage,
   _sfc_main$2 as ChatToggle,
   _sfc_main$1 as ChatWindow,
-  _sfc_main$7 as ConfirmPrivacy,
-  _sfc_main$5 as Datepicker,
-  _sfc_main$a as IconLoader,
-  _sfc_main$6 as SelectProvince,
-  _sfc_main$4 as SpecialInput,
+  _sfc_main$8 as ConfirmPrivacy,
+  _sfc_main$6 as Datepicker,
+  _sfc_main$3 as IconLoader,
+  _sfc_main$7 as SelectProvince,
+  _sfc_main$5 as SpecialInput,
   createChat
 };
