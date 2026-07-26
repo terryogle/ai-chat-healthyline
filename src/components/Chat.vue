@@ -246,25 +246,6 @@ onMounted(async () => {
               </div>
             </button>
 
-            <button class="quick-item" @click="handleSendMessage('I need help with my VIP discount code')">
-              <div class="quick-item-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 2l2.4 3.3 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4L6.6 5.9l4-.6L12 2z"/>
-                  <path d="M12 12v10"/>
-                  <path d="M8 22h8"/>
-                </svg>
-              </div>
-              <div class="quick-item-text">
-                <strong>VIP Discount Help</strong>
-                <small>Get or fix your discount code</small>
-              </div>
-              <div class="quick-item-arrow">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"/>
-                </svg>
-              </div>
-            </button>
-
             <button class="quick-item" @click="handleSendMessage('I want to return my product or get a refund')">
               <div class="quick-item-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
