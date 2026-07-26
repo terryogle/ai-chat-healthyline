@@ -6201,6 +6201,11 @@ function cloneVNode(vnode, extraProps, mergeRef = false, cloneTransition = false
 function createTextVNode(text3 = " ", flag = 0) {
   return createVNode(Text, null, text3, flag);
 }
+function createStaticVNode(content, numberOfNodes) {
+  const vnode = createVNode(Static, null, content);
+  vnode.staticCount = numberOfNodes;
+  return vnode;
+}
 function createCommentVNode(text3 = "", asBlock = false) {
   return asBlock ? (openBlock(), createBlock(Comment, null, text3)) : createVNode(Comment, null, text3);
 }
@@ -36534,28 +36539,29 @@ const _hoisted_3 = {
   class: "tt-chat-empty"
 };
 const _hoisted_4 = { class: "welcome-box" };
-const _hoisted_5 = {
+const _hoisted_5 = { class: "quick-card" };
+const _hoisted_6 = {
   key: 0,
   class: "tt-chat-typing"
 };
-const _hoisted_6 = { class: "tt-chat-footer" };
-const _hoisted_7 = {
+const _hoisted_7 = { class: "tt-chat-footer" };
+const _hoisted_8 = {
   key: 0,
   class: "tt-chat-privacy-container"
 };
-const _hoisted_8 = {
+const _hoisted_9 = {
   key: 1,
   class: "tt-chat-province-container"
 };
-const _hoisted_9 = {
+const _hoisted_10 = {
   key: 2,
   class: "tt-chat-datepicker-container"
 };
-const _hoisted_10 = {
+const _hoisted_11 = {
   key: 3,
   class: "tt-chat-input-component-container"
 };
-const _hoisted_11 = {
+const _hoisted_12 = {
   key: 4,
   class: "tt-chat-input-container"
 };
@@ -36649,12 +36655,11 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
       }
     }
     async function handlePrivacyConfirm(privacyAccepted) {
-      console.log("Privacy:", privacyAccepted);
       if (!currentSessionId.value && startNewSession) {
         try {
           await startNewSession();
         } catch (error2) {
-          console.error("startNewSession()", error2);
+          console.error(error2);
         }
       }
       try {
@@ -36662,16 +36667,15 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
         showPrivacyForm.value = false;
         currentPrivacyAction.value = null;
       } catch (error2) {
-        console.error("sendMessage():", error2);
+        console.error(error2);
       }
     }
     async function handleProvinceSelect(province) {
-      console.log("Provincia selezionata:", province);
       if (!currentSessionId.value && startNewSession) {
         try {
           await startNewSession();
         } catch (error2) {
-          console.error("startNewSession()", error2);
+          console.error(error2);
         }
       }
       try {
@@ -36679,16 +36683,15 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
         showProvinceForm.value = false;
         currentProvinceAction.value = null;
       } catch (error2) {
-        console.error("sendMessage():", error2);
+        console.error(error2);
       }
     }
     async function handleDateSelect(date) {
-      console.log("Data selezionata:", date);
       if (!currentSessionId.value && startNewSession) {
         try {
           await startNewSession();
         } catch (error2) {
-          console.error("startNewSession()", error2);
+          console.error(error2);
         }
       }
       try {
@@ -36696,16 +36699,15 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
         showDatePicker.value = false;
         currentDatePickerAction.value = null;
       } catch (error2) {
-        console.error("sendMessage():", error2);
+        console.error(error2);
       }
     }
     async function handleInputSubmit(value) {
-      console.log("Input inviato:", value);
       if (!currentSessionId.value && startNewSession) {
         try {
           await startNewSession();
         } catch (error2) {
-          console.error("startNewSession()", error2);
+          console.error(error2);
         }
       }
       try {
@@ -36713,7 +36715,7 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
         showInputComponent.value = false;
         currentInputAction.value = null;
       } catch (error2) {
-        console.error("sendMessage():", error2);
+        console.error(error2);
       }
     }
     watch(messages, (newMessages) => {
@@ -36726,20 +36728,13 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
     onMounted(async () => {
       var _a2;
       try {
-        console.log("Chat component mounted, initializing...");
         if (((_a2 = options.value) == null ? void 0 : _a2.loadPreviousSession) !== false && chatStore.loadPreviousSession) {
-          console.log("Attempting to load previous session...");
           await chatStore.loadPreviousSession();
-          console.log("Session loaded:", currentSessionId.value, "Messages:", messages.value.length);
         } else if (chatStore.startNewSession) {
-          console.log("Starting new session...");
           await chatStore.startNewSession();
-          console.log("New session started:", currentSessionId.value);
         }
         if (!currentSessionId.value && startNewSession) {
-          console.log("Forcing new session creation...");
           await startNewSession();
-          console.log("Forced session:", currentSessionId.value);
         }
         if (messages.value.length > 0) {
           const latestMessage = messages.value[messages.value.length - 1];
@@ -36771,45 +36766,47 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
         }, [
           unref(messages).length === 0 ? (openBlock(), createElementBlock("div", _hoisted_3, [
             createBaseVNode("div", _hoisted_4, [
-              _cache[8] || (_cache[8] = createBaseVNode("h1", null, " Hi 👋 I'm HealthyLine AI ", -1)),
-              _cache[9] || (_cache[9] = createBaseVNode("p", null, " How can I help you today? ", -1)),
-              _cache[10] || (_cache[10] = createBaseVNode("h3", { class: "quick-title" }, " Quick links ", -1)),
-              createBaseVNode("button", {
-                onClick: _cache[0] || (_cache[0] = ($event) => handleSendMessage("I need help with my order"))
-              }, _cache[4] || (_cache[4] = [
-                createBaseVNode("span", null, "🛒", -1),
-                createBaseVNode("div", null, [
-                  createBaseVNode("strong", null, "My Orders"),
-                  createBaseVNode("small", null, "Track and manage orders")
-                ], -1)
-              ])),
-              createBaseVNode("button", {
-                onClick: _cache[1] || (_cache[1] = ($event) => handleSendMessage("I want help finding the right PEMF mat"))
-              }, _cache[5] || (_cache[5] = [
-                createBaseVNode("span", null, "🛏", -1),
-                createBaseVNode("div", null, [
-                  createBaseVNode("strong", null, "Product Help"),
-                  createBaseVNode("small", null, "Find the right mat")
-                ], -1)
-              ])),
-              createBaseVNode("button", {
-                onClick: _cache[2] || (_cache[2] = ($event) => handleSendMessage("I want to return my product or get a refund"))
-              }, _cache[6] || (_cache[6] = [
-                createBaseVNode("span", null, "↩️", -1),
-                createBaseVNode("div", null, [
-                  createBaseVNode("strong", null, "Returns & Refunds"),
-                  createBaseVNode("small", null, "Start a return or get refund")
-                ], -1)
-              ])),
-              createBaseVNode("button", {
-                onClick: _cache[3] || (_cache[3] = ($event) => handleSendMessage("I want to partner with HealthyLine"))
-              }, _cache[7] || (_cache[7] = [
-                createBaseVNode("span", null, "🤝", -1),
-                createBaseVNode("div", null, [
-                  createBaseVNode("strong", null, "Partner With Us"),
-                  createBaseVNode("small", null, "Sponsorship & collab inquiries")
-                ], -1)
-              ]))
+              _cache[13] || (_cache[13] = createBaseVNode("h1", null, "Hi There, I'm HealthyLine AI", -1)),
+              _cache[14] || (_cache[14] = createBaseVNode("p", null, "How can I help you today?", -1)),
+              createBaseVNode("div", _hoisted_5, [
+                _cache[12] || (_cache[12] = createBaseVNode("h3", { class: "quick-title" }, "Quick links", -1)),
+                createBaseVNode("button", {
+                  class: "quick-item",
+                  onClick: _cache[0] || (_cache[0] = ($event) => handleSendMessage("I need help with my order"))
+                }, _cache[6] || (_cache[6] = [
+                  createStaticVNode('<div class="quick-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div><div class="quick-item-text"><strong>My Orders</strong><small>Track and manage orders</small></div><div class="quick-item-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>', 3)
+                ])),
+                createBaseVNode("button", {
+                  class: "quick-item",
+                  onClick: _cache[1] || (_cache[1] = ($event) => handleSendMessage("I want help finding the right PEMF mat"))
+                }, _cache[7] || (_cache[7] = [
+                  createStaticVNode('<div class="quick-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div><div class="quick-item-text"><strong>Product Help</strong><small>Find the right mat</small></div><div class="quick-item-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>', 3)
+                ])),
+                createBaseVNode("button", {
+                  class: "quick-item",
+                  onClick: _cache[2] || (_cache[2] = ($event) => handleSendMessage("I need help with my VIP discount code"))
+                }, _cache[8] || (_cache[8] = [
+                  createStaticVNode('<div class="quick-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 3.3 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4L6.6 5.9l4-.6L12 2z"></path><path d="M12 12v10"></path><path d="M8 22h8"></path></svg></div><div class="quick-item-text"><strong>VIP Discount Help</strong><small>Get or fix your discount code</small></div><div class="quick-item-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>', 3)
+                ])),
+                createBaseVNode("button", {
+                  class: "quick-item",
+                  onClick: _cache[3] || (_cache[3] = ($event) => handleSendMessage("I want to return my product or get a refund"))
+                }, _cache[9] || (_cache[9] = [
+                  createStaticVNode('<div class="quick-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg></div><div class="quick-item-text"><strong>Returns &amp; Refunds</strong><small>Start a return or get refund</small></div><div class="quick-item-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>', 3)
+                ])),
+                createBaseVNode("button", {
+                  class: "quick-item",
+                  onClick: _cache[4] || (_cache[4] = ($event) => handleSendMessage("I want to partner with HealthyLine"))
+                }, _cache[10] || (_cache[10] = [
+                  createStaticVNode('<div class="quick-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></div><div class="quick-item-text"><strong>Partner With Us</strong><small>Sponsorship &amp; collab inquiries</small></div><div class="quick-item-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>', 3)
+                ])),
+                createBaseVNode("button", {
+                  class: "quick-item",
+                  onClick: _cache[5] || (_cache[5] = ($event) => handleSendMessage("I have another question"))
+                }, _cache[11] || (_cache[11] = [
+                  createStaticVNode('<div class="quick-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div><div class="quick-item-text"><strong>Select another topic</strong></div><div class="quick-item-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>', 3)
+                ]))
+              ])
             ])
           ])) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(unref(messages), (message2) => {
@@ -36818,33 +36815,33 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
                 message: message2
               }, null, 8, ["message"]);
             }), 128)),
-            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_5, _cache[11] || (_cache[11] = [
+            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_6, _cache[15] || (_cache[15] = [
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1)
             ]))) : createCommentVNode("", true)
           ], 64))
         ], 512),
-        createBaseVNode("div", _hoisted_6, [
-          showPrivacyForm.value ? (openBlock(), createElementBlock("div", _hoisted_7, [
+        createBaseVNode("div", _hoisted_7, [
+          showPrivacyForm.value ? (openBlock(), createElementBlock("div", _hoisted_8, [
             createVNode(_sfc_main$7, {
               privacyUrl: (_a2 = currentPrivacyAction.value) == null ? void 0 : _a2.action,
               onConfirm: handlePrivacyConfirm
             }, null, 8, ["privacyUrl"])
-          ])) : showProvinceForm.value ? (openBlock(), createElementBlock("div", _hoisted_8, [
+          ])) : showProvinceForm.value ? (openBlock(), createElementBlock("div", _hoisted_9, [
             createVNode(_sfc_main$6, { onSelect: handleProvinceSelect })
-          ])) : showDatePicker.value ? (openBlock(), createElementBlock("div", _hoisted_9, [
+          ])) : showDatePicker.value ? (openBlock(), createElementBlock("div", _hoisted_10, [
             createVNode(_sfc_main$5, {
               label: (_b = currentDatePickerAction.value) == null ? void 0 : _b.label,
               onSelect: handleDateSelect
             }, null, 8, ["label"])
-          ])) : showInputComponent.value ? (openBlock(), createElementBlock("div", _hoisted_10, [
+          ])) : showInputComponent.value ? (openBlock(), createElementBlock("div", _hoisted_11, [
             createVNode(_sfc_main$4, {
               inputType: ((_c = currentInputAction.value) == null ? void 0 : _c.type) || "input_type_text",
               label: (_d = currentInputAction.value) == null ? void 0 : _d.label,
               onSubmit: handleInputSubmit
             }, null, 8, ["inputType", "label"])
-          ])) : (openBlock(), createElementBlock("div", _hoisted_11, [
+          ])) : (openBlock(), createElementBlock("div", _hoisted_12, [
             createVNode(_sfc_main$8, { onSend: handleSendMessage })
           ]))
         ])
