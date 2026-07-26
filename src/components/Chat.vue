@@ -194,17 +194,13 @@ onMounted(async () => {
 <template>
   <div class="tt-chat">
     <div class="tt-chat-header">
-      <h2>{{ title }}</h2>
-      <p>{{ subtitle }}</p>
-      <IconLoader name="headerLogo" className="tt-chat-header-logo" />
+      <h2>HealthyLine AI Assistant</h2>
+      <p>How can I help you today?</p>
     </div>
     
     <div ref="chatBodyRef" class="tt-chat-body">
       <div v-if="messages.length === 0" class="tt-chat-empty">
         <div class="welcome-box">
-          <h1>HealthyLine AI Assistant</h1>
-          <p>How can I help you today?</p>
-
           <div class="quick-card">
             <h3 class="quick-title">Quick links</h3>
 
@@ -391,12 +387,6 @@ onMounted(async () => {
       position: relative;
       z-index: 1;
     }
-
-    &-logo {
-      position: absolute;
-      right: 0;
-      top: 0;
-    }
   }
   
   &-body {
@@ -461,20 +451,6 @@ onMounted(async () => {
   margin: 0 auto;
   padding: 10px 4px 30px;
   text-align: left;
-
-  h1 {
-    font-size: 26px;
-    font-weight: 700;
-    color: #24262b;
-    margin: 10px 0 8px;
-    line-height: 1.25;
-  }
-
-  > p {
-    font-size: 15px;
-    color: #6b7280;
-    margin: 0 0 20px;
-  }
 
   .quick-card {
     background: #fff;
