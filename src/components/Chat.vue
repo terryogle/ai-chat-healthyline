@@ -247,7 +247,7 @@ onMounted(async () => {
         <div class="welcome-box">
 
           <h1>
-            Hi 👋 I'm HealthyLine AI
+            Hi 👋 I'm HealthyLine AI test
           </h1>
 
           <p>
