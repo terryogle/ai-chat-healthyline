@@ -245,6 +245,7 @@ onMounted(async () => {
     <div ref="chatBodyRef" class="tt-chat-body">
       <div v-if="messages.length === 0" class="tt-chat-empty">
         <div class="welcome-box">
+
           <h1>
             Hi 👋 I'm HealthyLine AI
           </h1>
@@ -253,21 +254,50 @@ onMounted(async () => {
             How can I help you today?
           </p>
 
-          <button @click="handleSendMessage('I want to find the right PEMF mat')">
-            🛏 Find the right mat
+          <h3 class="quick-title">
+            Quick links
+          </h3>
+
+          <button 
+            @click="handleSendMessage('I need help with my order')"
+          >
+            <span>🛒</span>
+            <div>
+              <strong>My Orders</strong>
+              <small>Track and manage orders</small>
+            </div>
           </button>
 
-          <button @click="handleSendMessage('Tell me about PEMF technology')">
-            💡 Learn about PEMF
+          <button 
+            @click="handleSendMessage('I want help finding the right PEMF mat')"
+          >
+            <span>🛏</span>
+            <div>
+              <strong>Product Help</strong>
+              <small>Find the right mat</small>
+            </div>
           </button>
 
-          <button @click="handleSendMessage('Show me product prices')">
-            💰 Product prices
+          <button 
+            @click="handleSendMessage('I want to return my product or get a refund')"
+          >
+            <span>↩️</span>
+            <div>
+              <strong>Returns & Refunds</strong>
+              <small>Start a return or get refund</small>
+            </div>
           </button>
 
-          <button @click="handleSendMessage('I want a consultation')">
-            📅 Book consultation
+          <button 
+            @click="handleSendMessage('I want to partner with HealthyLine')"
+          >
+            <span>🤝</span>
+            <div>
+              <strong>Partner With Us</strong>
+              <small>Sponsorship & collab inquiries</small>
+            </div>
           </button>
+
         </div>
       </div>
       
@@ -436,37 +466,65 @@ onMounted(async () => {
   width: 100%;
   max-width: 420px;
   margin: auto;
-  text-align: center;
   padding: 40px 20px;
+  text-align: center;
 
   h1 {
     font-size: 36px;
     font-weight: 600;
     color: #24262b;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
   }
 
   p {
-    font-size: 22px;
+    font-size: 20px;
     color: #777;
-    margin-bottom: 45px;
+    margin-bottom: 35px;
+  }
+
+  .quick-title {
+    text-align: left;
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #24262b;
   }
 
   button {
     width: 100%;
-    height: 52px;
-    margin-bottom: 16px;
-    border-radius: 12px;
-    border: 1px solid #e3e3e3;
-    background: #f5f5f5;
-    font-size: 18px;
-    font-weight: 600;
-    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    height: 70px;
+    margin-bottom: 12px;
+    padding: 12px 18px;
+    border-radius: 16px;
+    border: 1px solid #e5e5e5;
+    background: #fff;
     cursor: pointer;
-    transition: 0.2s;
+    text-align: left;
+
+    span {
+      font-size: 28px;
+    }
+
+    div {
+      display: flex;
+      flex-direction: column;
+    }
+
+    strong {
+      font-size: 17px;
+      color: #222;
+    }
+
+    small {
+      font-size: 14px;
+      color: #777;
+      margin-top: 3px;
+    }
 
     &:hover {
-      background: #eeeeee;
+      background: #f7f7f7;
     }
   }
 }
