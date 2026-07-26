@@ -111,83 +111,47 @@ function checkMessageForSpecialActions(message: ChatMessageType): void {
 }
 
 async function handlePrivacyConfirm(privacyAccepted: boolean) {
-  console.log("Privacy:", privacyAccepted);
-  
   if (!currentSessionId.value && startNewSession) {
-    try {
-      await startNewSession();
-    } catch (error) {
-      console.error("startNewSession()", error);
-    }
+    try { await startNewSession(); } catch (error) { console.error(error); }
   }
-  
   try {
     await sendMessage('', [], privacyAccepted);
     showPrivacyForm.value = false;
     currentPrivacyAction.value = null;
-  } catch (error) {
-    console.error("sendMessage():", error);
-  }
+  } catch (error) { console.error(error); }
 }
 
 async function handleProvinceSelect(province: string) {
-  console.log("Provincia selezionata:", province);
-  
   if (!currentSessionId.value && startNewSession) {
-    try {
-      await startNewSession();
-    } catch (error) {
-      console.error("startNewSession()", error);
-    }
+    try { await startNewSession(); } catch (error) { console.error(error); }
   }
-  
   try {
     await sendMessage(province, []);
     showProvinceForm.value = false;
     currentProvinceAction.value = null;
-  } catch (error) {
-    console.error("sendMessage():", error);
-  }
+  } catch (error) { console.error(error); }
 }
 
 async function handleDateSelect(date: string) {
-  console.log("Data selezionata:", date);
-  
   if (!currentSessionId.value && startNewSession) {
-    try {
-      await startNewSession();
-    } catch (error) {
-      console.error("startNewSession()", error);
-    }
+    try { await startNewSession(); } catch (error) { console.error(error); }
   }
-  
   try {
     await sendMessage(date, []);
     showDatePicker.value = false;
     currentDatePickerAction.value = null;
-  } catch (error) {
-    console.error("sendMessage():", error);
-  }
+  } catch (error) { console.error(error); }
 }
 
 async function handleInputSubmit(value: string) {
-  console.log("Input inviato:", value);
-  
   if (!currentSessionId.value && startNewSession) {
-    try {
-      await startNewSession();
-    } catch (error) {
-      console.error("startNewSession()", error);
-    }
+    try { await startNewSession(); } catch (error) { console.error(error); }
   }
-  
   try {
     await sendMessage(value, []);
     showInputComponent.value = false;
     currentInputAction.value = null;
-  } catch (error) {
-    console.error("sendMessage():", error);
-  }
+  } catch (error) { console.error(error); }
 }
 
 watch(messages, (newMessages) => {
@@ -201,22 +165,15 @@ watch(messages, (newMessages) => {
 
 onMounted(async () => {
   try {
-    console.log("Chat component mounted, initializing...");
     if (options.value?.loadPreviousSession !== false && chatStore.loadPreviousSession) {
-      console.log("Attempting to load previous session...");
       await chatStore.loadPreviousSession();
-      console.log("Session loaded:", currentSessionId.value, "Messages:", messages.value.length);
     } 
     else if (chatStore.startNewSession) {
-      console.log("Starting new session...");
       await chatStore.startNewSession();
-      console.log("New session started:", currentSessionId.value);
     }
 
     if (!currentSessionId.value && startNewSession) {
-      console.log("Forcing new session creation...");
       await startNewSession();
-      console.log("Forced session:", currentSessionId.value);
     }
     
     if (messages.value.length > 0) {
@@ -246,57 +203,125 @@ onMounted(async () => {
       <div v-if="messages.length === 0" class="tt-chat-empty">
         <div class="welcome-box">
 
-          <h1>
-            Hi 👋 I'm HealthyLine AI
-          </h1>
+          <h1>Hi There, I'm HealthyLine AI</h1>
+          <p>How can I help you today?</p>
 
-          <p>
-            How can I help you today?
-          </p>
+          <div class="quick-card">
+            <h3 class="quick-title">Quick links</h3>
 
-          <h3 class="quick-title">
-            Quick links
-          </h3>
+            <button class="quick-item" @click="handleSendMessage('I need help with my order')">
+              <div class="quick-item-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                  <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+              </div>
+              <div class="quick-item-text">
+                <strong>My Orders</strong>
+                <small>Track and manage orders</small>
+              </div>
+              <div class="quick-item-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </button>
 
-          <button 
-            @click="handleSendMessage('I need help with my order')"
-          >
-            <span>🛒</span>
-            <div>
-              <strong>My Orders</strong>
-              <small>Track and manage orders</small>
-            </div>
-          </button>
+            <button class="quick-item" @click="handleSendMessage('I want help finding the right PEMF mat')">
+              <div class="quick-item-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+              </div>
+              <div class="quick-item-text">
+                <strong>Product Help</strong>
+                <small>Find the right mat</small>
+              </div>
+              <div class="quick-item-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </button>
 
-          <button 
-            @click="handleSendMessage('I want help finding the right PEMF mat')"
-          >
-            <span>🛏</span>
-            <div>
-              <strong>Product Help</strong>
-              <small>Find the right mat</small>
-            </div>
-          </button>
+            <button class="quick-item" @click="handleSendMessage('I need help with my VIP discount code')">
+              <div class="quick-item-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2l2.4 3.3 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4L6.6 5.9l4-.6L12 2z"/>
+                  <path d="M12 12v10"/>
+                  <path d="M8 22h8"/>
+                </svg>
+              </div>
+              <div class="quick-item-text">
+                <strong>VIP Discount Help</strong>
+                <small>Get or fix your discount code</small>
+              </div>
+              <div class="quick-item-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </button>
 
-          <button 
-            @click="handleSendMessage('I want to return my product or get a refund')"
-          >
-            <span>↩️</span>
-            <div>
-              <strong>Returns & Refunds</strong>
-              <small>Start a return or get refund</small>
-            </div>
-          </button>
+            <button class="quick-item" @click="handleSendMessage('I want to return my product or get a refund')">
+              <div class="quick-item-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="1 4 1 10 7 10"/>
+                  <polyline points="23 20 23 14 17 14"/>
+                  <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+                </svg>
+              </div>
+              <div class="quick-item-text">
+                <strong>Returns &amp; Refunds</strong>
+                <small>Start a return or get refund</small>
+              </div>
+              <div class="quick-item-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </button>
 
-          <button 
-            @click="handleSendMessage('I want to partner with HealthyLine')"
-          >
-            <span>🤝</span>
-            <div>
-              <strong>Partner With Us</strong>
-              <small>Sponsorship & collab inquiries</small>
-            </div>
-          </button>
+            <button class="quick-item" @click="handleSendMessage('I want to partner with HealthyLine')">
+              <div class="quick-item-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="8" y1="6" x2="21" y2="6"/>
+                  <line x1="8" y1="12" x2="21" y2="12"/>
+                  <line x1="8" y1="18" x2="21" y2="18"/>
+                  <line x1="3" y1="6" x2="3.01" y2="6"/>
+                  <line x1="3" y1="12" x2="3.01" y2="12"/>
+                  <line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+              </div>
+              <div class="quick-item-text">
+                <strong>Partner With Us</strong>
+                <small>Sponsorship &amp; collab inquiries</small>
+              </div>
+              <div class="quick-item-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </button>
+
+            <button class="quick-item" @click="handleSendMessage('I have another question')">
+              <div class="quick-item-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+              <div class="quick-item-text">
+                <strong>Select another topic</strong>
+              </div>
+              <div class="quick-item-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </button>
+          </div>
 
         </div>
       </div>
@@ -405,7 +430,7 @@ onMounted(async () => {
   &-empty {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     height: 100%;
   }
@@ -431,100 +456,122 @@ onMounted(async () => {
       margin: 0 3px;
       animation: tt-chat-typing 1s infinite;
       
-      &:nth-child(2) {
-        animation-delay: 0.2s;
-      }
-      
-      &:nth-child(3) {
-        animation-delay: 0.4s;
-      }
+      &:nth-child(2) { animation-delay: 0.2s; }
+      &:nth-child(3) { animation-delay: 0.4s; }
     }
   }
   
   &-privacy-container,
   &-province-container,
   &-datepicker-container,
-  &-input-component-container {
-    width: 100%;
-  }
-  
+  &-input-component-container,
   &-input-container {
     width: 100%;
   }
 }
 
 @keyframes tt-chat-typing {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 .welcome-box {
   width: 100%;
-  max-width: 420px;
-  margin: auto;
-  padding: 40px 20px;
-  text-align: center;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 10px 4px 30px;
+  text-align: left;
 
   h1 {
-    font-size: 36px;
-    font-weight: 600;
+    font-size: 26px;
+    font-weight: 700;
     color: #24262b;
-    margin-bottom: 15px;
+    margin: 10px 0 8px;
+    line-height: 1.25;
   }
 
-  p {
-    font-size: 20px;
-    color: #777;
-    margin-bottom: 35px;
+  > p {
+    font-size: 15px;
+    color: #6b7280;
+    margin: 0 0 20px;
+  }
+
+  .quick-card {
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    padding: 18px 18px 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
   }
 
   .quick-title {
-    text-align: left;
-    font-size: 18px;
-    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 700;
     color: #24262b;
+    margin: 0 0 10px;
   }
 
-  button {
+  .quick-item {
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 15px;
-    height: 70px;
-    margin-bottom: 12px;
-    padding: 12px 18px;
-    border-radius: 16px;
-    border: 1px solid #e5e5e5;
-    background: #fff;
+    gap: 14px;
+    padding: 14px 4px;
+    border: none;
+    background: transparent;
     cursor: pointer;
     text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.15s ease;
 
-    span {
-      font-size: 28px;
-    }
-
-    div {
-      display: flex;
-      flex-direction: column;
-    }
-
-    strong {
-      font-size: 17px;
-      color: #222;
-    }
-
-    small {
-      font-size: 14px;
-      color: #777;
-      margin-top: 3px;
+    &:last-child {
+      border-bottom: none;
     }
 
     &:hover {
-      background: #f7f7f7;
+      background: #fafafa;
+    }
+
+    &-icon {
+      flex-shrink: 0;
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      border: 1px solid #ececec;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #24262b;
+    }
+
+    &-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+
+      strong {
+        font-size: 15px;
+        font-weight: 700;
+        color: #24262b;
+        line-height: 1.2;
+      }
+
+      small {
+        font-size: 13px;
+        color: #7a7a7a;
+        margin-top: 3px;
+        line-height: 1.3;
+      }
+    }
+
+    &-arrow {
+      flex-shrink: 0;
+      color: #b5b5b5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 }
