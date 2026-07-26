@@ -36771,20 +36771,45 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
         }, [
           unref(messages).length === 0 ? (openBlock(), createElementBlock("div", _hoisted_3, [
             createBaseVNode("div", _hoisted_4, [
-              _cache[4] || (_cache[4] = createBaseVNode("h1", null, " Hi 👋 I'm HealthyLine AI ", -1)),
-              _cache[5] || (_cache[5] = createBaseVNode("p", null, " How can I help you today? ", -1)),
+              _cache[8] || (_cache[8] = createBaseVNode("h1", null, " Hi 👋 I'm HealthyLine AI ", -1)),
+              _cache[9] || (_cache[9] = createBaseVNode("p", null, " How can I help you today? ", -1)),
+              _cache[10] || (_cache[10] = createBaseVNode("h3", { class: "quick-title" }, " Quick links ", -1)),
               createBaseVNode("button", {
-                onClick: _cache[0] || (_cache[0] = ($event) => handleSendMessage("I want to find the right PEMF mat"))
-              }, " 🛏 Find the right mat "),
+                onClick: _cache[0] || (_cache[0] = ($event) => handleSendMessage("I need help with my order"))
+              }, _cache[4] || (_cache[4] = [
+                createBaseVNode("span", null, "🛒", -1),
+                createBaseVNode("div", null, [
+                  createBaseVNode("strong", null, "My Orders"),
+                  createBaseVNode("small", null, "Track and manage orders")
+                ], -1)
+              ])),
               createBaseVNode("button", {
-                onClick: _cache[1] || (_cache[1] = ($event) => handleSendMessage("Tell me about PEMF technology"))
-              }, " 💡 Learn about PEMF "),
+                onClick: _cache[1] || (_cache[1] = ($event) => handleSendMessage("I want help finding the right PEMF mat"))
+              }, _cache[5] || (_cache[5] = [
+                createBaseVNode("span", null, "🛏", -1),
+                createBaseVNode("div", null, [
+                  createBaseVNode("strong", null, "Product Help"),
+                  createBaseVNode("small", null, "Find the right mat")
+                ], -1)
+              ])),
               createBaseVNode("button", {
-                onClick: _cache[2] || (_cache[2] = ($event) => handleSendMessage("Show me product prices"))
-              }, " 💰 Product prices "),
+                onClick: _cache[2] || (_cache[2] = ($event) => handleSendMessage("I want to return my product or get a refund"))
+              }, _cache[6] || (_cache[6] = [
+                createBaseVNode("span", null, "↩️", -1),
+                createBaseVNode("div", null, [
+                  createBaseVNode("strong", null, "Returns & Refunds"),
+                  createBaseVNode("small", null, "Start a return or get refund")
+                ], -1)
+              ])),
               createBaseVNode("button", {
-                onClick: _cache[3] || (_cache[3] = ($event) => handleSendMessage("I want a consultation"))
-              }, " 📅 Book consultation ")
+                onClick: _cache[3] || (_cache[3] = ($event) => handleSendMessage("I want to partner with HealthyLine"))
+              }, _cache[7] || (_cache[7] = [
+                createBaseVNode("span", null, "🤝", -1),
+                createBaseVNode("div", null, [
+                  createBaseVNode("strong", null, "Partner With Us"),
+                  createBaseVNode("small", null, "Sponsorship & collab inquiries")
+                ], -1)
+              ]))
             ])
           ])) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(unref(messages), (message2) => {
@@ -36793,7 +36818,7 @@ const _sfc_main$3 = /* @__PURE__ */ defineComponent({
                 message: message2
               }, null, 8, ["message"]);
             }), 128)),
-            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_5, _cache[6] || (_cache[6] = [
+            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_5, _cache[11] || (_cache[11] = [
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1)
