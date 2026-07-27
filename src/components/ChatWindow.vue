@@ -1,3 +1,44 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import Chat from './Chat.vue';
+import ChatToggle from './ChatToggle.vue';
+
+const isOpen = ref(false);
+
+function toggleChat() {
+  isOpen.value = !isOpen.value;
+}
+</script>
+
+
+<template>
+
+  <div class="tt-chat-window-wrapper">
+
+    <transition name="tt-chat-window-transition">
+
+      <div 
+        v-if="isOpen" 
+        class="tt-chat-window"
+      >
+        <Chat />
+      </div>
+
+    </transition>
+
+
+    <ChatToggle 
+      :isOpen="isOpen"
+      @toggle="toggleChat"
+    />
+
+  </div>
+
+</template>
+
+
+<style lang="scss">
+
 .tt-chat-window-wrapper {
 
   position: fixed;
@@ -11,9 +52,6 @@
   flex-direction: column;
   align-items: flex-end;
 
-  max-width: calc(100vw - 40px);
-  max-height: calc(100vh - 40px);
-
 }
 
 
@@ -21,9 +59,6 @@
 
   width: var(--tt-chat-window-width);
   height: var(--tt-chat-window-height);
-
-  max-width: calc(100vw - 40px);
-  max-height: calc(100vh - 100px);
 
   background:white;
 
@@ -34,35 +69,27 @@
 
   overflow:hidden;
 
-  margin-bottom:20px;
+}
+
+
+@media (max-width:600px){
+
+.tt-chat-window-wrapper{
+
+right:10px;
+bottom:10px;
 
 }
 
 
+.tt-chat-window{
 
-/* MOBILE */
-
-@media (max-width:600px) {
-
-
-  .tt-chat-window-wrapper {
-
-    right:10px;
-    bottom:10px;
-
-    max-width:calc(100vw - 20px);
-
-  }
-
-
-  .tt-chat-window {
-
-    width:calc(100vw - 20px);
-
-    height:calc(100vh - 120px);
-
-    border-radius:16px;
-
-  }
+width:calc(100vw - 20px);
+height:calc(100vh - 120px);
 
 }
+
+}
+
+
+</style>
