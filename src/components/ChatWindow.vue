@@ -1,29 +1,3 @@
-<script setup lang="ts">
-import { ref } from 'vue';
-import Chat from './Chat.vue';
-import ChatToggle from './ChatToggle.vue';
-
-const isOpen = ref(false);
-
-function toggleChat() {
-  isOpen.value = !isOpen.value;
-}
-</script>
-
-<template>
-  <div class="tt-chat-window-wrapper">
-    <transition name="tt-chat-window-transition">
-      <div v-if="isOpen" class="tt-chat-window">
-        <Chat />
-      </div>
-    </transition>
-
-    <ChatToggle :isOpen="isOpen" @toggle="toggleChat" />
-  </div>
-</template>
-
-<style lang="scss">
-
 .tt-chat-window-wrapper {
 
   position: fixed;
@@ -48,79 +22,47 @@ function toggleChat() {
   width: var(--tt-chat-window-width);
   height: var(--tt-chat-window-height);
 
-  max-width: 100%;
-  max-height: 100%;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 100px);
 
-  background: white;
+  background:white;
 
-  border-radius: 10px;
+  border-radius:10px;
 
-  box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+  box-shadow:
+    0 5px 25px rgba(0,0,0,0.2);
 
-  overflow: hidden;
+  overflow:hidden;
+
+  margin-bottom:20px;
 
 }
 
 
 
-/* Mobile */
+/* MOBILE */
 
 @media (max-width:600px) {
 
 
   .tt-chat-window-wrapper {
 
-    left:10px !important;
-    right:10px !important;
-    bottom:10px !important;
+    right:10px;
+    bottom:10px;
 
-    width: calc(100vw - 20px);
-
-    max-width: calc(100vw - 20px);
-
-    align-items:stretch;
+    max-width:calc(100vw - 20px);
 
   }
 
 
-
   .tt-chat-window {
 
-    width:100% !important;
+    width:calc(100vw - 20px);
 
-    height:calc(100vh - 90px) !important;
+    height:calc(100vh - 120px);
 
     border-radius:16px;
 
   }
 
-
 }
-
-
-
-/* Animation */
-
-.tt-chat-window-transition-enter-active,
-.tt-chat-window-transition-leave-active {
-
-  transition:
-    opacity 0.3s,
-    transform 0.3s;
-
-}
-
-
-.tt-chat-window-transition-enter-from,
-.tt-chat-window-transition-leave-to {
-
-  opacity:0;
-
-  transform:
-    translateY(20px)
-    scale(0.9);
-
-}
-
-
-</style>
