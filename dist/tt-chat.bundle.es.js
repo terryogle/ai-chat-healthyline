@@ -8085,7 +8085,7 @@ const ChatPlugin = {
         messageProcessor.addBotMessages(responseTexts, response.actions);
       } catch (error2) {
         console.error("Invio messaggio fallito:", error2);
-        messageProcessor.addErrorMessage("Spiacenti, si è verificato un errore durante l'elaborazione della tua richiesta. Riprova.");
+        messageProcessor.addErrorMessage("Sorry, something went wrong while processing your request. Please try again.");
       } finally {
         waitingForResponse.value = false;
       }
