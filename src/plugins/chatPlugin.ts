@@ -133,7 +133,7 @@ export const ChatPlugin: Plugin = {
 
       } catch (error) {
         console.error('Invio messaggio fallito:', error);
-        messageProcessor.addErrorMessage('Spiacenti, si è verificato un errore durante l\'elaborazione della tua richiesta. Riprova.');
+        messageProcessor.addErrorMessage('Sorry, something went wrong while processing your request. Please try again.');
       } finally {
         waitingForResponse.value = false;
       }
