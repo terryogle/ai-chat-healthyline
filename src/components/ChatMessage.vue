@@ -95,6 +95,14 @@ function handleButtonClick(url: string) {
       margin: 0.5em 0;
     }
 
+    :deep(img) {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 8px 0;
+      display: block;
+    }
+
     :deep(a) {
       color: var(--tt-chat-primary-color, #2196f3);
       text-decoration: none;

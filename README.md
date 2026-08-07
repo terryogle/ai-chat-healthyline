@@ -1,3 +1,15 @@
+# HealthyLine AI Chat Widget (n8n Integration)
+
+> **Инструкция для загрузки на GitHub (на русском языке):**
+> 
+> 1. Данный архив содержит полностью готовый, самодостаточный проект.
+> 2. Удалите всё содержимое вашего репозитория на GitHub (например, `terryogle/ai-chat-healthyline`).
+> 3. Распакуйте и загрузите ВСЕ файлы из этого архива в ваш репозиторий.
+> 4. GitHub Actions (файл `.github/workflows/build.yml`) автоматически запустит сборку через `npm install` и `npm run build`, соберёт виджет и обновит папку `dist`.
+> 5. Подключите файл из папки `dist` на ваш сайт (например, `<script src="dist/tt-chat.bundle.umd.js"></script>`).
+
+---
+
 [![Banner image](https://raw.githubusercontent.com/nonzod/n8n-chatbot/main/resources/tourtools.png)](https://www.tourtools.it)
 
 # TT Chat N8N

@@ -6,3 +6,37 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>;
   export default component;
 }
+
+declare module 'vue-markdown-render' {
+  import type { DefineComponent } from 'vue';
+  const component: DefineComponent<{}, {}, any>;
+  export default component;
+}
+
+declare module 'vue-select' {
+  import type { DefineComponent } from 'vue';
+  const component: DefineComponent<{}, {}, any>;
+  export default component;
+}
+
+declare module 'vue-select/*' {
+  import type { DefineComponent } from 'vue';
+  const component: DefineComponent<{}, {}, any>;
+  export default component;
+}
+
+declare module '@vuepic/vue-datepicker' {
+  import type { DefineComponent } from 'vue';
+  const component: DefineComponent<{}, {}, any>;
+  export default component;
+}
+
+declare module 'intl-tel-input' {
+  const intlTelInput: any;
+  export default intlTelInput;
+}
+
+declare module 'intl-tel-input/*' {
+  const intlTelInput: any;
+  export default intlTelInput;
+}

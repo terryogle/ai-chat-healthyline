@@ -119,6 +119,15 @@ const provinces = [
   {code: 'EE', province: 'Estero'}
 ];
 
+interface ProvinceOption {
+    code: string;
+    province: string;
+}
+
+function reduceProvince(option: ProvinceOption): string {
+    return option.code;
+}
+
 function handleConfirm() {
     if (selectedProvince.value) {
         emit('select', selectedProvince.value);
@@ -133,7 +142,7 @@ function handleConfirm() {
         </div>
 
         <div class="tt-chat-province-select">
-            <v-select v-model="selectedProvince" :options="provinces" :reduce="province => province.code" label="province" :searchable="true" :clearable="false"
+            <v-select v-model="selectedProvince" :options="provinces" :reduce="reduceProvince" label="province" :searchable="true" :clearable="false"
                 placeholder="Cerca" class="tt-chat-province-dropdown" append-to-body />
         </div>
 
