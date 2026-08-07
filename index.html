@@ -64,32 +64,22 @@
   <script type="module">
     import { createChat } from './src/main.ts';
     
-    const REAL_WEBHOOK_URL = 'https://app.healthyline.com/webhook/ai-chat';
-    const DEMO_WEBHOOK_URL = '/api/webhook';
+
+    const DEMO_WEBHOOK_URL = '';
     
-    function startChat() {
+    document.getElementById('initChat').addEventListener('click', () => {
       createChat({
-        webhookUrl: REAL_WEBHOOK_URL || DEMO_WEBHOOK_URL,
+        webhookUrl: DEMO_WEBHOOK_URL,
         mode: 'window',
-        title: 'AI Assistant',
-        subtitle: 'How can I help?',
-        placeholder: 'Type your message...',
-        initialMessages: [
-          'Hello! I am your AI Assistant. How can I help you today?'
-        ],
+        title: 'Chat',
+        subtitle: 'Come posso aiutarti?',
+        placeholder: '2Scrivi un messaggio...',
+        initialMessages: ['Sono qui per aiutarti con domande relative ai servizi che TourTools può offrirti.', 'Quali obiettivi di marketing possiamo aiutarti a raggiungere?'],
         loadPreviousSession: true,
         showTooltip: true,
-        tooltipText: "Got questions? We're here 24/7",
-        icons: {
-          headerLogo: "https://cdn.jsdelivr.net/gh/terryogle/ai-chat-healthyline@588b496/resources/images/header_logo.svg"
-        }
+        tooltipText: "Prova il nostro chatbot"
       });
-    }
-
-    document.getElementById('initChat').addEventListener('click', startChat);
-    
-    // Auto initialize on load
-    startChat();
+    });
   </script>
 </body>
 </html>

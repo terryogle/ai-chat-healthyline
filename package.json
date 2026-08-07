@@ -31,7 +31,7 @@
     }
   },
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 3000",
+    "dev": "vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit && vue-tsc --noEmit",
     "preview": "vite preview"
