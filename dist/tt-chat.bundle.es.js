@@ -13858,6 +13858,11 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
     async function loadCatalog() {
       isLoading.value = true;
       loadError.value = null;
+      if (!options.value) {
+        loadError.value = "Chat options are not available yet.";
+        isLoading.value = false;
+        return;
+      }
       try {
         const res = await getCatalog(options.value);
         products.value = res.items || [];
@@ -14040,7 +14045,7 @@ const _export_sfc = (sfc, props) => {
   }
   return target;
 };
-const ProductCatalog = /* @__PURE__ */ _export_sfc(_sfc_main$b, [["__scopeId", "data-v-98f098fe"]]);
+const ProductCatalog = /* @__PURE__ */ _export_sfc(_sfc_main$b, [["__scopeId", "data-v-5c20077e"]]);
 const defaultSendIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='24px'%20height='24px'%20viewBox='0%200%2024%2024'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3einvia%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%3e%3cg%20id='ChatBOT-aperto'%20transform='translate(-1545,%20-946)'%20fill='%23FF0000'%20fill-rule='nonzero'%3e%3cg%20id='Group-5'%20transform='translate(1192,%20425)'%3e%3cpath%20d='M376,521%20C375.904026,521.000658%20375.808647,521.01513%20375.716797,521.042969%20C375.68976,521.050307%20375.663044,521.058778%20375.636719,521.068359%20L353.650391,528.060547%20L353.650391,528.064453%20C353.259759,528.21022%20353.000562,528.583058%20353,529%20C353.000741,529.349225%20353.183611,529.672765%20353.482422,529.853516%20L360.164062,535.154297%20L373.373047,524.626953%20L362.845703,537.835938%20L368.142578,544.513672%20C368.323084,544.815172%20368.648596,545%20369,545%20C369.416943,544.999438%20369.78978,544.740241%20369.935547,544.349609%20L369.939453,544.349609%20L376.9375,522.34375%20C376.944651,522.32378%20376.951164,522.303587%20376.957031,522.283203%20C376.98487,522.191353%20376.999342,522.095974%20377,522%20C377,521.447715%20376.552285,521%20376,521%20Z'%20id='invia'%3e%3c/path%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
 const _hoisted_1$a = ["disabled"];
 const _hoisted_2$7 = ["src"];
