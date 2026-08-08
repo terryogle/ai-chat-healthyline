@@ -8106,6 +8106,35 @@ async function sendMessage(message2, files, sessionId, options, privacy, callbac
     );
   }
 }
+async function getCatalog(options, filters) {
+  var _a2, _b, _c;
+  const method = ((_a2 = options.webhookConfig) == null ? void 0 : _a2.method) === "POST" ? "POST" : "GET";
+  const body = {
+    action: "getCatalog"
+  };
+  if (method === "POST") {
+    return await fetchApi(options.webhookUrl, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...(_b = options.webhookConfig) == null ? void 0 : _b.headers
+      },
+      body: JSON.stringify(body)
+    });
+  } else {
+    const params = new URLSearchParams();
+    Object.entries(body).forEach(([key, value]) => {
+      params.append(key, String(value));
+    });
+    return await fetchApi(
+      `${options.webhookUrl}?${params.toString()}`,
+      {
+        method,
+        headers: (_c = options.webhookConfig) == null ? void 0 : _c.headers
+      }
+    );
+  }
+}
 const ChatSymbol = Symbol("Chat");
 function useChat() {
   const chat = inject(ChatSymbol);
@@ -13785,81 +13814,6 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const PRODUCT_SERIES_LIST = [
-  "All",
-  "Jet Series",
-  "Mesh Series",
-  "Platinum Series",
-  "Rainbow Chakra Series",
-  "Soft Series",
-  "TAJ Series",
-  "TAO Series"
-];
-const CATALOG_PRODUCTS = [
-  {
-    product_id: "rainbow-4020",
-    name: "Rainbow Chakra Mat™ 4020 Firm PEMF",
-    category: "Rainbow Chakra Series",
-    search_tags: "chakra, pemf, rainbow, meditation, firm, far infrared, amethyst, 7 gemstones",
-    short_description: "Compact gemstone mat for chakra alignment with FIR, PEMF & Red Light Therapy.",
-    image: "https://healthyline.com/cdn/shop/files/Amethyst-Sodalite-Blue-Lace-Agate-Green-Aventurine-Yellow-Aventurine-Carnelian-Red-Jasper-Rainbow-Mat-4020-Firm-PEMF-InframatPro-4th-edition_1_9f2602ce-44a3-448f-a368-5f14e04e4c1c.webp?v=1772470017",
-    link: "https://healthyline.com/products/rainbow-chakra-pemf-farinfrared-red-light-mat?variant=47076949655604"
-  },
-  {
-    product_id: "taj-3624",
-    name: "TAJ Mat™ 3624 Firm PEMF InframatPro®",
-    category: "TAJ Series",
-    search_tags: "taj, amethyst, jade, tourmaline, pemf, firm, heated mat",
-    short_description: "Triple-gemstone therapeutic mat with Tourmaline, Amethyst, and Jade + PEMF & FIR.",
-    image: "https://healthyline.com/cdn/shop/files/TAJ-3624-Firm-PEMF-InframatPro-1.webp?v=1772470000",
-    link: "https://healthyline.com/products/taj-mat-3624-firm-pemf-inframatpro"
-  },
-  {
-    product_id: "tao-1818",
-    name: "TAO Chair Mat™ 1818 Soft InframatPro®",
-    category: "TAO Series",
-    search_tags: "tao, chair, cushion, tourmaline, onyx, office, seating, heated",
-    short_description: "Ergonomic heating cushion with Tourmaline & Bianstone for office or car seats.",
-    image: "https://healthyline.com/cdn/shop/files/TAO-1818-Soft-InframatPro-1.webp?v=1772470010",
-    link: "https://healthyline.com/products/tao-chair-mat-1818-soft"
-  },
-  {
-    product_id: "jet-5024",
-    name: "Jet Series™ Full Body PEMF Mat",
-    category: "Jet Series",
-    search_tags: "jet, travel, lightweight, flexible, pemf, portable, body mat",
-    short_description: "High-performance lightweight mat engineered for portable recovery & systemic relaxation.",
-    image: "https://healthyline.com/cdn/shop/files/Amethyst-Sodalite-Blue-Lace-Agate-Green-Aventurine-Yellow-Aventurine-Carnelian-Red-Jasper-Rainbow-Mat-4020-Firm-PEMF-InframatPro-4th-edition_1_9f2602ce-44a3-448f-a368-5f14e04e4c1c.webp?v=1772470017",
-    link: "https://healthyline.com/collections/jet-series"
-  },
-  {
-    product_id: "mesh-7224",
-    name: "Mesh Series™ Flexible Body Mat",
-    category: "Mesh Series",
-    search_tags: "mesh, flexible, jade, tourmaline, breathable, full body",
-    short_description: "Flexible mesh design with embedded Jade & Tourmaline spheres for maximum comfort.",
-    image: "https://healthyline.com/cdn/shop/files/TAJ-3624-Firm-PEMF-InframatPro-1.webp?v=1772470000",
-    link: "https://healthyline.com/collections/mesh-series"
-  },
-  {
-    product_id: "platinum-7230",
-    name: "Platinum Series™ Full Spectrum Mat",
-    category: "Platinum Series",
-    search_tags: "platinum, advanced, full body, pemf, photon, customizable frequency",
-    short_description: "Ultimate multi-technology wellness system featuring fully customizable PEMF frequency control.",
-    image: "https://healthyline.com/cdn/shop/files/Amethyst-Sodalite-Blue-Lace-Agate-Green-Aventurine-Yellow-Aventurine-Carnelian-Red-Jasper-Rainbow-Mat-4020-Firm-PEMF-InframatPro-4th-edition_1_9f2602ce-44a3-448f-a368-5f14e04e4c1c.webp?v=1772470017",
-    link: "https://healthyline.com/collections/platinum-series"
-  },
-  {
-    product_id: "soft-6024",
-    name: "Soft Series™ Pillow Top Thermal Mat",
-    category: "Soft Series",
-    search_tags: "soft, pillow, sleep, comfort, infrared, memory foam, spine support",
-    short_description: "Ultra-plush memory foam topped heating pad for deep restorative sleep & spine support.",
-    image: "https://healthyline.com/cdn/shop/files/TAO-1818-Soft-InframatPro-1.webp?v=1772470010",
-    link: "https://healthyline.com/collections/soft-series"
-  }
-];
 const _hoisted_1$b = { class: "product-catalog" };
 const _hoisted_2$8 = { class: "catalog-header" };
 const _hoisted_3$6 = { class: "catalog-title-group" };
@@ -13872,28 +13826,56 @@ const _hoisted_9$1 = {
   key: 0,
   class: "catalog-empty"
 };
-const _hoisted_10$1 = { class: "product-image-wrapper" };
-const _hoisted_11$1 = ["src", "alt"];
-const _hoisted_12$1 = { class: "product-category-badge" };
-const _hoisted_13$1 = { class: "product-info" };
-const _hoisted_14$1 = { class: "product-title" };
-const _hoisted_15$1 = { class: "product-desc" };
-const _hoisted_16$1 = { class: "product-actions" };
-const _hoisted_17$1 = ["onClick"];
-const _hoisted_18$1 = ["onClick"];
+const _hoisted_10$1 = {
+  key: 1,
+  class: "catalog-empty"
+};
+const _hoisted_11$1 = {
+  key: 2,
+  class: "catalog-empty"
+};
+const _hoisted_12$1 = { class: "product-image-wrapper" };
+const _hoisted_13$1 = ["src", "alt"];
+const _hoisted_14$1 = { class: "product-category-badge" };
+const _hoisted_15$1 = { class: "product-info" };
+const _hoisted_16$1 = { class: "product-title" };
+const _hoisted_17$1 = { class: "product-desc" };
+const _hoisted_18$1 = { class: "product-actions" };
+const _hoisted_19$1 = ["onClick"];
+const _hoisted_20$1 = ["onClick"];
 const _sfc_main$b = /* @__PURE__ */ defineComponent({
   __name: "ProductCatalog",
   emits: ["askQuestion"],
   setup(__props, { emit: __emit }) {
     const emit2 = __emit;
+    const options = useOptions();
+    const products = /* @__PURE__ */ ref([]);
+    const categoryList = /* @__PURE__ */ ref(["All"]);
+    const isLoading = /* @__PURE__ */ ref(true);
+    const loadError = /* @__PURE__ */ ref(null);
     const selectedSeries = /* @__PURE__ */ ref("All");
     const searchQuery = /* @__PURE__ */ ref("");
+    async function loadCatalog() {
+      isLoading.value = true;
+      loadError.value = null;
+      try {
+        const res = await getCatalog(options.value);
+        products.value = res.items || [];
+        categoryList.value = ["All", ...res.categories || []];
+      } catch (err) {
+        console.error("Failed to load catalog:", err);
+        loadError.value = "Could not load the catalog. Please try again later.";
+      } finally {
+        isLoading.value = false;
+      }
+    }
+    onMounted(loadCatalog);
     const filteredProducts = computed(() => {
-      return CATALOG_PRODUCTS.filter((product) => {
-        const matchesSeries = selectedSeries.value === "All" || product.category.toLowerCase().trim() === selectedSeries.value.toLowerCase().trim() || product.category.toLowerCase().includes(selectedSeries.value.toLowerCase());
+      return products.value.filter((product) => {
+        const matchesSeries = selectedSeries.value === "All" || product.category.toLowerCase().trim() === selectedSeries.value.toLowerCase().trim();
         const q2 = searchQuery.value.toLowerCase().trim();
-        const tagsStr = Array.isArray(product.search_tags) ? product.search_tags.join(" ") : product.search_tags || "";
-        const matchesQuery = !q2 || product.name.toLowerCase().includes(q2) || product.short_description.toLowerCase().includes(q2) || product.category.toLowerCase().includes(q2) || tagsStr.toLowerCase().includes(q2);
+        const tagsStr = product.search_tags || "";
+        const matchesQuery = !q2 || product.name.toLowerCase().includes(q2) || product.description.toLowerCase().includes(q2) || product.category.toLowerCase().includes(q2) || tagsStr.toLowerCase().includes(q2);
         return matchesSeries && matchesQuery;
       });
     });
@@ -13950,7 +13932,7 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
             }, "×")) : createCommentVNode("", true)
           ]),
           createBaseVNode("div", _hoisted_6$3, [
-            (openBlock(true), createElementBlock(Fragment, null, renderList(unref(PRODUCT_SERIES_LIST), (series) => {
+            (openBlock(true), createElementBlock(Fragment, null, renderList(categoryList.value, (series) => {
               return openBlock(), createElementBlock("button", {
                 key: series,
                 class: normalizeClass(["series-pill", { active: selectedSeries.value === series }]),
@@ -13960,8 +13942,16 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
           ])
         ]),
         createBaseVNode("div", _hoisted_8$1, [
-          filteredProducts.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_9$1, [
-            _cache[5] || (_cache[5] = createBaseVNode("p", null, "No products found in this series.", -1)),
+          isLoading.value ? (openBlock(), createElementBlock("div", _hoisted_9$1, [..._cache[5] || (_cache[5] = [
+            createBaseVNode("p", null, "Loading catalog...", -1)
+          ])])) : loadError.value ? (openBlock(), createElementBlock("div", _hoisted_10$1, [
+            createBaseVNode("p", null, toDisplayString(loadError.value), 1),
+            createBaseVNode("button", {
+              class: "reset-filter-btn",
+              onClick: loadCatalog
+            }, "Try Again")
+          ])) : filteredProducts.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_11$1, [
+            _cache[6] || (_cache[6] = createBaseVNode("p", null, "No products found in this series.", -1)),
             createBaseVNode("button", {
               class: "reset-filter-btn",
               onClick: _cache[2] || (_cache[2] = ($event) => {
@@ -13972,26 +13962,26 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
           ])) : createCommentVNode("", true),
           (openBlock(true), createElementBlock(Fragment, null, renderList(filteredProducts.value, (product) => {
             return openBlock(), createElementBlock("div", {
-              key: product.product_id,
+              key: product.id,
               class: "product-card"
             }, [
-              createBaseVNode("div", _hoisted_10$1, [
+              createBaseVNode("div", _hoisted_12$1, [
                 createBaseVNode("img", {
                   src: product.image,
                   alt: product.name,
                   loading: "lazy"
-                }, null, 8, _hoisted_11$1),
-                createBaseVNode("span", _hoisted_12$1, toDisplayString(product.category), 1)
+                }, null, 8, _hoisted_13$1),
+                createBaseVNode("span", _hoisted_14$1, toDisplayString(product.category), 1)
               ]),
-              createBaseVNode("div", _hoisted_13$1, [
-                createBaseVNode("h4", _hoisted_14$1, toDisplayString(product.name), 1),
-                createBaseVNode("p", _hoisted_15$1, toDisplayString(product.short_description), 1),
-                createBaseVNode("div", _hoisted_16$1, [
+              createBaseVNode("div", _hoisted_15$1, [
+                createBaseVNode("h4", _hoisted_16$1, toDisplayString(product.name), 1),
+                createBaseVNode("p", _hoisted_17$1, toDisplayString(product.description), 1),
+                createBaseVNode("div", _hoisted_18$1, [
                   createBaseVNode("button", {
                     class: "btn-ask-question",
                     onClick: ($event) => handleAskQuestion(product),
                     title: "Ask AI Assistant about this item"
-                  }, [..._cache[6] || (_cache[6] = [
+                  }, [..._cache[7] || (_cache[7] = [
                     createBaseVNode("svg", {
                       xmlns: "http://www.w3.org/2000/svg",
                       width: "15",
@@ -14006,12 +13996,12 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
                       createBaseVNode("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" })
                     ], -1),
                     createBaseVNode("span", null, "Ask AI", -1)
-                  ])], 8, _hoisted_17$1),
+                  ])], 8, _hoisted_19$1),
                   createBaseVNode("button", {
                     class: "btn-product-details",
                     onClick: ($event) => openProductPage(product.link),
                     title: "Open product page in new tab"
-                  }, [..._cache[7] || (_cache[7] = [
+                  }, [..._cache[8] || (_cache[8] = [
                     createBaseVNode("span", null, "View Product", -1),
                     createBaseVNode("svg", {
                       xmlns: "http://www.w3.org/2000/svg",
@@ -14033,7 +14023,7 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
                         y2: "3"
                       })
                     ], -1)
-                  ])], 8, _hoisted_18$1)
+                  ])], 8, _hoisted_20$1)
                 ])
               ])
             ]);
@@ -14050,7 +14040,7 @@ const _export_sfc = (sfc, props) => {
   }
   return target;
 };
-const ProductCatalog = /* @__PURE__ */ _export_sfc(_sfc_main$b, [["__scopeId", "data-v-70e44b0a"]]);
+const ProductCatalog = /* @__PURE__ */ _export_sfc(_sfc_main$b, [["__scopeId", "data-v-98f098fe"]]);
 const defaultSendIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='24px'%20height='24px'%20viewBox='0%200%2024%2024'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3einvia%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%3e%3cg%20id='ChatBOT-aperto'%20transform='translate(-1545,%20-946)'%20fill='%23FF0000'%20fill-rule='nonzero'%3e%3cg%20id='Group-5'%20transform='translate(1192,%20425)'%3e%3cpath%20d='M376,521%20C375.904026,521.000658%20375.808647,521.01513%20375.716797,521.042969%20C375.68976,521.050307%20375.663044,521.058778%20375.636719,521.068359%20L353.650391,528.060547%20L353.650391,528.064453%20C353.259759,528.21022%20353.000562,528.583058%20353,529%20C353.000741,529.349225%20353.183611,529.672765%20353.482422,529.853516%20L360.164062,535.154297%20L373.373047,524.626953%20L362.845703,537.835938%20L368.142578,544.513672%20C368.323084,544.815172%20368.648596,545%20369,545%20C369.416943,544.999438%20369.78978,544.740241%20369.935547,544.349609%20L369.939453,544.349609%20L376.9375,522.34375%20C376.944651,522.32378%20376.951164,522.303587%20376.957031,522.283203%20C376.98487,522.191353%20376.999342,522.095974%20377,522%20C377,521.447715%20376.552285,521%20376,521%20Z'%20id='invia'%3e%3c/path%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
 const _hoisted_1$a = ["disabled"];
 const _hoisted_2$7 = ["src"];
