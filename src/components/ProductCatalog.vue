@@ -21,6 +21,13 @@ const searchQuery = ref<string>('');
 async function loadCatalog() {
   isLoading.value = true;
   loadError.value = null;
+
+  if (!options.value) {
+    loadError.value = 'Chat options are not available yet.';
+    isLoading.value = false;
+    return;
+  }
+
   try {
     const res = await getCatalog(options.value);
     products.value = res.items || [];
