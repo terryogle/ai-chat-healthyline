@@ -76,3 +76,17 @@ export interface SendMessageResponse {
     text?: string;
     actions?: ChatAction[];
 }
+export interface CatalogProduct {
+    id: string;
+    name: string;
+    category: string;
+    description: string;
+    image: string;
+    link: string;
+    search_tags?: string;
+}
+export interface CatalogResponse {
+    items: CatalogProduct[];
+    categories: string[];
+    total?: number;
+}
