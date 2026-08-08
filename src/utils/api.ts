@@ -1,7 +1,8 @@
 import type {
   ChatOptions,
   LoadPreviousSessionResponse,
-  SendMessageResponse
+  SendMessageResponse,
+  CatalogResponse
 } from '../types';
 
 // Costante per l'ID della sessione in localStorage
@@ -133,6 +134,47 @@ export async function sendMessage(
     });
     
     return await fetchApi<SendMessageResponse>(
+      `${options.webhookUrl}?${params.toString()}`,
+      {
+        method,
+        headers: options.webhookConfig?.headers,
+      }
+    );
+  }
+}
+
+/**
+ * Funzione per caricare il catalogo prodotti dal webhook n8n
+ * (che a sua volta legge i dati dalla Google Sheet)
+ */
+export async function getCatalog(
+  options: ChatOptions,
+  filters?: { category?: string; search?: string }
+): Promise<CatalogResponse> {
+  const method = options.webhookConfig?.method === 'POST' ? 'POST' : 'GET';
+  const body: Record<string, any> = {
+    action: 'getCatalog',
+  };
+
+  if (filters?.category) body.category = filters.category;
+  if (filters?.search) body.search = filters.search;
+
+  if (method === 'POST') {
+    return await fetchApi<CatalogResponse>(options.webhookUrl, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.webhookConfig?.headers,
+      },
+      body: JSON.stringify(body),
+    });
+  } else {
+    const params = new URLSearchParams();
+    Object.entries(body).forEach(([key, value]) => {
+      params.append(key, String(value));
+    });
+
+    return await fetchApi<CatalogResponse>(
       `${options.webhookUrl}?${params.toString()}`,
       {
         method,
