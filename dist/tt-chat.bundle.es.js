@@ -8010,17 +8010,37 @@ ${cssVariables}
 const LOCAL_STORAGE_SESSION_KEY = "tt-chat-n8n-session-id";
 async function fetchApi(url, options = {}) {
   console.log("Calling API:", url, options);
-  const response = await fetch(url, {
-    mode: "cors",
-    cache: "no-cache",
-    ...options
-  });
-  if (!response.ok) {
-    throw new Error(`API request failed with status ${response.status}`);
+  try {
+    const response = await fetch(url, {
+      mode: "cors",
+      cache: "no-cache",
+      ...options
+    });
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+    const result = await response.json();
+    console.log("API Response:", result);
+    return result;
+  } catch (err) {
+    if (typeof window !== "undefined" && url.startsWith("http") && !url.includes(window.location.host)) {
+      console.warn(`[SimpleChatN8N] Call to external webhook ${url} failed (${err.message}). Falling back to local mock endpoint /api/webhook.`);
+      const queryString = url.includes("?") ? "?" + url.split("?")[1] : "";
+      const fallbackUrl = `/api/webhook${queryString}`;
+      const response = await fetch(fallbackUrl, {
+        mode: "cors",
+        cache: "no-cache",
+        ...options
+      });
+      if (!response.ok) {
+        throw new Error(`Fallback API request failed with status ${response.status}`);
+      }
+      const result = await response.json();
+      console.log("Fallback API Response:", result);
+      return result;
+    }
+    throw err;
   }
-  const result = await response.json();
-  console.log("API Response:", result);
-  return result;
 }
 async function loadPreviousSession(sessionId, options) {
   var _a2, _b, _c;
@@ -8358,11 +8378,11 @@ const ChatPlugin = {
       theme: {},
       allowFileUploads: false,
       showTooltip: true,
-      tooltipText: "Hai bisogno di aiuto?",
+      tooltipText: "Got questions? We're here 24/7",
       initialMessages: [],
-      placeholder: "Scrivi un messaggio...",
-      title: "Chat",
-      subtitle: "Come posso aiutarti?"
+      placeholder: "Type a message...",
+      title: "HealthyLine",
+      subtitle: "How can we help you?"
     };
     const resolvedOptions = /* @__PURE__ */ ref({
       ...defaultOptions2,
@@ -13730,24 +13750,24 @@ const VueMarkdown = /* @__PURE__ */ defineComponent((props) => {
 }, {
   props: ["source", "options", "plugins"]
 });
-const _hoisted_1$c = { class: "tt-chat-message-content" };
-const _hoisted_2$9 = {
+const _hoisted_1$d = { class: "tt-chat-message-content" };
+const _hoisted_2$a = {
   key: 0,
   class: "tt-chat-message-actions"
 };
-const _hoisted_3$7 = ["onClick"];
-const _hoisted_4$6 = {
+const _hoisted_3$8 = ["onClick"];
+const _hoisted_4$7 = {
   key: 1,
   class: "tt-chat-action-checkbox"
 };
-const _hoisted_5$5 = ["id"];
-const _hoisted_6$4 = ["for"];
-const _hoisted_7$3 = ["href"];
-const _hoisted_8$2 = {
+const _hoisted_5$6 = ["id"];
+const _hoisted_6$5 = ["for"];
+const _hoisted_7$4 = ["href"];
+const _hoisted_8$3 = {
   key: 1,
   class: "tt-chat-message-files"
 };
-const _sfc_main$c = /* @__PURE__ */ defineComponent({
+const _sfc_main$d = /* @__PURE__ */ defineComponent({
   __name: "ChatMessage",
   props: {
     message: {}
@@ -13770,23 +13790,23 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["tt-chat-message", classes.value])
       }, [
-        createBaseVNode("div", _hoisted_1$c, [
+        createBaseVNode("div", _hoisted_1$d, [
           createVNode(unref(VueMarkdown), {
             source: __props.message.text
           }, null, 8, ["source"])
         ]),
-        hasActions.value ? (openBlock(), createElementBlock("div", _hoisted_2$9, [
+        hasActions.value ? (openBlock(), createElementBlock("div", _hoisted_2$a, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(__props.message.actions, (action, index) => {
             return openBlock(), createElementBlock(Fragment, { key: index }, [
               action.type === "button" ? (openBlock(), createElementBlock("button", {
                 key: 0,
                 class: "tt-chat-action-button",
                 onClick: ($event) => handleButtonClick(action.action)
-              }, toDisplayString(action.label), 9, _hoisted_3$7)) : action.type === "checkbox" ? (openBlock(), createElementBlock("div", _hoisted_4$6, [
+              }, toDisplayString(action.label), 9, _hoisted_3$8)) : action.type === "checkbox" ? (openBlock(), createElementBlock("div", _hoisted_4$7, [
                 createBaseVNode("input", {
                   type: "checkbox",
                   id: "action-checkbox-" + index
-                }, null, 8, _hoisted_5$5),
+                }, null, 8, _hoisted_5$6),
                 createBaseVNode("label", {
                   for: "action-checkbox-" + index
                 }, [
@@ -13796,13 +13816,13 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
                     href: action.action,
                     target: "_blank",
                     rel: "noopener"
-                  }, "Dettagli", 8, _hoisted_7$3)) : createCommentVNode("", true)
-                ], 8, _hoisted_6$4)
+                  }, "Dettagli", 8, _hoisted_7$4)) : createCommentVNode("", true)
+                ], 8, _hoisted_6$5)
               ])) : createCommentVNode("", true)
             ], 64);
           }), 128))
         ])) : createCommentVNode("", true),
-        __props.message.files && __props.message.files.length > 0 ? (openBlock(), createElementBlock("div", _hoisted_8$2, [
+        __props.message.files && __props.message.files.length > 0 ? (openBlock(), createElementBlock("div", _hoisted_8$3, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(__props.message.files, (file) => {
             return openBlock(), createElementBlock("div", {
               key: file.name,
@@ -13814,23 +13834,23 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$b = { class: "product-catalog" };
-const _hoisted_2$8 = { class: "catalog-header" };
-const _hoisted_3$6 = { class: "catalog-title-group" };
-const _hoisted_4$5 = { class: "catalog-count" };
-const _hoisted_5$4 = { class: "catalog-search" };
-const _hoisted_6$3 = { class: "series-pills" };
-const _hoisted_7$2 = ["onClick"];
-const _hoisted_8$1 = { class: "catalog-grid" };
-const _hoisted_9$1 = {
+const _hoisted_1$c = { class: "product-catalog" };
+const _hoisted_2$9 = { class: "catalog-header" };
+const _hoisted_3$7 = { class: "catalog-title-group" };
+const _hoisted_4$6 = { class: "catalog-count" };
+const _hoisted_5$5 = { class: "catalog-search" };
+const _hoisted_6$4 = { class: "series-pills" };
+const _hoisted_7$3 = ["onClick"];
+const _hoisted_8$2 = { class: "catalog-grid" };
+const _hoisted_9$2 = {
   key: 0,
   class: "catalog-empty"
 };
-const _hoisted_10$1 = {
+const _hoisted_10$2 = {
   key: 1,
   class: "catalog-empty"
 };
-const _hoisted_11$1 = {
+const _hoisted_11$2 = {
   key: 2,
   class: "catalog-empty"
 };
@@ -13843,7 +13863,7 @@ const _hoisted_17$1 = { class: "product-desc" };
 const _hoisted_18$1 = { class: "product-actions" };
 const _hoisted_19$1 = ["onClick"];
 const _hoisted_20$1 = ["onClick"];
-const _sfc_main$b = /* @__PURE__ */ defineComponent({
+const _sfc_main$c = /* @__PURE__ */ defineComponent({
   __name: "ProductCatalog",
   emits: ["askQuestion"],
   setup(__props, { emit: __emit }) {
@@ -13893,13 +13913,13 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
       }
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$b, [
-        createBaseVNode("div", _hoisted_2$8, [
-          createBaseVNode("div", _hoisted_3$6, [
+      return openBlock(), createElementBlock("div", _hoisted_1$c, [
+        createBaseVNode("div", _hoisted_2$9, [
+          createBaseVNode("div", _hoisted_3$7, [
             _cache[3] || (_cache[3] = createBaseVNode("h3", null, "HealthyLine Catalog", -1)),
-            createBaseVNode("span", _hoisted_4$5, toDisplayString(filteredProducts.value.length) + " items", 1)
+            createBaseVNode("span", _hoisted_4$6, toDisplayString(filteredProducts.value.length) + " items", 1)
           ]),
-          createBaseVNode("div", _hoisted_5$4, [
+          createBaseVNode("div", _hoisted_5$5, [
             _cache[4] || (_cache[4] = createBaseVNode("svg", {
               xmlns: "http://www.w3.org/2000/svg",
               width: "16",
@@ -13936,26 +13956,26 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
               onClick: _cache[1] || (_cache[1] = ($event) => searchQuery.value = "")
             }, "×")) : createCommentVNode("", true)
           ]),
-          createBaseVNode("div", _hoisted_6$3, [
+          createBaseVNode("div", _hoisted_6$4, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(categoryList.value, (series) => {
               return openBlock(), createElementBlock("button", {
                 key: series,
                 class: normalizeClass(["series-pill", { active: selectedSeries.value === series }]),
                 onClick: ($event) => selectedSeries.value = series
-              }, toDisplayString(series), 11, _hoisted_7$2);
+              }, toDisplayString(series), 11, _hoisted_7$3);
             }), 128))
           ])
         ]),
-        createBaseVNode("div", _hoisted_8$1, [
-          isLoading.value ? (openBlock(), createElementBlock("div", _hoisted_9$1, [..._cache[5] || (_cache[5] = [
+        createBaseVNode("div", _hoisted_8$2, [
+          isLoading.value ? (openBlock(), createElementBlock("div", _hoisted_9$2, [..._cache[5] || (_cache[5] = [
             createBaseVNode("p", null, "Loading catalog...", -1)
-          ])])) : loadError.value ? (openBlock(), createElementBlock("div", _hoisted_10$1, [
+          ])])) : loadError.value ? (openBlock(), createElementBlock("div", _hoisted_10$2, [
             createBaseVNode("p", null, toDisplayString(loadError.value), 1),
             createBaseVNode("button", {
               class: "reset-filter-btn",
               onClick: loadCatalog
             }, "Try Again")
-          ])) : filteredProducts.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_11$1, [
+          ])) : filteredProducts.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_11$2, [
             _cache[6] || (_cache[6] = createBaseVNode("p", null, "No products found in this series.", -1)),
             createBaseVNode("button", {
               class: "reset-filter-btn",
@@ -14045,11 +14065,11 @@ const _export_sfc = (sfc, props) => {
   }
   return target;
 };
-const ProductCatalog = /* @__PURE__ */ _export_sfc(_sfc_main$b, [["__scopeId", "data-v-5c20077e"]]);
+const ProductCatalog = /* @__PURE__ */ _export_sfc(_sfc_main$c, [["__scopeId", "data-v-5c20077e"]]);
 const defaultSendIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='24px'%20height='24px'%20viewBox='0%200%2024%2024'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3einvia%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%3e%3cg%20id='ChatBOT-aperto'%20transform='translate(-1545,%20-946)'%20fill='%23FF0000'%20fill-rule='nonzero'%3e%3cg%20id='Group-5'%20transform='translate(1192,%20425)'%3e%3cpath%20d='M376,521%20C375.904026,521.000658%20375.808647,521.01513%20375.716797,521.042969%20C375.68976,521.050307%20375.663044,521.058778%20375.636719,521.068359%20L353.650391,528.060547%20L353.650391,528.064453%20C353.259759,528.21022%20353.000562,528.583058%20353,529%20C353.000741,529.349225%20353.183611,529.672765%20353.482422,529.853516%20L360.164062,535.154297%20L373.373047,524.626953%20L362.845703,537.835938%20L368.142578,544.513672%20C368.323084,544.815172%20368.648596,545%20369,545%20C369.416943,544.999438%20369.78978,544.740241%20369.935547,544.349609%20L369.939453,544.349609%20L376.9375,522.34375%20C376.944651,522.32378%20376.951164,522.303587%20376.957031,522.283203%20C376.98487,522.191353%20376.999342,522.095974%20377,522%20C377,521.447715%20376.552285,521%20376,521%20Z'%20id='invia'%3e%3c/path%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
-const _hoisted_1$a = ["disabled"];
-const _hoisted_2$7 = ["src"];
-const _sfc_main$a = /* @__PURE__ */ defineComponent({
+const _hoisted_1$b = ["disabled"];
+const _hoisted_2$8 = ["src"];
+const _sfc_main$b = /* @__PURE__ */ defineComponent({
   __name: "ButtonSend",
   props: {
     disabled: { type: Boolean }
@@ -14071,25 +14091,25 @@ const _sfc_main$a = /* @__PURE__ */ defineComponent({
           src: sendIcon.value,
           alt: "Send message",
           class: "tt-chat-send-button"
-        }, null, 8, _hoisted_2$7)
-      ], 8, _hoisted_1$a);
+        }, null, 8, _hoisted_2$8)
+      ], 8, _hoisted_1$b);
     };
   }
 });
-const _hoisted_1$9 = { class: "tt-chat-input" };
-const _hoisted_2$6 = ["placeholder"];
-const _hoisted_3$5 = { class: "tt-chat-input-controls" };
-const _hoisted_4$4 = ["disabled"];
-const _hoisted_5$3 = {
+const _hoisted_1$a = { class: "tt-chat-input" };
+const _hoisted_2$7 = ["placeholder"];
+const _hoisted_3$6 = { class: "tt-chat-input-controls" };
+const _hoisted_4$5 = ["disabled"];
+const _hoisted_5$4 = {
   key: 1,
   for: "file-upload",
   class: "tt-chat-file-button"
 };
-const _hoisted_6$2 = {
+const _hoisted_6$3 = {
   key: 0,
   class: "tt-chat-files-preview"
 };
-const _sfc_main$9 = /* @__PURE__ */ defineComponent({
+const _sfc_main$a = /* @__PURE__ */ defineComponent({
   __name: "ChatInput",
   emits: ["send"],
   setup(__props, { emit: __emit }) {
@@ -14141,7 +14161,7 @@ const _sfc_main$9 = /* @__PURE__ */ defineComponent({
       textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`;
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$9, [
+      return openBlock(), createElementBlock("div", _hoisted_1$a, [
         withDirectives(createBaseVNode("textarea", {
           ref_key: "textareaRef",
           ref: textareaRef,
@@ -14149,10 +14169,10 @@ const _sfc_main$9 = /* @__PURE__ */ defineComponent({
           placeholder: placeholder.value,
           onKeydown,
           onInput: adjustHeight
-        }, null, 40, _hoisted_2$6), [
+        }, null, 40, _hoisted_2$7), [
           [vModelText, input.value]
         ]),
-        createBaseVNode("div", _hoisted_3$5, [
+        createBaseVNode("div", _hoisted_3$6, [
           allowFileUploads.value ? (openBlock(), createElementBlock("input", {
             key: 0,
             type: "file",
@@ -14160,14 +14180,14 @@ const _sfc_main$9 = /* @__PURE__ */ defineComponent({
             onChange: handleFileInput,
             disabled: unref(waitingForResponse),
             class: "tt-chat-file-input"
-          }, null, 40, _hoisted_4$4)) : createCommentVNode("", true),
-          allowFileUploads.value ? (openBlock(), createElementBlock("label", _hoisted_5$3, " 📎 ")) : createCommentVNode("", true),
-          createVNode(_sfc_main$a, {
+          }, null, 40, _hoisted_4$5)) : createCommentVNode("", true),
+          allowFileUploads.value ? (openBlock(), createElementBlock("label", _hoisted_5$4, " 📎 ")) : createCommentVNode("", true),
+          createVNode(_sfc_main$b, {
             onClick: onSubmit,
             disabled: isSubmitDisabled.value
           }, null, 8, ["disabled"])
         ]),
-        files.value && files.value.length > 0 ? (openBlock(), createElementBlock("div", _hoisted_6$2, [
+        files.value && files.value.length > 0 ? (openBlock(), createElementBlock("div", _hoisted_6$3, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(Array.from(files.value), (file, index) => {
             return openBlock(), createElementBlock("div", {
               key: index,
@@ -14179,14 +14199,14 @@ const _sfc_main$9 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$8 = { class: "tt-chat-privacy" };
-const _hoisted_2$5 = { class: "tt-chat-privacy-message" };
-const _hoisted_3$4 = ["href"];
-const _hoisted_4$3 = { class: "tt-chat-privacy-options" };
-const _hoisted_5$2 = { class: "tt-chat-privacy-option" };
-const _hoisted_6$1 = { class: "tt-chat-privacy-option" };
-const _hoisted_7$1 = ["disabled"];
-const _sfc_main$8 = /* @__PURE__ */ defineComponent({
+const _hoisted_1$9 = { class: "tt-chat-privacy" };
+const _hoisted_2$6 = { class: "tt-chat-privacy-message" };
+const _hoisted_3$5 = ["href"];
+const _hoisted_4$4 = { class: "tt-chat-privacy-options" };
+const _hoisted_5$3 = { class: "tt-chat-privacy-option" };
+const _hoisted_6$2 = { class: "tt-chat-privacy-option" };
+const _hoisted_7$2 = ["disabled"];
+const _sfc_main$9 = /* @__PURE__ */ defineComponent({
   __name: "ConfirmPrivacy",
   props: {
     privacyUrl: {}
@@ -14199,18 +14219,18 @@ const _sfc_main$8 = /* @__PURE__ */ defineComponent({
       emit2("confirm", selectedOption.value === "accept");
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$8, [
-        createBaseVNode("div", _hoisted_2$5, [
+      return openBlock(), createElementBlock("div", _hoisted_1$9, [
+        createBaseVNode("div", _hoisted_2$6, [
           _cache[2] || (_cache[2] = createTextVNode(" Per contattarla è necessario accettare l'utilizzo dei dati secondo la nostra ", -1)),
           __props.privacyUrl ? (openBlock(), createElementBlock("a", {
             key: 0,
             href: __props.privacyUrl,
             target: "_blank",
             rel: "noopener"
-          }, "privacy policy", 8, _hoisted_3$4)) : createCommentVNode("", true)
+          }, "privacy policy", 8, _hoisted_3$5)) : createCommentVNode("", true)
         ]),
-        createBaseVNode("div", _hoisted_4$3, [
-          createBaseVNode("div", _hoisted_5$2, [
+        createBaseVNode("div", _hoisted_4$4, [
+          createBaseVNode("div", _hoisted_5$3, [
             withDirectives(createBaseVNode("input", {
               type: "radio",
               id: "privacy-accept",
@@ -14222,7 +14242,7 @@ const _sfc_main$8 = /* @__PURE__ */ defineComponent({
             ]),
             _cache[3] || (_cache[3] = createBaseVNode("label", { for: "privacy-accept" }, "Accetta", -1))
           ]),
-          createBaseVNode("div", _hoisted_6$1, [
+          createBaseVNode("div", _hoisted_6$2, [
             withDirectives(createBaseVNode("input", {
               type: "radio",
               id: "privacy-refuse",
@@ -14239,7 +14259,7 @@ const _sfc_main$8 = /* @__PURE__ */ defineComponent({
           class: "tt-chat-privacy-button",
           onClick: handleConfirm,
           disabled: !selectedOption.value
-        }, " Conferma scelta ", 8, _hoisted_7$1)
+        }, " Conferma scelta ", 8, _hoisted_7$2)
       ]);
     };
   }
@@ -15013,10 +15033,10 @@ function ve(e, t, s, n, l, i) {
   ], 10, he);
 }
 const Ce = /* @__PURE__ */ S(de, [["render", ve]]);
-const _hoisted_1$7 = { class: "tt-chat-province" };
-const _hoisted_2$4 = { class: "tt-chat-province-select" };
-const _hoisted_3$3 = ["disabled"];
-const _sfc_main$7 = /* @__PURE__ */ defineComponent({
+const _hoisted_1$8 = { class: "tt-chat-province" };
+const _hoisted_2$5 = { class: "tt-chat-province-select" };
+const _hoisted_3$4 = ["disabled"];
+const _sfc_main$8 = /* @__PURE__ */ defineComponent({
   __name: "SelectProvince",
   emits: ["select"],
   setup(__props, { emit: __emit }) {
@@ -15140,9 +15160,9 @@ const _sfc_main$7 = /* @__PURE__ */ defineComponent({
       }
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$7, [
+      return openBlock(), createElementBlock("div", _hoisted_1$8, [
         _cache[1] || (_cache[1] = createBaseVNode("div", { class: "tt-chat-province-message" }, " Seleziona la tua provincia: ", -1)),
-        createBaseVNode("div", _hoisted_2$4, [
+        createBaseVNode("div", _hoisted_2$5, [
           createVNode(unref(Ce), {
             modelValue: selectedProvince.value,
             "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => selectedProvince.value = $event),
@@ -15160,7 +15180,7 @@ const _sfc_main$7 = /* @__PURE__ */ defineComponent({
           class: "tt-chat-province-button",
           onClick: handleConfirm,
           disabled: !selectedProvince.value
-        }, " Conferma selezione ", 8, _hoisted_3$3)
+        }, " Conferma selezione ", 8, _hoisted_3$4)
       ]);
     };
   }
@@ -23702,11 +23722,11 @@ const co = ({
 Object.entries(So).forEach(([e, t]) => {
   e !== "default" && (qn[e] = t);
 });
-const _hoisted_1$6 = { class: "tt-chat-datepicker" };
-const _hoisted_2$3 = { class: "tt-chat-datepicker-message" };
-const _hoisted_3$2 = { class: "tt-chat-datepicker-input" };
-const _hoisted_4$2 = ["disabled"];
-const _sfc_main$6 = /* @__PURE__ */ defineComponent({
+const _hoisted_1$7 = { class: "tt-chat-datepicker" };
+const _hoisted_2$4 = { class: "tt-chat-datepicker-message" };
+const _hoisted_3$3 = { class: "tt-chat-datepicker-input" };
+const _hoisted_4$3 = ["disabled"];
+const _sfc_main$7 = /* @__PURE__ */ defineComponent({
   __name: "Datepicker",
   props: {
     label: {}
@@ -23722,9 +23742,9 @@ const _sfc_main$6 = /* @__PURE__ */ defineComponent({
       }
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$6, [
-        createBaseVNode("div", _hoisted_2$3, toDisplayString(__props.label || "Seleziona una data:"), 1),
-        createBaseVNode("div", _hoisted_3$2, [
+      return openBlock(), createElementBlock("div", _hoisted_1$7, [
+        createBaseVNode("div", _hoisted_2$4, toDisplayString(__props.label || "Seleziona una data:"), 1),
+        createBaseVNode("div", _hoisted_3$3, [
           createVNode(unref(qn), {
             modelValue: selectedDate.value,
             "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => selectedDate.value = $event),
@@ -23742,7 +23762,7 @@ const _sfc_main$6 = /* @__PURE__ */ defineComponent({
           class: "tt-chat-datepicker-button",
           onClick: handleConfirm,
           disabled: !selectedDate.value
-        }, " Conferma data ", 8, _hoisted_4$2)
+        }, " Conferma data ", 8, _hoisted_4$3)
       ]);
     };
   }
@@ -34094,12 +34114,12 @@ var intlTelInputWithUtils = { exports: {} };
 })(intlTelInputWithUtils);
 var intlTelInputWithUtilsExports = intlTelInputWithUtils.exports;
 const intlTelInput = /* @__PURE__ */ getDefaultExportFromCjs(intlTelInputWithUtilsExports);
-const _hoisted_1$5 = { class: "tt-chat-input-component" };
-const _hoisted_2$2 = { class: "tt-chat-input-component-message" };
-const _hoisted_3$1 = { class: "tt-chat-input-component-field" };
-const _hoisted_4$1 = ["type", "placeholder"];
-const _hoisted_5$1 = ["disabled"];
-const _sfc_main$5 = /* @__PURE__ */ defineComponent({
+const _hoisted_1$6 = { class: "tt-chat-input-component" };
+const _hoisted_2$3 = { class: "tt-chat-input-component-message" };
+const _hoisted_3$2 = { class: "tt-chat-input-component-field" };
+const _hoisted_4$2 = ["type", "placeholder"];
+const _hoisted_5$2 = ["disabled"];
+const _sfc_main$6 = /* @__PURE__ */ defineComponent({
   __name: "SpecialInput",
   props: {
     inputType: {},
@@ -34195,9 +34215,9 @@ const _sfc_main$5 = /* @__PURE__ */ defineComponent({
       }
     });
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$5, [
-        createBaseVNode("div", _hoisted_2$2, toDisplayString(__props.label || "Inserisci le informazioni richieste:"), 1),
-        createBaseVNode("div", _hoisted_3$1, [
+      return openBlock(), createElementBlock("div", _hoisted_1$6, [
+        createBaseVNode("div", _hoisted_2$3, toDisplayString(__props.label || "Inserisci le informazioni richieste:"), 1),
+        createBaseVNode("div", _hoisted_3$2, [
           htmlInputType.value === "tel" ? withDirectives((openBlock(), createElementBlock("input", {
             key: 0,
             ref_key: "inputRef",
@@ -34215,7 +34235,7 @@ const _sfc_main$5 = /* @__PURE__ */ defineComponent({
             placeholder: placeholder.value,
             onKeypress: handleKeyPress,
             class: normalizeClass(["tt-chat-input-component-input", { "invalid": inputValue.value && !isValid2.value }])
-          }, null, 42, _hoisted_4$1)), [
+          }, null, 42, _hoisted_4$2)), [
             [vModelDynamic, inputValue.value]
           ])
         ]),
@@ -34223,11 +34243,239 @@ const _sfc_main$5 = /* @__PURE__ */ defineComponent({
           class: "tt-chat-input-component-button",
           onClick: handleSubmit,
           disabled: !isValid2.value
-        }, " Conferma ", 8, _hoisted_5$1)
+        }, " Conferma ", 8, _hoisted_5$2)
       ]);
     };
   }
 });
+const _hoisted_1$5 = { class: "order-auth-card" };
+const _hoisted_2$2 = { class: "card-header" };
+const _hoisted_3$1 = { class: "form-group" };
+const _hoisted_4$1 = ["disabled"];
+const _hoisted_5$1 = { key: 0 };
+const _hoisted_6$1 = {
+  key: 1,
+  class: "btn-content"
+};
+const _hoisted_7$1 = { class: "card-subtitle" };
+const _hoisted_8$1 = {
+  key: 0,
+  class: "push-alert"
+};
+const _hoisted_9$1 = { class: "otp-inputs-container" };
+const _hoisted_10$1 = ["onUpdate:modelValue", "onInput", "onKeydown"];
+const _hoisted_11$1 = ["disabled"];
+const _sfc_main$5 = /* @__PURE__ */ defineComponent({
+  __name: "OrderAuthCard",
+  emits: ["submit", "cancel"],
+  setup(__props, { emit: __emit }) {
+    const emit2 = __emit;
+    const email = /* @__PURE__ */ ref("");
+    const step = /* @__PURE__ */ ref("input");
+    const otpCode = /* @__PURE__ */ ref(["", "", "", "", "", ""]);
+    const otpInputs = /* @__PURE__ */ ref([]);
+    const isSendingCode = /* @__PURE__ */ ref(false);
+    const pushNotificationReceived = /* @__PURE__ */ ref(false);
+    const isEmailValid = computed(() => {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+    });
+    const canSubmitInput = computed(() => isEmailValid.value);
+    const fullOtpCode = computed(() => otpCode.value.join(""));
+    const isOtpValid = computed(() => fullOtpCode.value.length === 6 && /^\d+$/.test(fullOtpCode.value));
+    function handleNextStep() {
+      if (!canSubmitInput.value) return;
+      isSendingCode.value = true;
+      setTimeout(() => {
+        isSendingCode.value = false;
+        step.value = "otp";
+        setTimeout(() => {
+          pushNotificationReceived.value = true;
+          const sampleCode = ["8", "4", "9", "2", "0", "1"];
+          sampleCode.forEach((num, idx) => {
+            otpCode.value[idx] = num;
+          });
+        }, 1200);
+      }, 600);
+    }
+    function handleOtpInput(index, event) {
+      var _a2;
+      const target = event.target;
+      const val = target.value;
+      if (val.length > 1) {
+        const digits = val.replace(/\D/g, "").slice(0, 6).split("");
+        digits.forEach((d, i) => {
+          otpCode.value[i] = d;
+        });
+        return;
+      }
+      otpCode.value[index] = val;
+      if (val && index < 5 && otpInputs.value[index + 1]) {
+        (_a2 = otpInputs.value[index + 1]) == null ? void 0 : _a2.focus();
+      }
+    }
+    function handleOtpKeydown(index, event) {
+      var _a2;
+      if (event.key === "Backspace" && !otpCode.value[index] && index > 0) {
+        (_a2 = otpInputs.value[index - 1]) == null ? void 0 : _a2.focus();
+      }
+    }
+    function handleVerifyAndSubmit() {
+      if (!isOtpValid.value) return;
+      emit2("submit", {
+        mode: "email",
+        value: email.value.trim(),
+        verificationCode: fullOtpCode.value
+      });
+    }
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", _hoisted_1$5, [
+        createBaseVNode("div", _hoisted_2$2, [
+          createBaseVNode("button", {
+            class: "back-link",
+            onClick: _cache[0] || (_cache[0] = ($event) => step.value === "otp" ? step.value = "input" : emit2("cancel"))
+          }, [..._cache[2] || (_cache[2] = [
+            createBaseVNode("svg", {
+              xmlns: "http://www.w3.org/2000/svg",
+              width: "18",
+              height: "18",
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "currentColor",
+              "stroke-width": "2",
+              "stroke-linecap": "round",
+              "stroke-linejoin": "round"
+            }, [
+              createBaseVNode("line", {
+                x1: "19",
+                y1: "12",
+                x2: "5",
+                y2: "12"
+              }),
+              createBaseVNode("polyline", { points: "12 19 5 12 12 5" })
+            ], -1),
+            createBaseVNode("span", null, "Back", -1)
+          ])])
+        ]),
+        step.value === "input" ? (openBlock(), createElementBlock(Fragment, { key: 0 }, [
+          _cache[5] || (_cache[5] = createBaseVNode("h3", { class: "card-title" }, "Existing customer?", -1)),
+          createBaseVNode("div", _hoisted_3$1, [
+            _cache[3] || (_cache[3] = createBaseVNode("label", { class: "form-label" }, "Your email", -1)),
+            withDirectives(createBaseVNode("input", {
+              "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => email.value = $event),
+              type: "email",
+              class: "form-input",
+              placeholder: "Enter your email",
+              onKeyup: withKeys(handleNextStep, ["enter"]),
+              autofocus: ""
+            }, null, 544), [
+              [vModelText, email.value]
+            ])
+          ]),
+          createBaseVNode("button", {
+            class: "submit-btn",
+            disabled: !canSubmitInput.value || isSendingCode.value,
+            onClick: handleNextStep
+          }, [
+            isSendingCode.value ? (openBlock(), createElementBlock("span", _hoisted_5$1, "Sending code...")) : (openBlock(), createElementBlock("span", _hoisted_6$1, [..._cache[4] || (_cache[4] = [
+              createTextVNode(" Enter ", -1),
+              createBaseVNode("svg", {
+                xmlns: "http://www.w3.org/2000/svg",
+                width: "18",
+                height: "18",
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "currentColor",
+                "stroke-width": "2.2",
+                "stroke-linecap": "round",
+                "stroke-linejoin": "round"
+              }, [
+                createBaseVNode("line", {
+                  x1: "5",
+                  y1: "12",
+                  x2: "19",
+                  y2: "12"
+                }),
+                createBaseVNode("polyline", { points: "12 5 19 12 12 19" })
+              ], -1)
+            ])]))
+          ], 8, _hoisted_4$1)
+        ], 64)) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+          _cache[10] || (_cache[10] = createBaseVNode("h3", { class: "card-title" }, "Enter Verification Code", -1)),
+          createBaseVNode("p", _hoisted_7$1, [
+            _cache[6] || (_cache[6] = createTextVNode(" We sent a 6-digit code to ", -1)),
+            createBaseVNode("strong", null, toDisplayString(email.value), 1)
+          ]),
+          createVNode(Transition, { name: "fade" }, {
+            default: withCtx(() => [
+              pushNotificationReceived.value ? (openBlock(), createElementBlock("div", _hoisted_8$1, [..._cache[7] || (_cache[7] = [
+                createBaseVNode("div", { class: "push-icon" }, "📲", -1),
+                createBaseVNode("div", { class: "push-text" }, [
+                  createBaseVNode("strong", null, "Push Code Auto-filled:"),
+                  createBaseVNode("span", null, "849201")
+                ], -1)
+              ])])) : createCommentVNode("", true)
+            ]),
+            _: 1
+          }),
+          createBaseVNode("div", _hoisted_9$1, [
+            (openBlock(), createElementBlock(Fragment, null, renderList(6, (_, index) => {
+              return withDirectives(createBaseVNode("input", {
+                key: index,
+                ref_for: true,
+                ref: (el) => otpInputs.value[index] = el,
+                "onUpdate:modelValue": ($event) => otpCode.value[index] = $event,
+                type: "text",
+                inputmode: "numeric",
+                maxlength: "1",
+                class: "otp-box",
+                onInput: ($event) => handleOtpInput(index, $event),
+                onKeydown: ($event) => handleOtpKeydown(index, $event)
+              }, null, 40, _hoisted_10$1), [
+                [vModelText, otpCode.value[index]]
+              ]);
+            }), 64))
+          ]),
+          createBaseVNode("button", {
+            class: "submit-btn",
+            disabled: !isOtpValid.value,
+            onClick: handleVerifyAndSubmit
+          }, [..._cache[8] || (_cache[8] = [
+            createBaseVNode("span", { class: "btn-content" }, [
+              createTextVNode(" Verify & View Orders "),
+              createBaseVNode("svg", {
+                xmlns: "http://www.w3.org/2000/svg",
+                width: "18",
+                height: "18",
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "currentColor",
+                "stroke-width": "2.2",
+                "stroke-linecap": "round",
+                "stroke-linejoin": "round"
+              }, [
+                createBaseVNode("line", {
+                  x1: "5",
+                  y1: "12",
+                  x2: "19",
+                  y2: "12"
+                }),
+                createBaseVNode("polyline", { points: "12 5 19 12 12 19" })
+              ])
+            ], -1)
+          ])], 8, _hoisted_11$1),
+          createBaseVNode("div", { class: "resend-box" }, [
+            _cache[9] || (_cache[9] = createTextVNode(" Didn't receive code? ", -1)),
+            createBaseVNode("button", {
+              class: "resend-link",
+              onClick: handleNextStep
+            }, "Resend Code")
+          ])
+        ], 64))
+      ]);
+    };
+  }
+});
+const OrderAuthCard = /* @__PURE__ */ _export_sfc(_sfc_main$5, [["__scopeId", "data-v-b0d853a7"]]);
 const _hoisted_1$4 = { class: "tt-chat" };
 const _hoisted_2$1 = { class: "tt-chat-header" };
 const _hoisted_3 = { class: "header-info" };
@@ -34236,7 +34484,10 @@ const _hoisted_4 = {
   class: "tt-chat-home-view"
 };
 const _hoisted_5 = { class: "welcome-box" };
-const _hoisted_6 = { class: "quick-card" };
+const _hoisted_6 = {
+  key: 2,
+  class: "quick-card"
+};
 const _hoisted_7 = {
   key: 1,
   class: "tt-chat-catalog-view"
@@ -34249,35 +34500,39 @@ const _hoisted_9 = {
   key: 0,
   class: "empty-messages-prompt"
 };
-const _hoisted_10 = {
+const _hoisted_10 = { class: "starter-suggestions" };
+const _hoisted_11 = ["onClick"];
+const _hoisted_12 = { class: "chip-icon" };
+const _hoisted_13 = { class: "chip-text" };
+const _hoisted_14 = {
   key: 1,
   class: "tt-chat-typing"
 };
-const _hoisted_11 = { class: "tt-chat-footer" };
-const _hoisted_12 = { key: 0 };
-const _hoisted_13 = {
+const _hoisted_15 = { class: "tt-chat-footer" };
+const _hoisted_16 = { key: 0 };
+const _hoisted_17 = {
   key: 0,
   class: "tt-chat-privacy-container"
 };
-const _hoisted_14 = {
+const _hoisted_18 = {
   key: 1,
   class: "tt-chat-province-container"
 };
-const _hoisted_15 = {
+const _hoisted_19 = {
   key: 2,
   class: "tt-chat-datepicker-container"
 };
-const _hoisted_16 = {
+const _hoisted_20 = {
   key: 3,
   class: "tt-chat-input-component-container"
 };
-const _hoisted_17 = {
+const _hoisted_21 = {
   key: 4,
   class: "tt-chat-input-container"
 };
-const _hoisted_18 = { class: "bottom-nav-bar" };
-const _hoisted_19 = { class: "nav-icon-wrapper" };
-const _hoisted_20 = {
+const _hoisted_22 = { class: "bottom-nav-bar" };
+const _hoisted_23 = { class: "nav-icon-wrapper" };
+const _hoisted_24 = {
   key: 0,
   class: "messages-badge"
 };
@@ -34289,6 +34544,14 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     const options = useOptions();
     const { messages, currentSessionId, waitingForResponse, sendMessage: sendMessage2, startNewSession } = chatStore;
     const activeTab = /* @__PURE__ */ ref("home");
+    const showOrderAuthCard = /* @__PURE__ */ ref(false);
+    const hasUserMessages = computed(() => messages.value.some((m2) => m2.sender === "user"));
+    const starterSuggestions = [
+      { icon: "✨", text: "What are you looking to improve?" },
+      { icon: "⚡", text: "How do these mats work?" },
+      { icon: "🌿", text: "What can these mats help with?" },
+      { icon: "🎯", text: "Help me find the right mat" }
+    ];
     const showPrivacyForm = /* @__PURE__ */ ref(false);
     const currentPrivacyAction = /* @__PURE__ */ ref(null);
     const showProvinceForm = /* @__PURE__ */ ref(false);
@@ -34427,10 +34690,19 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
         console.error(error2);
       }
     }
+    function handleOrderAuthSubmit(data) {
+      showOrderAuthCard.value = false;
+      let text2 = `Check orders for email: ${data.value}`;
+      if (data.verificationCode) {
+        text2 += ` (Verified OTP code: ${data.verificationCode})`;
+      }
+      handleSendMessage(text2);
+    }
     async function handleReload() {
       if (startNewSession) {
         try {
           await startNewSession();
+          showOrderAuthCard.value = false;
           showPrivacyForm.value = false;
           showProvinceForm.value = false;
           showDatePicker.value = false;
@@ -34489,7 +34761,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
       return openBlock(), createElementBlock("div", _hoisted_1$4, [
         createBaseVNode("div", _hoisted_2$1, [
           createBaseVNode("div", _hoisted_3, [
-            _cache[8] || (_cache[8] = createBaseVNode("h2", null, "HealthyLine AI Assistant", -1)),
+            _cache[8] || (_cache[8] = createBaseVNode("h2", null, "HealthyLine", -1)),
             createBaseVNode("p", null, toDisplayString(activeTab.value === "home" ? "How can we help you today?" : activeTab.value === "catalog" ? "Product Catalog & Series" : "Chat with AI Assistant"), 1)
           ]),
           createBaseVNode("button", {
@@ -34519,84 +34791,113 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
         }, [
           activeTab.value === "home" ? (openBlock(), createElementBlock("div", _hoisted_4, [
             createBaseVNode("div", _hoisted_5, [
-              createBaseVNode("button", {
+              showOrderAuthCard.value ? (openBlock(), createBlock(OrderAuthCard, {
+                key: 0,
+                onSubmit: handleOrderAuthSubmit,
+                onCancel: _cache[0] || (_cache[0] = ($event) => showOrderAuthCard.value = false)
+              })) : createCommentVNode("", true),
+              !showOrderAuthCard.value ? (openBlock(), createElementBlock("button", {
+                key: 1,
                 class: "ask-card",
-                onClick: _cache[0] || (_cache[0] = ($event) => switchTab("messages"))
+                onClick: _cache[1] || (_cache[1] = ($event) => switchTab("messages"))
               }, [..._cache[10] || (_cache[10] = [
                 createStaticVNode('<div class="ask-card-text"><strong>Ask a question</strong><small>AI Agent and team can help</small></div><div class="ask-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></div>', 2)
-              ])]),
-              createBaseVNode("div", _hoisted_6, [
-                _cache[15] || (_cache[15] = createBaseVNode("h3", { class: "quick-title" }, "Quick links", -1)),
+              ])])) : createCommentVNode("", true),
+              !showOrderAuthCard.value ? (openBlock(), createElementBlock("div", _hoisted_6, [
+                _cache[14] || (_cache[14] = createBaseVNode("h3", { class: "quick-title" }, "Quick links", -1)),
                 createBaseVNode("button", {
                   class: "quick-item quick-item-catalog",
-                  onClick: _cache[1] || (_cache[1] = ($event) => switchTab("catalog"))
+                  onClick: _cache[2] || (_cache[2] = ($event) => switchTab("catalog"))
                 }, [..._cache[11] || (_cache[11] = [
                   createStaticVNode('<div class="quick-item-icon catalog-icon"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div><div class="quick-item-text"><strong class="catalog-title">Catalog</strong><small class="catalog-sub">Browse all HealthyLine products</small></div><div class="quick-item-arrow catalog-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>', 3)
                 ])]),
                 createBaseVNode("button", {
                   class: "quick-item",
-                  onClick: _cache[2] || (_cache[2] = ($event) => handleSendMessage("I need help with my order"))
+                  onClick: _cache[3] || (_cache[3] = ($event) => showOrderAuthCard.value = true)
                 }, [..._cache[12] || (_cache[12] = [
                   createStaticVNode('<div class="quick-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div><div class="quick-item-text"><strong>My Orders</strong><small>Track and manage orders</small></div><div class="quick-item-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>', 3)
                 ])]),
                 createBaseVNode("button", {
                   class: "quick-item",
-                  onClick: _cache[3] || (_cache[3] = ($event) => handleSendMessage("I want to return my product or get a refund"))
-                }, [..._cache[13] || (_cache[13] = [
-                  createStaticVNode('<div class="quick-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg></div><div class="quick-item-text"><strong>Returns &amp; Refunds</strong><small>Start a return or get refund</small></div><div class="quick-item-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>', 3)
-                ])]),
-                createBaseVNode("button", {
-                  class: "quick-item",
                   onClick: _cache[4] || (_cache[4] = ($event) => handleSendMessage("I want to partner with HealthyLine"))
-                }, [..._cache[14] || (_cache[14] = [
+                }, [..._cache[13] || (_cache[13] = [
                   createStaticVNode('<div class="quick-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></div><div class="quick-item-text"><strong>Partner With Us</strong><small>Sponsorship &amp; collab inquiries</small></div><div class="quick-item-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>', 3)
                 ])])
-              ])
+              ])) : createCommentVNode("", true)
             ])
           ])) : activeTab.value === "catalog" ? (openBlock(), createElementBlock("div", _hoisted_7, [
             createVNode(ProductCatalog, { onAskQuestion: handleSendMessage })
           ])) : (openBlock(), createElementBlock("div", _hoisted_8, [
-            unref(messages).length === 0 ? (openBlock(), createElementBlock("div", _hoisted_9, [..._cache[16] || (_cache[16] = [
-              createBaseVNode("p", null, "No messages yet. Ask any question below!", -1)
-            ])])) : createCommentVNode("", true),
             (openBlock(true), createElementBlock(Fragment, null, renderList(unref(messages), (message2) => {
-              return openBlock(), createBlock(_sfc_main$c, {
+              return openBlock(), createBlock(_sfc_main$d, {
                 key: message2.id,
                 message: message2
               }, null, 8, ["message"]);
             }), 128)),
-            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_10, [..._cache[17] || (_cache[17] = [
+            !hasUserMessages.value ? (openBlock(), createElementBlock("div", _hoisted_9, [
+              _cache[16] || (_cache[16] = createBaseVNode("div", { class: "starter-header" }, [
+                createBaseVNode("h3", null, "How can we help you today?"),
+                createBaseVNode("p", null, "Select a quick topic or type your message below:")
+              ], -1)),
+              createBaseVNode("div", _hoisted_10, [
+                (openBlock(), createElementBlock(Fragment, null, renderList(starterSuggestions, (suggestion, idx) => {
+                  return createBaseVNode("button", {
+                    key: idx,
+                    class: "suggestion-chip",
+                    onClick: ($event) => handleSendMessage(`${suggestion.icon} ${suggestion.text}`)
+                  }, [
+                    createBaseVNode("span", _hoisted_12, toDisplayString(suggestion.icon), 1),
+                    createBaseVNode("span", _hoisted_13, toDisplayString(suggestion.text), 1),
+                    _cache[15] || (_cache[15] = createBaseVNode("svg", {
+                      class: "chip-arrow",
+                      xmlns: "http://www.w3.org/2000/svg",
+                      width: "16",
+                      height: "16",
+                      viewBox: "0 0 24 24",
+                      fill: "none",
+                      stroke: "currentColor",
+                      "stroke-width": "2",
+                      "stroke-linecap": "round",
+                      "stroke-linejoin": "round"
+                    }, [
+                      createBaseVNode("polyline", { points: "9 18 15 12 9 6" })
+                    ], -1))
+                  ], 8, _hoisted_11);
+                }), 64))
+              ])
+            ])) : createCommentVNode("", true),
+            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_14, [..._cache[17] || (_cache[17] = [
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1)
             ])])) : createCommentVNode("", true)
           ]))
         ], 512),
-        createBaseVNode("div", _hoisted_11, [
-          activeTab.value === "messages" ? (openBlock(), createElementBlock("div", _hoisted_12, [
-            showPrivacyForm.value ? (openBlock(), createElementBlock("div", _hoisted_13, [
-              createVNode(_sfc_main$8, {
+        createBaseVNode("div", _hoisted_15, [
+          activeTab.value === "messages" ? (openBlock(), createElementBlock("div", _hoisted_16, [
+            showPrivacyForm.value ? (openBlock(), createElementBlock("div", _hoisted_17, [
+              createVNode(_sfc_main$9, {
                 privacyUrl: (_a2 = currentPrivacyAction.value) == null ? void 0 : _a2.action,
                 onConfirm: handlePrivacyConfirm
               }, null, 8, ["privacyUrl"])
-            ])) : showProvinceForm.value ? (openBlock(), createElementBlock("div", _hoisted_14, [
-              createVNode(_sfc_main$7, { onSelect: handleProvinceSelect })
-            ])) : showDatePicker.value ? (openBlock(), createElementBlock("div", _hoisted_15, [
-              createVNode(_sfc_main$6, {
+            ])) : showProvinceForm.value ? (openBlock(), createElementBlock("div", _hoisted_18, [
+              createVNode(_sfc_main$8, { onSelect: handleProvinceSelect })
+            ])) : showDatePicker.value ? (openBlock(), createElementBlock("div", _hoisted_19, [
+              createVNode(_sfc_main$7, {
                 label: (_b = currentDatePickerAction.value) == null ? void 0 : _b.label,
                 onSelect: handleDateSelect
               }, null, 8, ["label"])
-            ])) : showInputComponent.value ? (openBlock(), createElementBlock("div", _hoisted_16, [
-              createVNode(_sfc_main$5, {
+            ])) : showInputComponent.value ? (openBlock(), createElementBlock("div", _hoisted_20, [
+              createVNode(_sfc_main$6, {
                 inputType: ((_c = currentInputAction.value) == null ? void 0 : _c.type) || "input_type_text",
                 label: (_d = currentInputAction.value) == null ? void 0 : _d.label,
                 onSubmit: handleInputSubmit
               }, null, 8, ["inputType", "label"])
-            ])) : (openBlock(), createElementBlock("div", _hoisted_17, [
-              createVNode(_sfc_main$9, { onSend: handleSendMessage })
+            ])) : (openBlock(), createElementBlock("div", _hoisted_21, [
+              createVNode(_sfc_main$a, { onSend: handleSendMessage })
             ]))
           ])) : createCommentVNode("", true),
-          createBaseVNode("div", _hoisted_18, [
+          createBaseVNode("div", _hoisted_22, [
             createBaseVNode("button", {
               class: normalizeClass(["nav-tab-btn", { active: activeTab.value === "home" }]),
               onClick: _cache[5] || (_cache[5] = ($event) => switchTab("home"))
@@ -34621,7 +34922,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
               class: normalizeClass(["nav-tab-btn", { active: activeTab.value === "messages" }]),
               onClick: _cache[6] || (_cache[6] = ($event) => switchTab("messages"))
             }, [
-              createBaseVNode("div", _hoisted_19, [
+              createBaseVNode("div", _hoisted_23, [
                 _cache[19] || (_cache[19] = createBaseVNode("svg", {
                   xmlns: "http://www.w3.org/2000/svg",
                   width: "22",
@@ -34635,7 +34936,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                 }, [
                   createBaseVNode("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" })
                 ], -1)),
-                unref(messages).length > 0 ? (openBlock(), createElementBlock("span", _hoisted_20, toDisplayString(unref(messages).length), 1)) : createCommentVNode("", true)
+                unref(messages).length > 0 ? (openBlock(), createElementBlock("span", _hoisted_24, toDisplayString(unref(messages).length), 1)) : createCommentVNode("", true)
               ]),
               _cache[20] || (_cache[20] = createBaseVNode("span", null, "Messages", -1))
             ], 2),
@@ -34847,16 +35148,21 @@ function createChat(options) {
     _container: targetElement
   };
 }
+if (typeof window !== "undefined") {
+  window.SimpleChatN8N = {
+    createChat
+  };
+}
 export {
   _sfc_main$4 as Chat,
-  _sfc_main$9 as ChatInput,
-  _sfc_main$c as ChatMessage,
+  _sfc_main$a as ChatInput,
+  _sfc_main$d as ChatMessage,
   _sfc_main$2 as ChatToggle,
   _sfc_main$1 as ChatWindow,
-  _sfc_main$8 as ConfirmPrivacy,
-  _sfc_main$6 as Datepicker,
+  _sfc_main$9 as ConfirmPrivacy,
+  _sfc_main$7 as Datepicker,
   _sfc_main$3 as IconLoader,
-  _sfc_main$7 as SelectProvince,
-  _sfc_main$5 as SpecialInput,
+  _sfc_main$8 as SelectProvince,
+  _sfc_main$6 as SpecialInput,
   createChat
 };
