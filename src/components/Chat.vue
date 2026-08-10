@@ -8,6 +8,7 @@ import ConfirmPrivacy from './input/ConfirmPrivacy.vue';
 import SelectProvince from './input/SelectProvince.vue';
 import Datepicker from './input/Datepicker.vue';
 import SpecialInput from './input/SpecialInput.vue';
+import OrderAuthCard from './OrderAuthCard.vue';
 import { useChat } from '../composables/useChat';
 import { useOptions } from '../composables/useOptions';
 import type { ChatAction, ChatMessage as ChatMessageType } from '../types';
@@ -18,6 +19,16 @@ const options = useOptions();
 const { messages, currentSessionId, waitingForResponse, sendMessage, startNewSession } = chatStore;
 
 const activeTab = ref<'home' | 'messages' | 'catalog'>('home');
+const showOrderAuthCard = ref(false);
+
+const hasUserMessages = computed(() => messages.value.some(m => m.sender === 'user'));
+
+const starterSuggestions = [
+  { icon: '✨', text: 'What are you looking to improve?' },
+  { icon: '⚡', text: 'How do these mats work?' },
+  { icon: '🌿', text: 'What can these mats help with?' },
+  { icon: '🎯', text: 'Help me find the right mat' }
+];
 
 const showPrivacyForm = ref(false);
 const currentPrivacyAction = ref<ChatAction | null>(null);
@@ -158,10 +169,20 @@ async function handleInputSubmit(value: string) {
   } catch (error) { console.error(error); }
 }
 
+function handleOrderAuthSubmit(data: { mode: 'email', value: string, verificationCode?: string }) {
+  showOrderAuthCard.value = false;
+  let text = `Check orders for email: ${data.value}`;
+  if (data.verificationCode) {
+    text += ` (Verified OTP code: ${data.verificationCode})`;
+  }
+  handleSendMessage(text);
+}
+
 async function handleReload() {
   if (startNewSession) {
     try {
       await startNewSession();
+      showOrderAuthCard.value = false;
       showPrivacyForm.value = false;
       showProvinceForm.value = false;
       showDatePicker.value = false;
@@ -227,7 +248,7 @@ onMounted(async () => {
   <div class="tt-chat">
     <div class="tt-chat-header">
       <div class="header-info">
-        <h2>HealthyLine AI Assistant</h2>
+        <h2>HealthyLine</h2>
         <p>{{ activeTab === 'home' ? 'How can we help you today?' : activeTab === 'catalog' ? 'Product Catalog & Series' : 'Chat with AI Assistant' }}</p>
       </div>
       <button class="header-reload-btn" @click="handleReload" title="Go to Home / Restart chat">
@@ -242,8 +263,15 @@ onMounted(async () => {
       <div v-if="activeTab === 'home'" class="tt-chat-home-view">
         <div class="welcome-box">
           
+          <!-- Order Auth Card Modal when My Orders is clicked -->
+          <OrderAuthCard 
+            v-if="showOrderAuthCard" 
+            @submit="handleOrderAuthSubmit" 
+            @cancel="showOrderAuthCard = false" 
+          />
+
           <!-- Ask a Question Card -->
-          <button class="ask-card" @click="switchTab('messages')">
+          <button v-if="!showOrderAuthCard" class="ask-card" @click="switchTab('messages')">
             <div class="ask-card-text">
               <strong>Ask a question</strong>
               <small>AI Agent and team can help</small>
@@ -257,7 +285,7 @@ onMounted(async () => {
           </button>
 
           <!-- Quick Links Card -->
-          <div class="quick-card">
+          <div v-if="!showOrderAuthCard" class="quick-card">
             <h3 class="quick-title">Quick links</h3>
 
             <!-- Prominent CATALOG button in corporate #3b626b color -->
@@ -280,7 +308,7 @@ onMounted(async () => {
               </div>
             </button>
 
-            <button class="quick-item" @click="handleSendMessage('I need help with my order')">
+            <button class="quick-item" @click="showOrderAuthCard = true">
               <div class="quick-item-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
@@ -291,25 +319,6 @@ onMounted(async () => {
               <div class="quick-item-text">
                 <strong>My Orders</strong>
                 <small>Track and manage orders</small>
-              </div>
-              <div class="quick-item-arrow">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"/>
-                </svg>
-              </div>
-            </button>
-
-            <button class="quick-item" @click="handleSendMessage('I want to return my product or get a refund')">
-              <div class="quick-item-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="1 4 1 10 7 10"/>
-                  <polyline points="23 20 23 14 17 14"/>
-                  <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
-                </svg>
-              </div>
-              <div class="quick-item-text">
-                <strong>Returns &amp; Refunds</strong>
-                <small>Start a return or get refund</small>
               </div>
               <div class="quick-item-arrow">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -351,14 +360,33 @@ onMounted(async () => {
 
       <!-- MESSAGES VIEW -->
       <div v-else class="tt-chat-messages-view">
-        <div v-if="messages.length === 0" class="empty-messages-prompt">
-          <p>No messages yet. Ask any question below!</p>
-        </div>
         <ChatMessage
           v-for="message in messages"
           :key="message.id"
           :message="message"
         />
+
+        <div v-if="!hasUserMessages" class="empty-messages-prompt">
+          <div class="starter-header">
+            <h3>How can we help you today?</h3>
+            <p>Select a quick topic or type your message below:</p>
+          </div>
+
+          <div class="starter-suggestions">
+            <button 
+              v-for="(suggestion, idx) in starterSuggestions" 
+              :key="idx"
+              class="suggestion-chip"
+              @click="handleSendMessage(`${suggestion.icon} ${suggestion.text}`)"
+            >
+              <span class="chip-icon">{{ suggestion.icon }}</span>
+              <span class="chip-text">{{ suggestion.text }}</span>
+              <svg class="chip-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+        </div>
         
         <div v-if="waitingForResponse" class="tt-chat-typing">
           <div class="tt-chat-typing-dot"></div>
@@ -757,10 +785,76 @@ onMounted(async () => {
 }
 
 .empty-messages-prompt {
+  padding: 24px 16px 12px;
   text-align: center;
-  padding: 40px 20px;
-  color: #888;
-  font-size: 14px;
+
+  .starter-header {
+    margin-bottom: 20px;
+
+    h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 6px;
+    }
+
+    p {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0;
+    }
+  }
+
+  .starter-suggestions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .suggestion-chip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+
+      &:hover {
+        border-color: #3b626b;
+        background: #f8fafc;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 98, 107, 0.1);
+
+        .chip-arrow {
+          color: #3b626b;
+          transform: translateX(2px);
+        }
+      }
+
+      .chip-icon {
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+
+      .chip-text {
+        flex: 1;
+        font-size: 14px;
+        font-weight: 500;
+        color: #1e293b;
+        line-height: 1.3;
+      }
+
+      .chip-arrow {
+        color: #94a3b8;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+      }
+    }
+  }
 }
 
 .bottom-nav-bar {

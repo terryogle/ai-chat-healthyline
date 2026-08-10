@@ -1,30 +1,60 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { CATALOG_PRODUCTS, PRODUCT_SERIES_LIST, type Product } from '../data/products';
+import { ref, computed, onMounted } from 'vue';
+import { useOptions } from '../composables/useOptions';
+import { getCatalog } from '../utils/api';
+import type { CatalogProduct } from '../types';
 
 const emit = defineEmits<{
   (e: 'askQuestion', text: string): void;
 }>();
 
+const options = useOptions();
+
+const products = ref<CatalogProduct[]>([]);
+const categoryList = ref<string[]>(['All']);
+const isLoading = ref(true);
+const loadError = ref<string | null>(null);
+
 const selectedSeries = ref<string>('All');
 const searchQuery = ref<string>('');
 
+async function loadCatalog() {
+  isLoading.value = true;
+  loadError.value = null;
+
+  if (!options.value) {
+    loadError.value = 'Chat options are not available yet.';
+    isLoading.value = false;
+    return;
+  }
+
+  try {
+    const res = await getCatalog(options.value);
+    products.value = res.items || [];
+    categoryList.value = ['All', ...(res.categories || [])];
+  } catch (err) {
+    console.error('Failed to load catalog:', err);
+    loadError.value = 'Could not load the catalog. Please try again later.';
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+onMounted(loadCatalog);
+
 const filteredProducts = computed(() => {
-  return CATALOG_PRODUCTS.filter((product) => {
+  return products.value.filter((product) => {
     const matchesSeries =
       selectedSeries.value === 'All' ||
-      product.category.toLowerCase().trim() === selectedSeries.value.toLowerCase().trim() ||
-      product.category.toLowerCase().includes(selectedSeries.value.toLowerCase());
+      product.category.toLowerCase().trim() === selectedSeries.value.toLowerCase().trim();
 
     const q = searchQuery.value.toLowerCase().trim();
-    const tagsStr = Array.isArray(product.search_tags) 
-      ? product.search_tags.join(' ') 
-      : (product.search_tags || '');
+    const tagsStr = product.search_tags || '';
 
     const matchesQuery =
       !q ||
       product.name.toLowerCase().includes(q) ||
-      product.short_description.toLowerCase().includes(q) ||
+      product.description.toLowerCase().includes(q) ||
       product.category.toLowerCase().includes(q) ||
       tagsStr.toLowerCase().includes(q);
 
@@ -32,7 +62,7 @@ const filteredProducts = computed(() => {
   });
 });
 
-function handleAskQuestion(product: Product) {
+function handleAskQuestion(product: CatalogProduct) {
   emit('askQuestion', `Can you tell me more about ${product.name}?`);
 }
 
@@ -57,18 +87,18 @@ function openProductPage(url: string) {
           <circle cx="11" cy="11" r="8"/>
           <line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <input 
-          v-model="searchQuery" 
-          type="text" 
-          placeholder="Search catalog or models..." 
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search catalog or models..."
         />
         <button v-if="searchQuery" class="clear-search" @click="searchQuery = ''">&times;</button>
       </div>
 
-      <!-- Series Filter Tags -->
+      <!-- Series Filter Tags (built dynamically from the sheet) -->
       <div class="series-pills">
         <button
-          v-for="series in PRODUCT_SERIES_LIST"
+          v-for="series in categoryList"
           :key="series"
           class="series-pill"
           :class="{ active: selectedSeries === series }"
@@ -81,14 +111,23 @@ function openProductPage(url: string) {
 
     <!-- Product Cards List -->
     <div class="catalog-grid">
-      <div v-if="filteredProducts.length === 0" class="catalog-empty">
+      <div v-if="isLoading" class="catalog-empty">
+        <p>Loading catalog...</p>
+      </div>
+
+      <div v-else-if="loadError" class="catalog-empty">
+        <p>{{ loadError }}</p>
+        <button class="reset-filter-btn" @click="loadCatalog">Try Again</button>
+      </div>
+
+      <div v-else-if="filteredProducts.length === 0" class="catalog-empty">
         <p>No products found in this series.</p>
         <button class="reset-filter-btn" @click="selectedSeries = 'All'; searchQuery = ''">Show All Products</button>
       </div>
 
       <div
         v-for="product in filteredProducts"
-        :key="product.product_id"
+        :key="product.id"
         class="product-card"
       >
         <div class="product-image-wrapper">
@@ -98,7 +137,7 @@ function openProductPage(url: string) {
 
         <div class="product-info">
           <h4 class="product-title">{{ product.name }}</h4>
-          <p class="product-desc">{{ product.short_description }}</p>
+          <p class="product-desc">{{ product.description }}</p>
 
           <!-- Action Buttons -->
           <div class="product-actions">

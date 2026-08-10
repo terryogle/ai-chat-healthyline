@@ -1,7 +1,8 @@
 import type {
   ChatOptions,
   LoadPreviousSessionResponse,
-  SendMessageResponse
+  SendMessageResponse,
+  CatalogResponse
 } from '../types';
 
 // Costante per l'ID della sessione in localStorage
@@ -12,19 +13,39 @@ export const LOCAL_STORAGE_SESSION_KEY = 'tt-chat-n8n-session-id';
  */
 async function fetchApi<T>(url: string, options: RequestInit = {}): Promise<T> {
   console.log("Calling API:", url, options);
-  const response = await fetch(url, {
-    mode: 'cors',
-    cache: 'no-cache',
-    ...options,
-  });
-  
-  if (!response.ok) {
-    throw new Error(`API request failed with status ${response.status}`);
+  try {
+    const response = await fetch(url, {
+      mode: 'cors',
+      cache: 'no-cache',
+      ...options,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+    
+    const result = await response.json() as T;
+    console.log("API Response:", result);
+    return result;
+  } catch (err) {
+    if (typeof window !== 'undefined' && url.startsWith('http') && !url.includes(window.location.host)) {
+      console.warn(`[SimpleChatN8N] Call to external webhook ${url} failed (${(err as Error).message}). Falling back to local mock endpoint /api/webhook.`);
+      const queryString = url.includes('?') ? '?' + url.split('?')[1] : '';
+      const fallbackUrl = `/api/webhook${queryString}`;
+      const response = await fetch(fallbackUrl, {
+        mode: 'cors',
+        cache: 'no-cache',
+        ...options,
+      });
+      if (!response.ok) {
+        throw new Error(`Fallback API request failed with status ${response.status}`);
+      }
+      const result = await response.json() as T;
+      console.log("Fallback API Response:", result);
+      return result;
+    }
+    throw err;
   }
-  
-  const result = await response.json() as T;
-  console.log("API Response:", result);
-  return result;
 }
 
 /**
@@ -133,6 +154,47 @@ export async function sendMessage(
     });
     
     return await fetchApi<SendMessageResponse>(
+      `${options.webhookUrl}?${params.toString()}`,
+      {
+        method,
+        headers: options.webhookConfig?.headers,
+      }
+    );
+  }
+}
+
+/**
+ * Funzione per caricare il catalogo prodotti dal webhook n8n
+ * (che a sua volta legge i dati dalla Google Sheet)
+ */
+export async function getCatalog(
+  options: ChatOptions,
+  filters?: { category?: string; search?: string }
+): Promise<CatalogResponse> {
+  const method = options.webhookConfig?.method === 'POST' ? 'POST' : 'GET';
+  const body: Record<string, any> = {
+    action: 'getCatalog',
+  };
+
+  if (filters?.category) body.category = filters.category;
+  if (filters?.search) body.search = filters.search;
+
+  if (method === 'POST') {
+    return await fetchApi<CatalogResponse>(options.webhookUrl, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.webhookConfig?.headers,
+      },
+      body: JSON.stringify(body),
+    });
+  } else {
+    const params = new URLSearchParams();
+    Object.entries(body).forEach(([key, value]) => {
+      params.append(key, String(value));
+    });
+
+    return await fetchApi<CatalogResponse>(
       `${options.webhookUrl}?${params.toString()}`,
       {
         method,

@@ -41,19 +41,8 @@ function mockWebhookPlugin() {
           }
 
           const userText = parsedBody.chatInput || 'Messaggio ricevuto!';
-          let responseText = `Thank you for your message: "${userText}". How else can I assist you with HealthyLine products?`;
+          let responseText = `Thank you for your message: "${userText}". How can I assist you with HealthyLine products?`;
           let actions: any[] = [];
-
-          if (userText.toLowerCase().includes('mat') || userText.toLowerCase().includes('rainbow') || userText.toLowerCase().includes('chakra') || userText.toLowerCase().includes('product')) {
-            responseText = `### Rainbow Chakra Mat™ 4020\n\n![Rainbow Chakra Mat™ 4020](https://healthyline.com/cdn/shop/files/Amethyst-Sodalite-Blue-Lace-Agate-Green-Aventurine-Yellow-Aventurine-Carnelian-Red-Jasper-Rainbow-Mat-4020-Firm-PEMF-InframatPro-4th-edition_1_9f2602ce-44a3-448f-a368-5f14e04e4c1c.webp?v=1772470017)\n\n**Category:** Rainbow Series  \n**Description:** Compact mat for chakra alignment with FIR, PEMF & Red Light Therapy.\n\n[📖 Learn More on HealthyLine](https://healthyline.com/products/rainbow-chakra-pemf-farinfrared-red-light-mat?variant=47076949655604)`;
-            actions = [
-              {
-                type: 'button',
-                label: 'View Product Details',
-                action: 'https://healthyline.com/products/rainbow-chakra-pemf-farinfrared-red-light-mat?variant=47076949655604'
-              }
-            ];
-          }
 
           res.end(JSON.stringify({
             output: responseText,

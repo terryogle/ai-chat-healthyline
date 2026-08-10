@@ -97,3 +97,20 @@ export interface SendMessageResponse {
   text?: string;
   actions?: ChatAction[];
 }
+
+// Catalog (products) response types
+export interface CatalogProduct {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  image: string;
+  link: string;
+  search_tags?: string;
+}
+
+export interface CatalogResponse {
+  items: CatalogProduct[];
+  categories: string[];
+  total?: number;
+}

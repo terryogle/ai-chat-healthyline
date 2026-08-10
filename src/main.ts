@@ -83,6 +83,13 @@ export function createChat(options: ChatOptions): {
   };
 }
 
+// Attach to window for global script usage
+if (typeof window !== 'undefined') {
+  (window as any).SimpleChatN8N = {
+    createChat,
+  };
+}
+
 // Esporta i tipi
 export type { ChatOptions, ChatMessage } from './types';
 

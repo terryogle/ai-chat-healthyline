@@ -29,11 +29,11 @@ export const ChatPlugin: Plugin = {
       theme: {},
       allowFileUploads: false,
       showTooltip: true,
-      tooltipText: "Hai bisogno di aiuto?",
+      tooltipText: "Got questions? We're here 24/7",
       initialMessages: [],
-      placeholder: 'Scrivi un messaggio...',
-      title: 'Chat',
-      subtitle: 'Come posso aiutarti?',
+      placeholder: 'Type a message...',
+      title: 'HealthyLine',
+      subtitle: 'How can we help you?',
     };
 
     // Unisce le opzioni fornite con i default
