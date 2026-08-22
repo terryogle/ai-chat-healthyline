@@ -27,21 +27,61 @@ function mockWebhookPlugin() {
             parsedBody = body ? JSON.parse(body) : {};
           } catch (e) {}
 
-          if (parsedBody.action === 'loadPreviousSession' || (req.url && req.url.includes('loadPreviousSession'))) {
+          const action = parsedBody.action;
+
+          if (action === 'requestOtp') {
+            const email = (parsedBody.email || '').trim().toLowerCase();
+            if (!email || !email.includes('@')) {
+              return res.end(JSON.stringify({
+                success: false,
+                message: "Please enter a valid email address."
+              }));
+            }
+            return res.end(JSON.stringify({
+              success: true,
+              message: `We sent a 6-digit code to ${email}.`
+            }));
+          }
+
+          if (action === 'verifyOtp') {
+            const code = (parsedBody.code || '').trim();
+            if (code.length === 6 && /^\d+$/.test(code)) {
+              return res.end(JSON.stringify({
+                success: true,
+                message: "Verified",
+                email: parsedBody.email
+              }));
+            } else {
+              return res.end(JSON.stringify({
+                success: false,
+                message: "Incorrect verification code. Please try again."
+              }));
+            }
+          }
+
+          if (action === 'getCatalog') {
+            return res.end(JSON.stringify({
+              items: [],
+              categories: [],
+              total: 0
+            }));
+          }
+
+          if (action === 'loadPreviousSession' || (req.url && req.url.includes('loadPreviousSession'))) {
             return res.end(JSON.stringify({
               data: [
                 {
                   id: "msg-1",
                   kwargs: {
-                    content: "Benvenuto! Come posso aiutarti oggi con i servizi TourTools?"
+                    content: "Welcome to HealthyLine! How can I help you today?"
                   }
                 }
               ]
             }));
           }
 
-          const userText = parsedBody.chatInput || 'Messaggio ricevuto!';
-          let responseText = `Thank you for your message: "${userText}". How can I assist you with HealthyLine products?`;
+          const userText = parsedBody.chatInput || parsedBody.message || 'Message received!';
+          let responseText = `Thank you for your message: "${userText}". How can I assist you with HealthyLine products or orders?`;
           let actions: any[] = [];
 
           res.end(JSON.stringify({

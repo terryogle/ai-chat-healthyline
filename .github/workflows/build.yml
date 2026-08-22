@@ -1,38 +1,44 @@
-name: Build Widget
+name: Build and Commit Dist
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-
     steps:
-      - name: Download code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'package.json'
 
-      - name: Install packages
+      - name: Install dependencies
         run: npm install
 
-      - name: Build widget
+      - name: Build project
         run: npm run build
 
-      - name: Update dist folder
+      - name: Commit and push dist folder
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add dist
-          git commit -m "Update dist build" || echo "No changes"
-          git push
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f dist/
+          if git diff --staged --quiet; then
+            echo "No changes in dist to commit"
+          else
+            git commit -m "Auto-build: update dist bundle [skip ci]"
+            git push
+          fi
