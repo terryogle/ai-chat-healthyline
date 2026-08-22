@@ -2,8 +2,7 @@ import type {
   ChatOptions,
   LoadPreviousSessionResponse,
   SendMessageResponse,
-  CatalogResponse,
-  OtpResponse
+  CatalogResponse
 } from '../types';
 
 // Costante per l'ID della sessione in localStorage
@@ -204,86 +203,3 @@ export async function getCatalog(
     );
   }
 }
-
-/**
- * Funzione per richiedere il codice OTP di verifica via email
- */
-export async function requestOtp(
-  email: string,
-  sessionId: string,
-  options: ChatOptions
-): Promise<OtpResponse> {
-  const method = options.webhookConfig?.method === 'POST' ? 'POST' : 'GET';
-  const body: Record<string, any> = {
-    action: 'requestOtp',
-    email: email.trim().toLowerCase(),
-    [options.chatSessionKey || 'sessionId']: sessionId,
-  };
-
-  if (method === 'POST') {
-    return await fetchApi<OtpResponse>(options.webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.webhookConfig?.headers,
-      },
-      body: JSON.stringify(body),
-    });
-  } else {
-    const params = new URLSearchParams();
-    Object.entries(body).forEach(([key, value]) => {
-      params.append(key, String(value));
-    });
-
-    return await fetchApi<OtpResponse>(
-      `${options.webhookUrl}?${params.toString()}`,
-      {
-        method,
-        headers: options.webhookConfig?.headers,
-      }
-    );
-  }
-}
-
-/**
- * Funzione per verificare il codice OTP inserito dall'utente
- */
-export async function verifyOtp(
-  email: string,
-  code: string,
-  sessionId: string,
-  options: ChatOptions
-): Promise<OtpResponse> {
-  const method = options.webhookConfig?.method === 'POST' ? 'POST' : 'GET';
-  const body: Record<string, any> = {
-    action: 'verifyOtp',
-    email: email.trim().toLowerCase(),
-    code: code.trim(),
-    [options.chatSessionKey || 'sessionId']: sessionId,
-  };
-
-  if (method === 'POST') {
-    return await fetchApi<OtpResponse>(options.webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.webhookConfig?.headers,
-      },
-      body: JSON.stringify(body),
-    });
-  } else {
-    const params = new URLSearchParams();
-    Object.entries(body).forEach(([key, value]) => {
-      params.append(key, String(value));
-    });
-
-    return await fetchApi<OtpResponse>(
-      `${options.webhookUrl}?${params.toString()}`,
-      {
-        method,
-        headers: options.webhookConfig?.headers,
-      }
-    );
-  }
-}
-

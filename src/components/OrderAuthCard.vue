@@ -1,253 +1,102 @@
 <script setup lang="ts">
-import { ref, computed, nextTick, onUnmounted } from 'vue';
-import { useChat } from '../composables/useChat';
-import { useOptions } from '../composables/useOptions';
-import { requestOtp, verifyOtp } from '../utils/api';
+import { ref, computed } from 'vue';
 
 const emit = defineEmits<{
-  (e: 'submit', data: { mode: 'email'; value: string; verificationCode?: string }): void;
+  (e: 'submit', data: { mode: 'email', value: string, verificationCode?: string }): void;
   (e: 'cancel'): void;
 }>();
 
-const chatStore = useChat();
-const options = useOptions();
-
 const email = ref('');
+
+// Step 1: Input email, Step 2: Verification code
 const step = ref<'input' | 'otp'>('input');
 const otpCode = ref(['', '', '', '', '', '']);
 const otpInputs = ref<(HTMLInputElement | null)[]>([]);
-
-const isLoading = ref(false);
-const errorMessage = ref<string | null>(null);
-const infoMessage = ref<string | null>(null);
-const resendCooldown = ref(0);
-let cooldownTimer: any = null;
+const isSendingCode = ref(false);
+const pushNotificationReceived = ref(false);
 
 const isEmailValid = computed(() => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
 });
 
-const canSubmitInput = computed(() => isEmailValid.value && !isLoading.value);
+const canSubmitInput = computed(() => isEmailValid.value);
+
 const fullOtpCode = computed(() => otpCode.value.join(''));
 const isOtpValid = computed(() => fullOtpCode.value.length === 6 && /^\d+$/.test(fullOtpCode.value));
 
-function startCooldown(seconds = 30) {
-  resendCooldown.value = seconds;
-  if (cooldownTimer) clearInterval(cooldownTimer);
-  cooldownTimer = setInterval(() => {
-    if (resendCooldown.value > 0) {
-      resendCooldown.value--;
-    } else {
-      clearInterval(cooldownTimer);
-      cooldownTimer = null;
-    }
-  }, 1000);
-}
+function handleNextStep() {
+  if (!canSubmitInput.value) return;
 
-onUnmounted(() => {
-  if (cooldownTimer) clearInterval(cooldownTimer);
-});
-
-async function handleSendOtp() {
-  if (!isEmailValid.value || isLoading.value) return;
-
-  isLoading.value = true;
-  errorMessage.value = null;
-  infoMessage.value = null;
-
-  try {
-    let sessionId = chatStore.currentSessionId.value;
-    if (!sessionId && chatStore.startNewSession) {
-      sessionId = await chatStore.startNewSession();
-    }
-    if (!sessionId) {
-      sessionId = 'session_' + Math.random().toString(36).substring(2, 10);
-    }
-
-    const chatOptions = options.value || { webhookUrl: '' };
-    const response = await requestOtp(email.value.trim(), sessionId, chatOptions);
-
-    if (response && response.success !== false) {
-      step.value = 'otp';
-      infoMessage.value = response.message || 'We sent a 6-digit verification code to your email.';
-      otpCode.value = ['', '', '', '', '', ''];
-      startCooldown(30);
-
-      nextTick(() => {
-        if (otpInputs.value[0]) {
-          otpInputs.value[0]?.focus();
-        }
+  // Email mode -> proceed to OTP step
+  isSendingCode.value = true;
+  setTimeout(() => {
+    isSendingCode.value = false;
+    step.value = 'otp';
+    
+    // Simulate push notification auto-fill in 1.2s for smooth demo
+    setTimeout(() => {
+      pushNotificationReceived.value = true;
+      // Auto-fill OTP code from Push
+      const sampleCode = ['8', '4', '9', '2', '0', '1'];
+      sampleCode.forEach((num, idx) => {
+        otpCode.value[idx] = num;
       });
-    } else {
-      errorMessage.value = response?.message || "We couldn't find an account with this email.";
-    }
-  } catch (err: any) {
-    console.error('requestOtp error:', err);
-    errorMessage.value = 'Network error while sending verification code. Please try again.';
-  } finally {
-    isLoading.value = false;
-  }
+    }, 1200);
+  }, 600);
 }
 
 function handleOtpInput(index: number, event: Event) {
-  errorMessage.value = null;
   const target = event.target as HTMLInputElement;
   const val = target.value;
-
+  
   if (val.length > 1) {
-    // Handle pasted content
+    // Handle paste
     const digits = val.replace(/\D/g, '').slice(0, 6).split('');
     digits.forEach((d, i) => {
-      if (i < 6) otpCode.value[i] = d;
+      otpCode.value[i] = d;
     });
-
-    const nextIndex = Math.min(digits.length, 5);
-    nextTick(() => {
-      otpInputs.value[nextIndex]?.focus();
-    });
-
-    if (digits.length === 6) {
-      handleVerifyOtp();
-    }
-    return;
-  }
-
-  // Only allow digits
-  if (val && !/^\d$/.test(val)) {
-    otpCode.value[index] = '';
     return;
   }
 
   otpCode.value[index] = val;
 
-  if (val && index < 5) {
-    nextTick(() => {
-      otpInputs.value[index + 1]?.focus();
-    });
-  }
-
-  // Auto-submit when the last digit is typed
-  if (val && index === 5 && isOtpValid.value) {
-    handleVerifyOtp();
+  if (val && index < 5 && otpInputs.value[index + 1]) {
+    otpInputs.value[index + 1]?.focus();
   }
 }
 
 function handleOtpKeydown(index: number, event: KeyboardEvent) {
-  if (event.key === 'Backspace') {
-    if (!otpCode.value[index] && index > 0) {
-      otpInputs.value[index - 1]?.focus();
-    }
+  if (event.key === 'Backspace' && !otpCode.value[index] && index > 0) {
+    otpInputs.value[index - 1]?.focus();
   }
 }
 
-function handleOtpPaste(event: ClipboardEvent) {
-  event.preventDefault();
-  const pasteData = event.clipboardData?.getData('text') || '';
-  const digits = pasteData.replace(/\D/g, '').slice(0, 6).split('');
+function handleVerifyAndSubmit() {
+  if (!isOtpValid.value) return;
   
-  if (digits.length > 0) {
-    digits.forEach((d, i) => {
-      if (i < 6) otpCode.value[i] = d;
-    });
-
-    const focusIdx = Math.min(digits.length, 5);
-    nextTick(() => {
-      otpInputs.value[focusIdx]?.focus();
-    });
-
-    if (digits.length === 6) {
-      handleVerifyOtp();
-    }
-  }
-}
-
-async function handleVerifyOtp() {
-  if (!isOtpValid.value || isLoading.value) return;
-
-  isLoading.value = true;
-  errorMessage.value = null;
-
-  try {
-    let sessionId = chatStore.currentSessionId.value;
-    if (!sessionId && chatStore.startNewSession) {
-      sessionId = await chatStore.startNewSession();
-    }
-    if (!sessionId) {
-      sessionId = 'session_' + Math.random().toString(36).substring(2, 10);
-    }
-
-    const chatOptions = options.value || { webhookUrl: '' };
-    const response = await verifyOtp(email.value.trim(), fullOtpCode.value, sessionId, chatOptions);
-
-    if (response && response.success !== false) {
-      emit('submit', {
-        mode: 'email',
-        value: email.value.trim(),
-        verificationCode: fullOtpCode.value,
-      });
-    } else {
-      errorMessage.value = response?.message || 'Incorrect verification code. Please try again.';
-      otpCode.value = ['', '', '', '', '', ''];
-      nextTick(() => {
-        otpInputs.value[0]?.focus();
-      });
-    }
-  } catch (err: any) {
-    console.error('verifyOtp error:', err);
-    errorMessage.value = 'Failed to verify code. Please try again.';
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-function handleBack() {
-  errorMessage.value = null;
-  infoMessage.value = null;
-  if (step.value === 'otp') {
-    step.value = 'input';
-  } else {
-    emit('cancel');
-  }
+  emit('submit', {
+    mode: 'email',
+    value: email.value.trim(),
+    verificationCode: fullOtpCode.value
+  });
 }
 </script>
 
 <template>
   <div class="order-auth-card">
     <div class="card-header">
-      <button class="back-link" @click="handleBack">
+      <button class="back-link" @click="step === 'otp' ? (step = 'input') : emit('cancel')">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
-        <span>{{ step === 'otp' ? 'Change email' : 'Back' }}</span>
+        <span>Back</span>
       </button>
-    </div>
-
-    <!-- ERROR BANNER -->
-    <div v-if="errorMessage" class="feedback-banner error-banner">
-      <svg class="banner-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
-      <span>{{ errorMessage }}</span>
-    </div>
-
-    <!-- INFO BANNER -->
-    <div v-if="infoMessage && step === 'otp'" class="feedback-banner info-banner">
-      <svg class="banner-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-      </svg>
-      <span>{{ infoMessage }}</span>
     </div>
 
     <!-- STEP 1: EMAIL INPUT -->
     <template v-if="step === 'input'">
       <h3 class="card-title">Existing customer?</h3>
-      <p class="card-hint">
-        Enter your purchase email. We will send a secure verification code to check your order status.
-      </p>
 
       <div class="form-group">
         <label class="form-label">Your email</label>
@@ -255,26 +104,20 @@ function handleBack() {
           v-model="email" 
           type="email" 
           class="form-input" 
-          placeholder="example@domain.com"
-          :disabled="isLoading"
-          @keyup.enter="handleSendOtp"
+          placeholder="Enter your email"
+          @keyup.enter="handleNextStep"
           autofocus
         />
       </div>
 
       <button 
         class="submit-btn" 
-        :disabled="!canSubmitInput"
-        @click="handleSendOtp"
+        :disabled="!canSubmitInput || isSendingCode"
+        @click="handleNextStep"
       >
-        <span v-if="isLoading" class="btn-content">
-          <svg class="spinner-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
-          </svg>
-          Sending code...
-        </span>
+        <span v-if="isSendingCode">Sending code...</span>
         <span v-else class="btn-content">
-          Send Verification Code
+          Enter
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="5" y1="12" x2="19" y2="12"></line>
             <polyline points="12 5 19 12 12 19"></polyline>
@@ -283,14 +126,25 @@ function handleBack() {
       </button>
     </template>
 
-    <!-- STEP 2: OTP VERIFICATION (NO FAKE AUTOFILL) -->
+    <!-- STEP 2: OTP VERIFICATION -->
     <template v-else>
       <h3 class="card-title">Enter Verification Code</h3>
       <p class="card-subtitle">
-        Please enter the 6-digit code sent to <strong>{{ email }}</strong>
+        We sent a 6-digit code to <strong>{{ email }}</strong>
       </p>
 
-      <div class="otp-inputs-container" @paste="handleOtpPaste">
+      <!-- Simulated Push Notification Banner -->
+      <transition name="fade">
+        <div v-if="pushNotificationReceived" class="push-alert">
+          <div class="push-icon">📲</div>
+          <div class="push-text">
+            <strong>Push Code Auto-filled:</strong>
+            <span>849201</span>
+          </div>
+        </div>
+      </transition>
+
+      <div class="otp-inputs-container">
         <input 
           v-for="(_, index) in 6" 
           :key="index"
@@ -298,10 +152,8 @@ function handleBack() {
           v-model="otpCode[index]"
           type="text"
           inputmode="numeric"
-          pattern="[0-9]*"
           maxlength="1"
           class="otp-box"
-          :disabled="isLoading"
           @input="handleOtpInput(index, $event)"
           @keydown="handleOtpKeydown(index, $event)"
         />
@@ -309,16 +161,10 @@ function handleBack() {
 
       <button 
         class="submit-btn" 
-        :disabled="!isOtpValid || isLoading"
-        @click="handleVerifyOtp"
+        :disabled="!isOtpValid"
+        @click="handleVerifyAndSubmit"
       >
-        <span v-if="isLoading" class="btn-content">
-          <svg class="spinner-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
-          </svg>
-          Verifying code...
-        </span>
-        <span v-else class="btn-content">
+        <span class="btn-content">
           Verify &amp; View Orders
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -329,17 +175,7 @@ function handleBack() {
 
       <div class="resend-box">
         Didn't receive code? 
-        <button 
-          v-if="resendCooldown === 0" 
-          class="resend-link" 
-          :disabled="isLoading"
-          @click="handleSendOtp"
-        >
-          Resend Code
-        </button>
-        <span v-else class="resend-timer">
-          Resend in {{ resendCooldown }}s
-        </span>
+        <button class="resend-link" @click="handleNextStep">Resend Code</button>
       </div>
     </template>
   </div>
@@ -395,54 +231,26 @@ function handleBack() {
   font-size: 20px;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 6px 0;
-  letter-spacing: -0.3px;
-}
-
-.card-hint {
-  font-size: 13px;
-  color: #64748b;
   margin: 0 0 16px 0;
-  line-height: 1.45;
+  letter-spacing: -0.3px;
 }
 
 .card-subtitle {
   font-size: 14px;
   color: #475569;
-  margin: 0 0 18px;
+  margin: -8px 0 18px;
   line-height: 1.4;
 
   strong {
     color: #0f172a;
-    word-break: break-all;
   }
 }
 
-.feedback-banner {
+.form-group-stack {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  line-height: 1.35;
-  margin-bottom: 14px;
-
-  .banner-icon {
-    flex-shrink: 0;
-  }
-
-  &.error-banner {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #b91c1c;
-  }
-
-  &.info-banner {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    color: #166534;
-  }
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
 .form-group {
@@ -470,44 +278,38 @@ function handleBack() {
     box-sizing: border-box;
 
     &:focus {
-      border-color: #3b626b;
-      box-shadow: 0 0 0 3px rgba(59, 98, 107, 0.12);
+      border-color: #18181b;
+      box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.08);
     }
 
     &::placeholder {
       color: #94a3b8;
-    }
-
-    &:disabled {
-      background: #f1f5f9;
-      color: #94a3b8;
-      cursor: not-allowed;
     }
   }
 }
 
 .submit-btn {
   width: 100%;
-  background: #3b626b;
+  background: #18181b;
   color: #ffffff;
   border: none;
   border-radius: 12px;
   padding: 14px 16px;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(59, 98, 107, 0.2);
+  box-shadow: 0 4px 12px rgba(24, 24, 27, 0.15);
   margin-bottom: 14px;
 
   &:hover:not(:disabled) {
-    background: #2f4f56;
+    background: #27272a;
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(59, 98, 107, 0.3);
+    box-shadow: 0 6px 16px rgba(24, 24, 27, 0.2);
   }
 
   &:disabled {
-    opacity: 0.55;
+    opacity: 0.5;
     cursor: not-allowed;
     box-shadow: none;
   }
@@ -518,15 +320,57 @@ function handleBack() {
     justify-content: center;
     gap: 8px;
   }
+}
 
-  .spinner-icon {
-    animation: spin 1s linear infinite;
+.toggle-mode-btn {
+  background: transparent;
+  border: none;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 0;
+  width: 100%;
+  text-align: center;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #0f172a;
+    text-decoration: underline;
   }
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+/* OTP STYLES */
+.push-alert {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .push-icon {
+    font-size: 20px;
+  }
+
+  .push-text {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    color: #166534;
+
+    strong {
+      font-size: 13px;
+    }
+
+    span {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+  }
 }
 
 .otp-inputs-container {
@@ -537,11 +381,11 @@ function handleBack() {
 
   .otp-box {
     width: 44px;
-    height: 50px;
+    height: 48px;
     border: 1.5px solid #cbd5e1;
     border-radius: 10px;
     text-align: center;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 700;
     color: #0f172a;
     background: #f8fafc;
@@ -549,14 +393,9 @@ function handleBack() {
     transition: all 0.2s ease;
 
     &:focus {
-      border-color: #3b626b;
+      border-color: #18181b;
       background: #ffffff;
-      box-shadow: 0 0 0 3px rgba(59, 98, 107, 0.15);
-    }
-
-    &:disabled {
-      background: #e2e8f0;
-      cursor: not-allowed;
+      box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.1);
     }
   }
 }
@@ -569,27 +408,19 @@ function handleBack() {
   .resend-link {
     background: transparent;
     border: none;
-    color: #3b626b;
+    color: #0f172a;
     font-weight: 600;
     cursor: pointer;
     text-decoration: underline;
     padding: 0;
     margin-left: 4px;
-
-    &:hover:not(:disabled) {
-      color: #2f4f56;
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
   }
+}
 
-  .resend-timer {
-    color: #94a3b8;
-    margin-left: 4px;
-    font-weight: 500;
-  }
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 </style>

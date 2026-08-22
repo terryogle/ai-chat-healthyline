@@ -171,8 +171,10 @@ async function handleInputSubmit(value: string) {
 
 function handleOrderAuthSubmit(data: { mode: 'email', value: string, verificationCode?: string }) {
   showOrderAuthCard.value = false;
-  activeTab.value = 'messages';
-  const text = `I'd like to check orders for ${data.value}`;
+  let text = `Check orders for email: ${data.value}`;
+  if (data.verificationCode) {
+    text += ` (Verified OTP code: ${data.verificationCode})`;
+  }
   handleSendMessage(text);
 }
 
@@ -247,7 +249,7 @@ onMounted(async () => {
     <div class="tt-chat-header">
       <div class="header-info">
         <h2>HealthyLine</h2>
-        <p>{{ activeTab === 'home' ? 'How can we help you today?' : activeTab === 'catalog' ? 'Best Sellers' : 'Chat with AI Assistant' }}</p>
+        <p>{{ activeTab === 'home' ? 'How can we help you today?' : activeTab === 'catalog' ? 'Product Catalog & Series' : 'Chat with AI Assistant' }}</p>
       </div>
       <button class="header-reload-btn" @click="handleReload" title="Go to Home / Restart chat">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -286,20 +288,18 @@ onMounted(async () => {
           <div v-if="!showOrderAuthCard" class="quick-card">
             <h3 class="quick-title">Quick links</h3>
 
-            <!-- Prominent BEST SELLERS button with modern star accent -->
+            <!-- Prominent CATALOG button in corporate #3b626b color -->
             <button class="quick-item quick-item-catalog" @click="switchTab('catalog')">
               <div class="quick-item-icon catalog-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                  <!-- Star / Sparkle Icon -->
-                  <path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z"/>
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                  <line x1="3" y1="6" x2="21" y2="6"/>
+                  <path d="M16 10a4 4 0 0 1-8 0"/>
                 </svg>
               </div>
               <div class="quick-item-text">
-                <div class="catalog-title-row">
-                  <strong class="catalog-title">Best Sellers</strong>
-                  <span class="catalog-popular-pill">★ Top Rated</span>
-                </div>
-                <small class="catalog-sub">Browse top HealthyLine products</small>
+                <strong class="catalog-title">Catalog</strong>
+                <small class="catalog-sub">Browse all HealthyLine products</small>
               </div>
               <div class="quick-item-arrow catalog-arrow">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -469,7 +469,7 @@ onMounted(async () => {
             <line x1="3" y1="6" x2="21" y2="6"/>
             <path d="M16 10a4 4 0 0 1-8 0"/>
           </svg>
-          <span>Best Sellers</span>
+          <span>Catalog</span>
         </button>
       </div>
     </div>
@@ -712,14 +712,7 @@ onMounted(async () => {
         height: 44px;
         background: rgba(255, 255, 255, 0.22);
         border: 1px solid rgba(255, 255, 255, 0.35);
-        color: #facc15;
-      }
-
-      .catalog-title-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
+        color: #ffffff;
       }
 
       .catalog-title {
@@ -727,19 +720,6 @@ onMounted(async () => {
         font-size: 18px;
         font-weight: 700;
         letter-spacing: 0.2px;
-      }
-
-      .catalog-popular-pill {
-        display: inline-flex;
-        align-items: center;
-        background: rgba(250, 204, 21, 0.25);
-        border: 1px solid rgba(250, 204, 21, 0.55);
-        color: #fef08a;
-        font-size: 11px;
-        font-weight: 700;
-        padding: 2px 7px;
-        border-radius: 20px;
-        letter-spacing: 0.3px;
       }
 
       .catalog-sub {

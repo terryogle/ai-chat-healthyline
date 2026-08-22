@@ -114,10 +114,3 @@ export interface CatalogResponse {
   categories: string[];
   total?: number;
 }
-
-export interface OtpResponse {
-  success: boolean;
-  message?: string;
-  email?: string;
-  [key: string]: any;
-}
