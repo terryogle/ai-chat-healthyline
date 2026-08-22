@@ -16,7 +16,6 @@ const isLoading = ref(true);
 const loadError = ref<string | null>(null);
 
 const selectedSeries = ref<string>('All');
-const searchQuery = ref<string>('');
 
 async function loadCatalog() {
   isLoading.value = true;
@@ -34,7 +33,7 @@ async function loadCatalog() {
     categoryList.value = ['All', ...(res.categories || [])];
   } catch (err) {
     console.error('Failed to load catalog:', err);
-    loadError.value = 'Could not load the catalog. Please try again later.';
+    loadError.value = 'Could not load best sellers. Please try again later.';
   } finally {
     isLoading.value = false;
   }
@@ -48,17 +47,7 @@ const filteredProducts = computed(() => {
       selectedSeries.value === 'All' ||
       product.category.toLowerCase().trim() === selectedSeries.value.toLowerCase().trim();
 
-    const q = searchQuery.value.toLowerCase().trim();
-    const tagsStr = product.search_tags || '';
-
-    const matchesQuery =
-      !q ||
-      product.name.toLowerCase().includes(q) ||
-      product.description.toLowerCase().includes(q) ||
-      product.category.toLowerCase().includes(q) ||
-      tagsStr.toLowerCase().includes(q);
-
-    return matchesSeries && matchesQuery;
+    return matchesSeries;
   });
 });
 
@@ -77,22 +66,18 @@ function openProductPage(url: string) {
   <div class="product-catalog">
     <div class="catalog-header">
       <div class="catalog-title-group">
-        <h3>HealthyLine Catalog</h3>
+        <div class="title-with-badge">
+          <div class="title-icon-star">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z"/>
+            </svg>
+          </div>
+          <div>
+            <h3>Best Sellers</h3>
+            <p class="catalog-header-sub">Top customer favorites &amp; wellness mats</p>
+          </div>
+        </div>
         <span class="catalog-count">{{ filteredProducts.length }} items</span>
-      </div>
-
-      <!-- Search Input -->
-      <div class="catalog-search">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search catalog or models..."
-        />
-        <button v-if="searchQuery" class="clear-search" @click="searchQuery = ''">&times;</button>
       </div>
 
       <!-- Series Filter Tags (built dynamically from the sheet) -->
@@ -112,7 +97,7 @@ function openProductPage(url: string) {
     <!-- Product Cards List -->
     <div class="catalog-grid">
       <div v-if="isLoading" class="catalog-empty">
-        <p>Loading catalog...</p>
+        <p>Loading best sellers...</p>
       </div>
 
       <div v-else-if="loadError" class="catalog-empty">
@@ -122,7 +107,7 @@ function openProductPage(url: string) {
 
       <div v-else-if="filteredProducts.length === 0" class="catalog-empty">
         <p>No products found in this series.</p>
-        <button class="reset-filter-btn" @click="selectedSeries = 'All'; searchQuery = ''">Show All Products</button>
+        <button class="reset-filter-btn" @click="selectedSeries = 'All'">Show All Products</button>
       </div>
 
       <div
@@ -133,6 +118,12 @@ function openProductPage(url: string) {
         <div class="product-image-wrapper">
           <img :src="product.image" :alt="product.name" loading="lazy" />
           <span class="product-category-badge">{{ product.category }}</span>
+          <span class="product-bestseller-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z"/>
+            </svg>
+            Best Seller
+          </span>
         </div>
 
         <div class="product-info">
@@ -182,108 +173,102 @@ function openProductPage(url: string) {
 .catalog-header {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   background: #ffffff;
-  padding: 14px;
-  border-radius: 14px;
+  padding: 16px;
+  border-radius: 16px;
   border: 1px solid #eef1f4;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 
   .catalog-title-group {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 8px;
 
-    h3 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 700;
-      color: #212b36;
+    .title-with-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .title-icon-star {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: #fef9c3;
+        border: 1px solid #fef08a;
+        color: #ca8a04;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: #0f172a;
+        letter-spacing: -0.2px;
+      }
+
+      .catalog-header-sub {
+        margin: 1px 0 0;
+        font-size: 12px;
+        color: #64748b;
+        line-height: 1.2;
+      }
     }
 
     .catalog-count {
       font-size: 12px;
-      color: #637381;
-      background: #f4f6f8;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-weight: 600;
-    }
-  }
-
-  .catalog-search {
-    position: relative;
-    display: flex;
-    align-items: center;
-
-    svg {
-      position: absolute;
-      left: 10px;
-      color: #919eab;
-    }
-
-    input {
-      width: 100%;
-      padding: 8px 30px 8px 32px;
-      border-radius: 8px;
-      border: 1px solid #e0e6ed;
-      font-size: 13px;
-      outline: none;
-      transition: all 0.2s ease;
-
-      &:focus {
-        border-color: #3b626b;
-        box-shadow: 0 0 0 3px rgba(59, 98, 107, 0.12);
-      }
-    }
-
-    .clear-search {
-      position: absolute;
-      right: 10px;
-      background: none;
-      border: none;
-      font-size: 16px;
-      color: #919eab;
-      cursor: pointer;
+      color: #3b626b;
+      background: #eef7f8;
+      border: 1px solid #d4ebed;
+      padding: 3px 10px;
+      border-radius: 14px;
+      font-weight: 700;
+      white-space: nowrap;
     }
   }
 
   .series-pills {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     overflow-x: auto;
-    padding-bottom: 4px;
+    padding: 4px 0 6px;
     scrollbar-width: thin;
 
     &::-webkit-scrollbar {
-      height: 4px;
+      height: 5px;
     }
     &::-webkit-scrollbar-thumb {
-      background: #dcdfe4;
-      border-radius: 4px;
+      background: #cbd5e1;
+      border-radius: 6px;
     }
 
     .series-pill {
       white-space: nowrap;
-      padding: 6px 12px;
-      border-radius: 20px;
-      border: 1px solid #e5e8eb;
+      padding: 9px 16px;
+      border-radius: 24px;
+      border: 1.5px solid #e2e8f0;
       background: #f8fafc;
-      color: #454f5b;
-      font-size: 12px;
+      color: #334155;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s ease;
 
       &:hover {
-        background: #eef2f5;
+        background: #f1f5f9;
+        border-color: #cbd5e1;
       }
 
       &.active {
         background: #3b626b;
         color: #ffffff;
         border-color: #3b626b;
-        box-shadow: 0 2px 6px rgba(59, 98, 107, 0.25);
+        box-shadow: 0 3px 8px rgba(59, 98, 107, 0.28);
       }
     }
   }
@@ -338,7 +323,7 @@ function openProductPage(url: string) {
   .product-image-wrapper {
     position: relative;
     width: 100%;
-    height: 150px;
+    height: 155px;
     background: #f8fafc;
     display: flex;
     align-items: center;
@@ -353,14 +338,14 @@ function openProductPage(url: string) {
     }
 
     &:hover img {
-      transform: scale(1.04);
+      transform: scale(1.05);
     }
 
     .product-category-badge {
       position: absolute;
       top: 10px;
       left: 10px;
-      background: rgba(33, 43, 54, 0.82);
+      background: rgba(30, 41, 59, 0.85);
       backdrop-filter: blur(4px);
       color: #ffffff;
       font-size: 10px;
@@ -369,6 +354,23 @@ function openProductPage(url: string) {
       border-radius: 6px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+    }
+
+    .product-bestseller-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      letter-spacing: 0.3px;
     }
   }
 
@@ -382,15 +384,15 @@ function openProductPage(url: string) {
       margin: 0;
       font-size: 15px;
       font-weight: 700;
-      color: #1a202c;
+      color: #0f172a;
       line-height: 1.3;
     }
 
     .product-desc {
       margin: 0;
       font-size: 12px;
-      color: #4a5568;
-      line-height: 1.4;
+      color: #475569;
+      line-height: 1.45;
     }
 
     .product-actions {
