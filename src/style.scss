@@ -1,23 +1,42 @@
 @use './scss/tokens' as *;
 
-// Reset di base
+// Global Reset & Typography
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
-/* Apple Glass Effect */
 
-.tt-chat-window-wrapper .tt-chat-window {
-  background: rgba(255, 255, 255, 0.78) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  border-radius: 24px !important;
+.tt-chat-window-wrapper {
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  .tt-chat-window {
+    background: #ffffff !important;
+    border-radius: 24px !important;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
 }
 
+/* Smooth Entrance Transition */
+.tt-chat-window-transition-enter-active {
+  transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-.tt-chat-header {
-  background: rgba(255, 255, 255, 0.65) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
+.tt-chat-window-transition-leave-active {
+  transition: all 0.22s cubic-bezier(0.7, 0, 0.84, 0);
+}
+
+.tt-chat-window-transition-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scale(0.96);
+}
+
+.tt-chat-window-transition-leave-to {
+  opacity: 0;
+  transform: translateY(16px) scale(0.96);
 }

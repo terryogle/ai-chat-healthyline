@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick, computed, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, nextTick, computed, watch } from 'vue';
 import ChatMessage from './ChatMessage.vue';
-import IconLoader from './IconLoader.vue';
 import ProductCatalog from './ProductCatalog.vue';
 import ChatInput from './input/ChatInput.vue';
 import ConfirmPrivacy from './input/ConfirmPrivacy.vue';
@@ -13,7 +12,14 @@ import { useChat } from '../composables/useChat';
 import { useOptions } from '../composables/useOptions';
 import type { ChatAction, ChatMessage as ChatMessageType } from '../types';
 
+const emit = defineEmits<{
+  (e: 'close'): void;
+}>();
+
 const chatBodyRef = ref<HTMLElement | null>(null);
+const menuRef = ref<HTMLElement | null>(null);
+const isMenuOpen = ref(false);
+
 const chatStore = useChat();
 const options = useOptions();
 const { messages, currentSessionId, waitingForResponse, sendMessage, startNewSession } = chatStore;
@@ -24,10 +30,10 @@ const showOrderAuthCard = ref(false);
 const hasUserMessages = computed(() => messages.value.some(m => m.sender === 'user'));
 
 const starterSuggestions = [
-  { icon: '✨', text: 'What are you looking to improve?' },
-  { icon: '⚡', text: 'How do these mats work?' },
-  { icon: '🌿', text: 'What can these mats help with?' },
-  { icon: '🎯', text: 'Help me find the right mat' }
+  { icon: '✨', title: 'What are you looking to improve?', desc: '', query: 'What can HealthyLine mats help with for health, energy and recovery?' },
+  { icon: '⚡', title: 'How do these mats work?', desc: '', query: 'How do PEMF and Far Infrared gemstone mats work?' },
+  { icon: '🌿', title: 'What can these mats help with?', desc: '', query: 'What symptoms, pain relief, and wellness goals can these mats help with?' },
+  { icon: '🎯', title: 'Help me find the right mat', desc: '', query: 'Help me find the right mat for my needs and lifestyle' }
 ];
 
 const showPrivacyForm = ref(false);
@@ -43,10 +49,13 @@ const showInputComponent = ref(false);
 const currentInputAction = ref<ChatAction | null>(null);
 
 const lastProcessedMessageId = ref<string | null>(null);
-const currentCallbackValue = ref<string | null>(null);
 
-const title = computed(() => options.value?.title || 'Chat');
-const subtitle = computed(() => options.value?.subtitle || 'How can I help you today?');
+const headerTitle = computed(() => options.value?.title || 'HealthyLine');
+const headerSubtitle = computed(() => {
+  if (activeTab.value === 'catalog') return 'Best Sellers & Gemstone Mats';
+  if (activeTab.value === 'messages') return '24/7 AI Wellness Concierge';
+  return options.value?.subtitle || 'Chat with AI Assistant';
+});
 
 function scrollToBottom() {
   nextTick(() => {
@@ -198,6 +207,21 @@ async function handleReload() {
   }
 }
 
+function toggleMenu() {
+  isMenuOpen.value = !isMenuOpen.value;
+}
+
+async function handleNewChat() {
+  isMenuOpen.value = false;
+  await handleReload();
+}
+
+function handleClickOutside(event: MouseEvent) {
+  if (menuRef.value && !menuRef.value.contains(event.target as Node)) {
+    isMenuOpen.value = false;
+  }
+}
+
 function switchTab(tab: 'home' | 'messages' | 'catalog') {
   activeTab.value = tab;
   if (tab === 'messages') {
@@ -217,6 +241,7 @@ watch(messages, (newMessages) => {
 }, { deep: true });
 
 onMounted(async () => {
+  document.addEventListener('click', handleClickOutside);
   try {
     if (options.value?.loadPreviousSession !== false && chatStore.loadPreviousSession) {
       await chatStore.loadPreviousSession();
@@ -240,22 +265,105 @@ onMounted(async () => {
     }
   }
 });
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <template>
   <div class="tt-chat">
+    <!-- Header -->
     <div class="tt-chat-header">
-      <div class="header-info">
-        <h2>HealthyLine</h2>
-        <p>{{ activeTab === 'home' ? 'How can we help you today?' : activeTab === 'catalog' ? 'Best Sellers' : 'Chat with AI Assistant' }}</p>
+      <div class="header-brand-box">
+        <div class="online-status-dot" title="Online">
+          <span class="dot-pulse"></span>
+          <span class="dot-core"></span>
+        </div>
+        <div class="header-info">
+          <div class="title-row">
+            <h2>{{ headerTitle }}</h2>
+            <span class="verified-pill">
+              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              </svg>
+              AI
+            </span>
+          </div>
+          <p>{{ headerSubtitle }}</p>
+        </div>
       </div>
-      <button class="header-reload-btn" @click="handleReload" title="Go to Home / Restart chat">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-        </svg>
-      </button>
+
+      <div class="header-actions">
+        <!-- 3-Dots Menu Container -->
+        <div ref="menuRef" class="header-menu-container">
+          <button 
+            class="header-action-btn more-btn" 
+            :class="{ active: isMenuOpen }"
+            @click.stop="toggleMenu" 
+            title="More options" 
+            aria-label="More options"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="5" cy="12" r="2"/>
+              <circle cx="12" cy="12" r="2"/>
+              <circle cx="19" cy="12" r="2"/>
+            </svg>
+          </button>
+
+          <!-- Dropdown Popover -->
+          <transition name="menu-pop">
+            <div v-if="isMenuOpen" class="header-dropdown-menu">
+              <button class="dropdown-item" @click="handleNewChat">
+                <span class="dropdown-item-label">New Chat</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dropdown-item-icon">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+
+              <a 
+                class="dropdown-item" 
+                href="https://healthyline.com/pages/frequently-asked-questions" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                @click="isMenuOpen = false"
+              >
+                <span class="dropdown-item-label">FAQ</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dropdown-item-icon">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+              </a>
+
+              <a 
+                class="dropdown-item" 
+                href="https://healthyline.com/pages/support" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                @click="isMenuOpen = false"
+              >
+                <span class="dropdown-item-label">Support</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dropdown-item-icon">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+              </a>
+            </div>
+          </transition>
+        </div>
+
+        <!-- Close Button -->
+        <button class="header-action-btn close-btn" @click="emit('close')" title="Close chat (Закрыть чат)" aria-label="Close chat">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
     </div>
     
+    <!-- Body Scroll Container -->
     <div ref="chatBodyRef" class="tt-chat-body">
       <!-- HOME VIEW -->
       <div v-if="activeTab === 'home'" class="tt-chat-home-view">
@@ -268,86 +376,105 @@ onMounted(async () => {
             @cancel="showOrderAuthCard = false" 
           />
 
-          <!-- Ask a Question Card -->
-          <button v-if="!showOrderAuthCard" class="ask-card" @click="switchTab('messages')">
-            <div class="ask-card-text">
-              <strong>Ask a question</strong>
-              <small>AI Agent and team can help</small>
+          <!-- Ask a Question Hero Card (Pinterest Spotlight) -->
+          <div v-if="!showOrderAuthCard" class="spotlight-card" @click="switchTab('messages')">
+            <div class="spotlight-content">
+              <div class="spotlight-badge">
+                <span class="sparkle-icon">✦</span>
+                <span>AI Agent and team can help</span>
+              </div>
+              <strong class="spotlight-title">Ask a question</strong>
+              <p class="spotlight-desc">Get instant personalized guidance 24/7</p>
             </div>
-            <div class="ask-card-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13"/>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-              </svg>
-            </div>
-          </button>
-
-          <!-- Quick Links Card -->
-          <div v-if="!showOrderAuthCard" class="quick-card">
-            <h3 class="quick-title">Quick links</h3>
-
-            <!-- Prominent BEST SELLERS button with modern star accent -->
-            <button class="quick-item quick-item-catalog" @click="switchTab('catalog')">
-              <div class="quick-item-icon catalog-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                  <!-- Star / Sparkle Icon -->
-                  <path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z"/>
+            <div class="spotlight-action">
+              <div class="action-btn-circle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>
               </div>
-              <div class="quick-item-text">
-                <div class="catalog-title-row">
-                  <strong class="catalog-title">Best Sellers</strong>
-                  <span class="catalog-popular-pill">★ Top Rated</span>
+            </div>
+          </div>
+
+          <!-- Quick Navigation Cards Grid -->
+          <div v-if="!showOrderAuthCard" class="pinterest-cards-section">
+            <div class="section-label">Explore &amp; Services</div>
+
+            <!-- BEST SELLERS FEATURE CARD -->
+            <button class="pinterest-action-card best-sellers-card" @click="switchTab('catalog')">
+              <div class="card-left-visual">
+                <div class="star-halo">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z"/>
+                  </svg>
                 </div>
-                <small class="catalog-sub">Browse top HealthyLine products</small>
               </div>
-              <div class="quick-item-arrow catalog-arrow">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <div class="card-body-text">
+                <div class="card-header-line">
+                  <strong class="card-main-title">Best Sellers</strong>
+                  <span class="gold-pill">★ Top Rated</span>
+                </div>
+                <p class="card-sub-title">Explore Far Infrared, PEMF &amp; Gemstone Mats</p>
+              </div>
+              <div class="card-right-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="9 18 15 12 9 6"/>
                 </svg>
               </div>
             </button>
 
-            <button class="quick-item" @click="showOrderAuthCard = true">
-              <div class="quick-item-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                  <line x1="12" y1="22.08" x2="12" y2="12"/>
-                </svg>
-              </div>
-              <div class="quick-item-text">
-                <strong>My Orders</strong>
-                <small>Track and manage orders</small>
-              </div>
-              <div class="quick-item-arrow">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"/>
-                </svg>
-              </div>
-            </button>
+            <!-- 2-COLUMN ACTION CARDS -->
+            <div class="cards-duo-grid">
+              <!-- MY ORDERS CARD -->
+              <button class="duo-card" @click="showOrderAuthCard = true">
+                <div class="duo-icon-box order-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                    <line x1="12" y1="22.08" x2="12" y2="12"/>
+                  </svg>
+                </div>
+                <div class="duo-info">
+                  <strong>My Orders</strong>
+                  <small>Track and manage orders</small>
+                </div>
+              </button>
 
-            <button class="quick-item" @click="handleSendMessage('I want to partner with HealthyLine')">
-              <div class="quick-item-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="8" y1="6" x2="21" y2="6"/>
-                  <line x1="8" y1="12" x2="21" y2="12"/>
-                  <line x1="8" y1="18" x2="21" y2="18"/>
-                  <line x1="3" y1="6" x2="3.01" y2="6"/>
-                  <line x1="3" y1="12" x2="3.01" y2="12"/>
-                  <line x1="3" y1="18" x2="3.01" y2="18"/>
-                </svg>
-              </div>
-              <div class="quick-item-text">
-                <strong>Partner With Us</strong>
-                <small>Sponsorship &amp; collab inquiries</small>
-              </div>
-              <div class="quick-item-arrow">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"/>
-                </svg>
-              </div>
-            </button>
+              <!-- PARTNER WITH US CARD -->
+              <button class="duo-card" @click="handleSendMessage('I want to partner with HealthyLine')">
+                <div class="duo-icon-box partner-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </div>
+                <div class="duo-info">
+                  <strong>Partnership</strong>
+                  <small>Sponsorship &amp; collab inquiries</small>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- POPULAR QUESTIONS / STARTER CHIPS -->
+          <div v-if="!showOrderAuthCard" class="starter-topics-section">
+            <div class="section-label">Recommended Topics</div>
+            <div class="starter-grid">
+              <button 
+                v-for="(item, idx) in starterSuggestions"
+                :key="idx"
+                class="topic-chip-card"
+                @click="handleSendMessage(item.title)"
+              >
+                <div class="topic-chip-header">
+                  <span class="topic-icon">{{ item.icon }}</span>
+                  <span class="topic-title">{{ item.title }}</span>
+                </div>
+                <p v-if="item.desc" class="topic-desc">{{ item.desc }}</p>
+              </button>
+            </div>
           </div>
 
         </div>
@@ -377,11 +504,14 @@ onMounted(async () => {
               v-for="(suggestion, idx) in starterSuggestions" 
               :key="idx"
               class="suggestion-chip"
-              @click="handleSendMessage(`${suggestion.icon} ${suggestion.text}`)"
+              @click="handleSendMessage(suggestion.query)"
             >
               <span class="chip-icon">{{ suggestion.icon }}</span>
-              <span class="chip-text">{{ suggestion.text }}</span>
-              <svg class="chip-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <div class="chip-text-group">
+                <span class="chip-title">{{ suggestion.title }}</span>
+                <span class="chip-sub">{{ suggestion.desc }}</span>
+              </div>
+              <svg class="chip-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="9 18 15 12 9 6"/>
               </svg>
             </button>
@@ -396,8 +526,9 @@ onMounted(async () => {
       </div>
     </div>
     
+    <!-- Footer -->
     <div class="tt-chat-footer">
-      <div v-if="activeTab === 'messages'">
+      <div v-if="activeTab === 'messages'" class="footer-input-section">
         <div v-if="showPrivacyForm" class="tt-chat-privacy-container">
           <ConfirmPrivacy 
             :privacyUrl="currentPrivacyAction?.action"
@@ -438,10 +569,12 @@ onMounted(async () => {
           :class="{ active: activeTab === 'home' }"
           @click="switchTab('home')"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-            <polyline points="9 22 9 12 15 12 15 22"/>
-          </svg>
+          <div class="nav-icon-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
           <span>Home</span>
         </button>
 
@@ -450,8 +583,8 @@ onMounted(async () => {
           :class="{ active: activeTab === 'messages' }"
           @click="switchTab('messages')"
         >
-          <div class="nav-icon-wrapper">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <div class="nav-icon-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
             <span v-if="messages.length > 0" class="messages-badge">{{ messages.length }}</span>
@@ -464,11 +597,11 @@ onMounted(async () => {
           :class="{ active: activeTab === 'catalog' }"
           @click="switchTab('catalog')"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <path d="M16 10a4 4 0 0 1-8 0"/>
-          </svg>
+          <div class="nav-icon-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+          </div>
           <span>Best Sellers</span>
         </button>
       </div>
@@ -482,111 +615,257 @@ onMounted(async () => {
   flex-direction: column;
   height: 100%;
   width: 100%;
-  background-color: var(--tt-chat-bg, #fff);
+  background: #ffffff;
   font-family: var(--tt-chat-font-family);
   z-index: 99;
   
   &-header {
     position: relative;
-    padding: 15px 18px;
-    background-color: var(--tt-chat-header-bg, #f5f5f5);
-    border-bottom: 1px solid var(--tt-chat-light-shade-100);
+    z-index: 50;
+    padding: 14px 18px;
+    background: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    .header-info {
-      flex: 1;
-    }
-
-    .header-reload-btn {
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
-      color: #3b626b;
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
+    .header-brand-box {
       display: flex;
       align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-      margin-left: 12px;
-      flex-shrink: 0;
+      gap: 10px;
 
-      &:hover {
-        background: #3b626b;
-        color: #ffffff;
-        border-color: #3b626b;
-        transform: rotate(180deg);
-        box-shadow: 0 4px 10px rgba(59, 98, 107, 0.3);
+      .online-status-dot {
+        position: relative;
+        width: 12px;
+        height: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transform: translateY(-4px);
+
+        .dot-core {
+          position: relative;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #10b981;
+          box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+          z-index: 2;
+        }
+
+        .dot-pulse {
+          position: absolute;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: rgba(16, 185, 129, 0.45);
+          animation: status-ping 2.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+          z-index: 1;
+        }
+      }
+
+      .header-info {
+        display: flex;
+        flex-direction: column;
+
+        .title-row {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+
+          h2 {
+            margin: 0;
+            font-size: 16.5px;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.2px;
+            line-height: 1.2;
+          }
+
+          .verified-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            background: #eef7f8;
+            border: 1px solid #d4ebed;
+            color: #1a3b3d;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 10px;
+          }
+        }
+
+        p {
+          margin: 2px 0 0;
+          font-size: 12px;
+          color: #64748b;
+          line-height: 1.2;
+        }
       }
     }
-    
-    h2 {
-      margin: 0 0 4px 0;
-      font-size: 24px;
-      line-height: 28px;
-      font-weight: 600;
-      color: var(--tt-chat-header-color, #333);
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
       position: relative;
-      z-index: 1;
-    }
-    
-    p {
-      margin: 0;
-      font-size: 16px;
-      line-height: 20px;      
-      color: var(--tt-chat-subheader-color, #666);
-      position: relative;
-      z-index: 1;
+
+      .header-menu-container {
+        position: relative;
+      }
+
+      .header-action-btn {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        padding: 0;
+
+        &.more-btn {
+          color: #475569;
+
+          &:hover, &.active {
+            background: #f1f5f9;
+            color: #0f172a;
+            border-color: #cbd5e1;
+          }
+        }
+
+        &.close-btn {
+          background: #f8fafc;
+          border-color: #e2e8f0;
+          color: #475569;
+
+          &:hover {
+            background: #ef4444;
+            color: #ffffff;
+            border-color: #ef4444;
+            transform: scale(1.05);
+          }
+        }
+      }
+
+      .header-dropdown-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        width: 170px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.14), 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+        padding: 4px;
+        display: flex;
+        flex-direction: column;
+        z-index: 100;
+
+        .dropdown-item {
+          width: 100%;
+          background: transparent;
+          border: none;
+          border-radius: 8px;
+          padding: 9px 12px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          text-align: left;
+          text-decoration: none;
+          box-sizing: border-box;
+          cursor: pointer;
+          transition: background 0.15s ease, color 0.15s ease;
+
+          .dropdown-item-label {
+            font-size: 13.5px;
+            font-weight: 500;
+            color: #1e293b;
+          }
+
+          .dropdown-item-icon {
+            color: #64748b;
+            flex-shrink: 0;
+            transition: color 0.15s ease;
+          }
+
+          &:hover {
+            background: #f1f5f9;
+
+            .dropdown-item-label {
+              color: #0f172a;
+              font-weight: 600;
+            }
+
+            .dropdown-item-icon {
+              color: #1a3b3d;
+            }
+          }
+
+          &:active {
+            background: #e2e8f0;
+          }
+        }
+      }
     }
   }
   
   &-body {
     flex: 1;
     overflow-y: auto;
-    padding: 15px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
+    background: #fafbfc;
   }
   
   &-catalog-view {
     width: 100%;
     max-width: 480px;
     margin: 0 auto;
-    padding: 8px 0 20px;
+    padding: 4px 0 20px;
   }
 
-  &-empty {
+  &-messages-view {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    height: 100%;
+    width: 100%;
   }
-  
+
   &-footer {
-    border-top: 1px solid var(--tt-chat-light-shade-100);
+    border-top: 1px solid #f1f5f9;
+    background: #ffffff;
+
+    .footer-input-section {
+      padding: 12px 16px;
+    }
   }
   
   &-typing {
     display: flex;
-    padding: 10px;
-    max-width: 60px;
-    background-color: var(--tt-chat-bot-bg, #f5f5f5);
-    border-radius: 10px;
-    margin-bottom: 10px;
-    align-self: flex-start;
+    align-items: center;
+    padding: 10px 14px;
+    width: fit-content;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px 16px 16px 4px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     
     &-dot {
-      width: 8px;
-      height: 8px;
-      background: #888;
+      width: 6px;
+      height: 6px;
+      background: #1a3b3d;
       border-radius: 50%;
       margin: 0 3px;
-      animation: tt-chat-typing 1s infinite;
+      animation: tt-chat-typing 1.2s infinite ease-in-out;
       
       &:nth-child(2) { animation-delay: 0.2s; }
       &:nth-child(3) { animation-delay: 0.4s; }
@@ -603,223 +882,344 @@ onMounted(async () => {
 }
 
 @keyframes tt-chat-typing {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(-4px); opacity: 1; }
 }
 
 .welcome-box {
   width: 100%;
   max-width: 460px;
   margin: 0 auto;
-  padding: 10px 4px 20px;
-  text-align: left;
+  padding: 4px 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 
-  .ask-card {
+  /* Spotlight Ask Hero Card */
+  .spotlight-card {
+    position: relative;
     width: 100%;
-    background: #1c1f26;
+    background: linear-gradient(145deg, #1a3b3d 0%, #244c4e 100%);
     color: #ffffff;
-    border: none;
-    border-radius: 16px;
+    border-radius: 20px;
     padding: 18px 20px;
-    margin-bottom: 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-    transition: all 0.2s ease;
+    box-shadow: 0 10px 24px -4px rgba(26, 59, 61, 0.35);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
 
     &:hover {
-      background: #282c37;
       transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+      box-shadow: 0 14px 30px -4px rgba(26, 59, 61, 0.45);
+
+      .action-btn-circle {
+        transform: scale(1.08) translateX(2px);
+        background: #ffffff;
+        color: #1a3b3d;
+      }
     }
 
-    .ask-card-text {
+    .spotlight-content {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
+      gap: 4px;
+      text-align: left;
+      z-index: 1;
 
-      strong {
-        font-size: 17px;
-        font-weight: 700;
-        line-height: 1.2;
-      }
-
-      small {
-        font-size: 13px;
-        color: #a0a6b5;
-        margin-top: 4px;
-      }
-    }
-
-    .ask-card-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-    }
-  }
-
-  .quick-card {
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 16px;
-    padding: 18px 18px 8px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-  }
-
-  .quick-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #24262b;
-    margin: 0 0 10px;
-  }
-
-  .quick-item {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 4px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    text-align: left;
-    border-bottom: 1px solid #f0f0f0;
-    transition: all 0.2s ease;
-
-    &.quick-item-catalog {
-      background: #3b626b;
-      border-radius: 14px;
-      padding: 16px 18px;
-      margin-bottom: 14px;
-      border-bottom: none;
-      box-shadow: 0 6px 16px rgba(59, 98, 107, 0.3);
-
-      &:hover {
-        background: #2f4f56;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(59, 98, 107, 0.4);
-      }
-
-      .catalog-icon {
-        width: 44px;
-        height: 44px;
-        background: rgba(255, 255, 255, 0.22);
-        border: 1px solid rgba(255, 255, 255, 0.35);
-        color: #facc15;
-      }
-
-      .catalog-title-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-
-      .catalog-title {
-        color: #ffffff;
-        font-size: 18px;
-        font-weight: 700;
-        letter-spacing: 0.2px;
-      }
-
-      .catalog-popular-pill {
+      .spotlight-badge {
         display: inline-flex;
         align-items: center;
-        background: rgba(250, 204, 21, 0.25);
-        border: 1px solid rgba(250, 204, 21, 0.55);
-        color: #fef08a;
+        gap: 4px;
         font-size: 11px;
         font-weight: 700;
-        padding: 2px 7px;
-        border-radius: 20px;
-        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #99f6e4;
+        margin-bottom: 2px;
+
+        .sparkle-icon {
+          font-size: 12px;
+        }
       }
 
-      .catalog-sub {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 13px;
-      }
-
-      .catalog-arrow {
+      .spotlight-title {
+        font-size: 15.5px;
+        font-weight: 700;
+        line-height: 1.25;
         color: #ffffff;
       }
-    }
 
-    &:last-child {
-      border-bottom: none;
-    }
-
-    &:hover {
-      background: #fafafa;
-    }
-
-    &-icon {
-      flex-shrink: 0;
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
-      border: 1px solid #ececec;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #24262b;
-    }
-
-    &-text {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-
-      strong {
-        font-size: 15px;
-        font-weight: 700;
-        color: #24262b;
-        line-height: 1.2;
-      }
-
-      small {
-        font-size: 13px;
-        color: #7a7a7a;
-        margin-top: 3px;
-        line-height: 1.3;
+      .spotlight-desc {
+        margin: 0;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.8);
       }
     }
 
-    &-arrow {
-      flex-shrink: 0;
-      color: #b5b5b5;
+    .spotlight-action {
+      z-index: 1;
+      .action-btn-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        transition: all 0.2s ease;
+      }
+    }
+  }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #64748b;
+    margin-bottom: 10px;
+    text-align: left;
+  }
+
+  .pinterest-cards-section {
+    display: flex;
+    flex-direction: column;
+
+    .best-sellers-card {
+      width: 100%;
+      background: #ffffff;
+      border: 1.5px solid #fef08a;
+      border-radius: 18px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 14px;
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.08);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(217, 119, 6, 0.15);
+        border-color: #fde047;
+      }
+
+      .card-left-visual {
+        .star-halo {
+          width: 44px;
+          height: 44px;
+          border-radius: 12px;
+          background: #fef3c7;
+          border: 1px solid #fde68a;
+          color: #d97706;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+
+      .card-body-text {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .card-header-line {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .card-main-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+          }
+
+          .gold-pill {
+            background: #fef3c7;
+            color: #b45309;
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 10px;
+          }
+        }
+
+        .card-sub-title {
+          margin: 0;
+          font-size: 12px;
+          color: #64748b;
+        }
+      }
+
+      .card-right-arrow {
+        color: #94a3b8;
+      }
+    }
+
+    .cards-duo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+
+      .duo-card {
+        background: #ffffff;
+        border: 1px solid #e8ecf1;
+        border-radius: 16px;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        cursor: pointer;
+        text-align: left;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+        transition: all 0.2s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(15, 23, 42, 0.07);
+          border-color: #cbd5e1;
+        }
+
+        .duo-icon-box {
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          &.order-icon {
+            background: #eef7f8;
+            color: #1a3b3d;
+            border: 1px solid #d4ebed;
+          }
+
+          &.partner-icon {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+          }
+        }
+
+        .duo-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+
+          strong {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #0f172a;
+          }
+
+          small {
+            font-size: 11.5px;
+            color: #64748b;
+            line-height: 1.2;
+          }
+        }
+      }
+    }
+  }
+
+  .starter-topics-section {
+    display: flex;
+    flex-direction: column;
+
+    .starter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+
+      .topic-chip-card {
+        background: #ffffff;
+        border: 1px solid #e8ecf1;
+        border-radius: 14px;
+        padding: 12px 14px;
+        text-align: left;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 6px;
+        min-height: 68px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: #f8fafc;
+          border-color: #1a3b3d;
+          transform: translateY(-1px);
+        }
+
+        .topic-chip-header {
+          display: flex;
+          align-items: flex-start;
+          gap: 8px;
+
+          .topic-icon {
+            font-size: 16px;
+            line-height: 1.2;
+            flex-shrink: 0;
+          }
+
+          .topic-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #0f172a;
+            line-height: 1.35;
+          }
+        }
+
+        .topic-desc {
+          margin: 0;
+          font-size: 11px;
+          color: #64748b;
+          line-height: 1.3;
+        }
+      }
     }
   }
 }
 
 .empty-messages-prompt {
-  padding: 24px 16px 12px;
+  padding: 20px 12px 12px;
   text-align: center;
 
   .starter-header {
-    margin-bottom: 20px;
+    margin-bottom: 18px;
+
+    .starter-icon-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #eef7f8;
+      color: #1a3b3d;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+    }
 
     h3 {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       color: #0f172a;
-      margin: 0 0 6px;
+      margin: 0 0 4px;
     }
 
     p {
-      font-size: 13px;
+      font-size: 12.5px;
       color: #64748b;
       margin: 0;
     }
@@ -828,29 +1228,28 @@ onMounted(async () => {
   .starter-suggestions {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 
     .suggestion-chip {
       display: flex;
       align-items: center;
       gap: 12px;
       background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 12px 14px;
+      border: 1px solid #e8ecf1;
+      border-radius: 14px;
+      padding: 11px 14px;
       text-align: left;
       cursor: pointer;
       transition: all 0.2s ease;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
 
       &:hover {
-        border-color: #3b626b;
+        border-color: #1a3b3d;
         background: #f8fafc;
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(59, 98, 107, 0.1);
 
         .chip-arrow {
-          color: #3b626b;
+          color: #1a3b3d;
           transform: translateX(2px);
         }
       }
@@ -860,16 +1259,25 @@ onMounted(async () => {
         flex-shrink: 0;
       }
 
-      .chip-text {
+      .chip-text-group {
         flex: 1;
-        font-size: 14px;
-        font-weight: 500;
-        color: #1e293b;
-        line-height: 1.3;
+        display: flex;
+        flex-direction: column;
+
+        .chip-title {
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #0f172a;
+        }
+
+        .chip-sub {
+          font-size: 11.5px;
+          color: #64748b;
+        }
       }
 
       .chip-arrow {
-        color: #94a3b8;
+        color: #cbd5e1;
         flex-shrink: 0;
         transition: all 0.2s ease;
       }
@@ -881,8 +1289,8 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  background: #11141a;
-  border-top: 1px solid #222630;
+  background: #ffffff;
+  border-top: 1px solid #f1f5f9;
   padding: 8px 12px 10px;
 
   .nav-tab-btn {
@@ -890,56 +1298,80 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     background: transparent;
     border: none;
-    color: #8e95a5;
-    font-size: 12px;
-    font-weight: 500;
+    color: #94a3b8;
+    font-size: 11.5px;
+    font-weight: 600;
     cursor: pointer;
     padding: 6px 0;
     transition: all 0.2s ease;
 
     &:hover {
-      color: #ffffff;
+      color: #1a3b3d;
     }
 
     &.active {
-      color: #ffffff;
+      color: #1a3b3d;
       font-weight: 700;
 
-      svg {
-        stroke-width: 2.4;
+      .nav-icon-box {
+        background: #eef7f8;
+        color: #1a3b3d;
       }
     }
 
-    &.nav-catalog-btn {
-      color: #4da3b8;
-
-      &:hover {
-        color: #61b8cd;
-      }
-    }
-
-    .nav-icon-wrapper {
+    .nav-icon-box {
       position: relative;
+      width: 36px;
+      height: 28px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: all 0.2s ease;
 
       .messages-badge {
         position: absolute;
-        top: -4px;
-        right: -8px;
-        background: #3b626b;
+        top: -3px;
+        right: 0px;
+        background: #1a3b3d;
         color: #ffffff;
-        font-size: 10px;
+        font-size: 9.5px;
         font-weight: 700;
         padding: 1px 5px;
         border-radius: 10px;
         line-height: 1;
       }
     }
+  }
+}
+
+.menu-pop-enter-active,
+.menu-pop-leave-active {
+  transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top right;
+}
+
+.menu-pop-enter-from,
+.menu-pop-leave-to {
+  opacity: 0;
+  transform: scale(0.92) translateY(-6px);
+}
+
+@keyframes status-ping {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(2.3);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.3);
+    opacity: 0;
   }
 }
 </style>

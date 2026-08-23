@@ -21,7 +21,7 @@ function toggleChat() {
         v-if="isOpen" 
         class="tt-chat-window"
       >
-        <Chat />
+        <Chat @close="toggleChat" />
       </div>
 
     </transition>

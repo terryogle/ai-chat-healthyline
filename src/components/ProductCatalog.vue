@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import { useOptions } from '../composables/useOptions';
 import { getCatalog } from '../utils/api';
+import { CATALOG_PRODUCTS, PRODUCT_SERIES_LIST } from '../data/products';
 import type { CatalogProduct } from '../types';
 
 const emit = defineEmits<{
@@ -17,37 +18,92 @@ const loadError = ref<string | null>(null);
 
 const selectedSeries = ref<string>('All');
 
+const seriesPillsRef = ref<HTMLElement | null>(null);
+
+let isDragging = false;
+let startX = 0;
+let scrollStart = 0;
+let hasMoved = false;
+
+function onPillsWheel(e: WheelEvent) {
+  if (!seriesPillsRef.value) return;
+  if (Math.abs(e.deltaY) > 0) {
+    e.preventDefault();
+    seriesPillsRef.value.scrollLeft += e.deltaY * 0.9;
+  }
+}
+
+function onMouseDown(e: MouseEvent) {
+  if (!seriesPillsRef.value) return;
+  isDragging = true;
+  hasMoved = false;
+  startX = e.pageX - seriesPillsRef.value.offsetLeft;
+  scrollStart = seriesPillsRef.value.scrollLeft;
+}
+
+function onMouseMove(e: MouseEvent) {
+  if (!isDragging || !seriesPillsRef.value) return;
+  const x = e.pageX - seriesPillsRef.value.offsetLeft;
+  const walk = (x - startX);
+  if (Math.abs(walk) > 4) {
+    hasMoved = true;
+  }
+  seriesPillsRef.value.scrollLeft = scrollStart - walk;
+}
+
+function onMouseUp() {
+  isDragging = false;
+}
+
+function onSelectSeries(series: string) {
+  if (hasMoved) {
+    hasMoved = false;
+    return;
+  }
+  selectedSeries.value = series;
+}
+
 async function loadCatalog() {
   isLoading.value = true;
   loadError.value = null;
 
-  if (!options.value) {
-    loadError.value = 'Chat options are not available yet.';
-    isLoading.value = false;
-    return;
+  try {
+    if (options.value) {
+      const res = await getCatalog(options.value);
+      if (res && res.items && res.items.length > 0) {
+        products.value = res.items;
+        categoryList.value = ['All', ...(res.categories || [])];
+        isLoading.value = false;
+        return;
+      }
+    }
+  } catch (err) {
+    console.warn('API catalog fetch failed, loading local verified bestseller catalog:', err);
   }
 
-  try {
-    const res = await getCatalog(options.value);
-    products.value = res.items || [];
-    categoryList.value = ['All', ...(res.categories || [])];
-  } catch (err) {
-    console.error('Failed to load catalog:', err);
-    loadError.value = 'Could not load best sellers. Please try again later.';
-  } finally {
-    isLoading.value = false;
-  }
+  // Graceful fallback to verified products
+  products.value = CATALOG_PRODUCTS.map(p => ({
+    id: p.product_id,
+    name: p.name,
+    category: p.category,
+    description: p.short_description,
+    image: p.image,
+    link: p.link,
+  }));
+  categoryList.value = [...PRODUCT_SERIES_LIST];
+  isLoading.value = false;
 }
 
-onMounted(loadCatalog);
+onMounted(() => {
+  loadCatalog();
+});
 
 const filteredProducts = computed(() => {
   return products.value.filter((product) => {
-    const matchesSeries =
+    return (
       selectedSeries.value === 'All' ||
-      product.category.toLowerCase().trim() === selectedSeries.value.toLowerCase().trim();
-
-    return matchesSeries;
+      product.category.toLowerCase().trim() === selectedSeries.value.toLowerCase().trim()
+    );
   });
 });
 
@@ -64,6 +120,7 @@ function openProductPage(url: string) {
 
 <template>
   <div class="product-catalog">
+    <!-- Header Spotlight -->
     <div class="catalog-header">
       <div class="catalog-title-group">
         <div class="title-with-badge">
@@ -74,39 +131,43 @@ function openProductPage(url: string) {
           </div>
           <div>
             <h3>Best Sellers</h3>
-            <p class="catalog-header-sub">Top customer favorites &amp; wellness mats</p>
+            <p class="catalog-header-sub">Curated Gemstone &amp; PEMF Therapy</p>
           </div>
         </div>
         <span class="catalog-count">{{ filteredProducts.length }} items</span>
       </div>
 
-      <!-- Series Filter Tags (built dynamically from the sheet) -->
-      <div class="series-pills">
+      <!-- Series Filter Tags (Pills) with Horizontal Scroll -->
+      <div 
+        ref="seriesPillsRef" 
+        class="series-pills"
+        @wheel.passive="onPillsWheel"
+        @mousedown="onMouseDown"
+        @mousemove="onMouseMove"
+        @mouseup="onMouseUp"
+        @mouseleave="onMouseUp"
+      >
         <button
           v-for="series in categoryList"
           :key="series"
           class="series-pill"
           :class="{ active: selectedSeries === series }"
-          @click="selectedSeries = series"
+          @click="onSelectSeries(series)"
         >
           {{ series }}
         </button>
       </div>
     </div>
 
-    <!-- Product Cards List -->
+    <!-- Product Cards List (Pinterest Grid) -->
     <div class="catalog-grid">
       <div v-if="isLoading" class="catalog-empty">
+        <div class="loading-spinner"></div>
         <p>Loading best sellers...</p>
       </div>
 
-      <div v-else-if="loadError" class="catalog-empty">
-        <p>{{ loadError }}</p>
-        <button class="reset-filter-btn" @click="loadCatalog">Try Again</button>
-      </div>
-
       <div v-else-if="filteredProducts.length === 0" class="catalog-empty">
-        <p>No products found in this series.</p>
+        <p>No products found matching your filter.</p>
         <button class="reset-filter-btn" @click="selectedSeries = 'All'">Show All Products</button>
       </div>
 
@@ -122,7 +183,7 @@ function openProductPage(url: string) {
             <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z"/>
             </svg>
-            Best Seller
+            Top Rated
           </span>
         </div>
 
@@ -135,9 +196,9 @@ function openProductPage(url: string) {
             <button
               class="btn-ask-question"
               @click="handleAskQuestion(product)"
-              title="Ask AI Assistant about this item"
+              title="Ask AI Assistant about this product"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
               </svg>
               <span>Ask AI</span>
@@ -148,8 +209,8 @@ function openProductPage(url: string) {
               @click="openProductPage(product.link)"
               title="Open product page in new tab"
             >
-              <span>View Product</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <span>View Details</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                 <polyline points="15 3 21 3 21 9"/>
                 <line x1="10" y1="14" x2="21" y2="3"/>
@@ -166,7 +227,7 @@ function openProductPage(url: string) {
 .product-catalog {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   width: 100%;
 }
 
@@ -176,9 +237,9 @@ function openProductPage(url: string) {
   gap: 12px;
   background: #ffffff;
   padding: 16px;
-  border-radius: 16px;
-  border: 1px solid #eef1f4;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  border-radius: 18px;
+  border: 1px solid #e8ecf1;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
 
   .catalog-title-group {
     display: flex;
@@ -192,12 +253,12 @@ function openProductPage(url: string) {
       gap: 10px;
 
       .title-icon-star {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        background: #fef9c3;
-        border: 1px solid #fef08a;
-        color: #ca8a04;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: #fef3c7;
+        border: 1px solid #fde68a;
+        color: #d97706;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -206,7 +267,7 @@ function openProductPage(url: string) {
 
       h3 {
         margin: 0;
-        font-size: 17px;
+        font-size: 16.5px;
         font-weight: 700;
         color: #0f172a;
         letter-spacing: -0.2px;
@@ -222,7 +283,7 @@ function openProductPage(url: string) {
 
     .catalog-count {
       font-size: 12px;
-      color: #3b626b;
+      color: #1a3b3d;
       background: #eef7f8;
       border: 1px solid #d4ebed;
       padding: 3px 10px;
@@ -234,30 +295,40 @@ function openProductPage(url: string) {
 
   .series-pills {
     display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     gap: 8px;
     overflow-x: auto;
-    padding: 4px 0 6px;
-    scrollbar-width: thin;
+    overflow-y: hidden;
+    padding: 2px 0 6px;
+    width: 100%;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    cursor: grab;
+    user-select: none;
+    scrollbar-width: none;
+
+    &:active {
+      cursor: grabbing;
+    }
 
     &::-webkit-scrollbar {
-      height: 5px;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 6px;
+      display: none;
     }
 
     .series-pill {
+      flex-shrink: 0;
       white-space: nowrap;
-      padding: 9px 16px;
-      border-radius: 24px;
-      border: 1.5px solid #e2e8f0;
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: 1px solid #e2e8f0;
       background: #f8fafc;
       color: #334155;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 
       &:hover {
         background: #f1f5f9;
@@ -265,10 +336,10 @@ function openProductPage(url: string) {
       }
 
       &.active {
-        background: #3b626b;
+        background: #1a3b3d;
         color: #ffffff;
-        border-color: #3b626b;
-        box-shadow: 0 3px 8px rgba(59, 98, 107, 0.28);
+        border-color: #1a3b3d;
+        box-shadow: 0 3px 10px rgba(26, 59, 61, 0.25);
       }
     }
   }
@@ -282,48 +353,64 @@ function openProductPage(url: string) {
 
 .catalog-empty {
   text-align: center;
-  padding: 30px 16px;
+  padding: 36px 16px;
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 16px;
   border: 1px dashed #cbd5e1;
 
+  .loading-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #1a3b3d;
+    border-radius: 50%;
+    margin: 0 auto 12px;
+    animation: spin 0.8s linear infinite;
+  }
+
   p {
-    margin: 0 0 10px;
+    margin: 0 0 12px;
     color: #64748b;
     font-size: 14px;
   }
 
   .reset-filter-btn {
-    background: #3b626b;
+    background: #1a3b3d;
     color: #fff;
     border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
+    padding: 8px 18px;
+    border-radius: 10px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: #255457;
+    }
   }
 }
 
 .product-card {
   background: #ffffff;
-  border-radius: 14px;
-  border: 1px solid #eef1f5;
+  border-radius: 18px;
+  border: 1px solid #e8ecf1;
   overflow: hidden;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
-  transition: all 0.2s ease;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.09);
-    border-color: #d1dadf;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    border-color: #cbd5e1;
   }
 
   .product-image-wrapper {
     position: relative;
     width: 100%;
-    height: 155px;
+    height: 165px;
     background: #f8fafc;
     display: flex;
     align-items: center;
@@ -334,24 +421,24 @@ function openProductPage(url: string) {
       max-width: 90%;
       max-height: 90%;
       object-fit: contain;
-      transition: transform 0.3s ease;
+      transition: transform 0.35s ease;
     }
 
     &:hover img {
-      transform: scale(1.05);
+      transform: scale(1.06);
     }
 
     .product-category-badge {
       position: absolute;
       top: 10px;
       left: 10px;
-      background: rgba(30, 41, 59, 0.85);
-      backdrop-filter: blur(4px);
+      background: rgba(15, 23, 42, 0.82);
+      backdrop-filter: blur(8px);
       color: #ffffff;
       font-size: 10px;
       font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
+      padding: 3px 9px;
+      border-radius: 8px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -362,11 +449,11 @@ function openProductPage(url: string) {
       right: 10px;
       background: linear-gradient(135deg, #f59e0b, #d97706);
       color: #ffffff;
-      font-size: 10px;
+      font-size: 10.5px;
       font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
-      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.35);
+      padding: 3px 9px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
       display: inline-flex;
       align-items: center;
       gap: 3px;
@@ -375,7 +462,7 @@ function openProductPage(url: string) {
   }
 
   .product-info {
-    padding: 14px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -390,7 +477,7 @@ function openProductPage(url: string) {
 
     .product-desc {
       margin: 0;
-      font-size: 12px;
+      font-size: 12.5px;
       color: #475569;
       line-height: 1.45;
     }
@@ -407,8 +494,8 @@ function openProductPage(url: string) {
         justify-content: center;
         gap: 6px;
         padding: 9px 12px;
-        border-radius: 8px;
-        font-size: 12px;
+        border-radius: 10px;
+        font-size: 12.5px;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.15s ease;
@@ -417,25 +504,30 @@ function openProductPage(url: string) {
       .btn-ask-question {
         background: #f1f5f9;
         color: #1e293b;
-        border: 1px solid #cbd5e1;
+        border: 1px solid #e2e8f0;
 
         &:hover {
           background: #e2e8f0;
-          border-color: #94a3b8;
+          border-color: #cbd5e1;
         }
       }
 
       .btn-product-details {
-        background: #3b626b;
+        background: #1a3b3d;
         color: #ffffff;
-        border: 1px solid #3b626b;
+        border: 1px solid #1a3b3d;
 
         &:hover {
-          background: #2f4f56;
-          border-color: #2f4f56;
+          background: #255457;
+          border-color: #255457;
         }
       }
     }
   }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 </style>

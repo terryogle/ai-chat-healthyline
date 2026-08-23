@@ -348,10 +348,10 @@ function handleBack() {
 <style lang="scss" scoped>
 .order-auth-card {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
+  border: 1px solid #e8ecf1;
+  border-radius: 20px;
   padding: 20px 22px 22px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.06);
   margin-bottom: 16px;
   text-align: left;
   animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -382,8 +382,10 @@ function handleBack() {
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 0;
+    gap: 5px;
+    padding: 4px 8px 4px 0;
+    border-radius: 6px;
+    transition: color 0.15s ease;
 
     &:hover {
       color: #0f172a;
@@ -392,7 +394,7 @@ function handleBack() {
 }
 
 .card-title {
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 700;
   color: #0f172a;
   margin: 0 0 6px 0;
@@ -407,7 +409,7 @@ function handleBack() {
 }
 
 .card-subtitle {
-  font-size: 14px;
+  font-size: 13.5px;
   color: #475569;
   margin: 0 0 18px;
   line-height: 1.4;
@@ -422,8 +424,8 @@ function handleBack() {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
   font-size: 13px;
   line-height: 1.35;
   margin-bottom: 14px;
@@ -452,17 +454,17 @@ function handleBack() {
   margin-bottom: 18px;
 
   .form-label {
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 13.5px;
+    font-weight: 600;
     color: #334155;
   }
 
   .form-input {
     width: 100%;
-    padding: 12px 14px;
+    padding: 12px 16px;
     border: 1px solid #cbd5e1;
-    border-radius: 10px;
-    font-size: 15px;
+    border-radius: 12px;
+    font-size: 14.5px;
     color: #0f172a;
     background: #ffffff;
     outline: none;
@@ -470,8 +472,8 @@ function handleBack() {
     box-sizing: border-box;
 
     &:focus {
-      border-color: #3b626b;
-      box-shadow: 0 0 0 3px rgba(59, 98, 107, 0.12);
+      border-color: #1a3b3d;
+      box-shadow: 0 0 0 3px rgba(26, 59, 61, 0.12);
     }
 
     &::placeholder {
@@ -488,22 +490,22 @@ function handleBack() {
 
 .submit-btn {
   width: 100%;
-  background: #3b626b;
+  background: #1a3b3d;
   color: #ffffff;
   border: none;
-  border-radius: 12px;
-  padding: 14px 16px;
-  font-size: 15px;
+  border-radius: 14px;
+  padding: 13px 18px;
+  font-size: 14.5px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(59, 98, 107, 0.2);
+  box-shadow: 0 4px 14px rgba(26, 59, 61, 0.25);
   margin-bottom: 14px;
 
   &:hover:not(:disabled) {
-    background: #2f4f56;
+    background: #255457;
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(59, 98, 107, 0.3);
+    box-shadow: 0 6px 18px rgba(26, 59, 61, 0.35);
   }
 
   &:disabled {
@@ -536,10 +538,10 @@ function handleBack() {
   margin-bottom: 20px;
 
   .otp-box {
-    width: 44px;
-    height: 50px;
+    width: 46px;
+    height: 52px;
     border: 1.5px solid #cbd5e1;
-    border-radius: 10px;
+    border-radius: 12px;
     text-align: center;
     font-size: 22px;
     font-weight: 700;
@@ -549,9 +551,9 @@ function handleBack() {
     transition: all 0.2s ease;
 
     &:focus {
-      border-color: #3b626b;
+      border-color: #1a3b3d;
       background: #ffffff;
-      box-shadow: 0 0 0 3px rgba(59, 98, 107, 0.15);
+      box-shadow: 0 0 0 3px rgba(26, 59, 61, 0.15);
     }
 
     &:disabled {
@@ -569,7 +571,7 @@ function handleBack() {
   .resend-link {
     background: transparent;
     border: none;
-    color: #3b626b;
+    color: #0d9488;
     font-weight: 600;
     cursor: pointer;
     text-decoration: underline;
@@ -577,7 +579,7 @@ function handleBack() {
     margin-left: 4px;
 
     &:hover:not(:disabled) {
-      color: #2f4f56;
+      color: #0f766e;
     }
 
     &:disabled {
