@@ -53,7 +53,7 @@ const lastProcessedMessageId = ref<string | null>(null);
 const headerTitle = computed(() => options.value?.title || 'HealthyLine');
 const headerSubtitle = computed(() => {
   if (activeTab.value === 'catalog') return 'Best Sellers & Gemstone Mats';
-  if (activeTab.value === 'messages') return '24/7 AI Wellness Concierge';
+  if (activeTab.value === 'messages') return 'How can we help?';
   return options.value?.subtitle || 'Chat with AI Assistant';
 });
 
