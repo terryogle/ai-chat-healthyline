@@ -35071,7 +35071,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     const headerSubtitle = computed(() => {
       var _a2;
       if (activeTab.value === "catalog") return "Best Sellers & Gemstone Mats";
-      if (activeTab.value === "messages") return "24/7 AI Wellness Concierge";
+      if (activeTab.value === "messages") return "How can we help?";
       return ((_a2 = options.value) == null ? void 0 : _a2.subtitle) || "Chat with AI Assistant";
     });
     function scrollToBottom() {
