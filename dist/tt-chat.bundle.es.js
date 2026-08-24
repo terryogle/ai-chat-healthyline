@@ -13813,29 +13813,29 @@ const VueMarkdown = /* @__PURE__ */ defineComponent((props) => {
 }, {
   props: ["source", "options", "plugins"]
 });
-const _hoisted_1$d = {
+const _hoisted_1$e = {
   key: 0,
   class: "bot-avatar-badge"
 };
-const _hoisted_2$b = { class: "tt-chat-message-bubble" };
-const _hoisted_3$a = { class: "tt-chat-message-content" };
-const _hoisted_4$8 = {
+const _hoisted_2$c = { class: "tt-chat-message-bubble" };
+const _hoisted_3$b = { class: "tt-chat-message-content" };
+const _hoisted_4$9 = {
   key: 0,
   class: "tt-chat-message-actions"
 };
-const _hoisted_5$6 = ["onClick"];
-const _hoisted_6$5 = {
+const _hoisted_5$7 = ["onClick"];
+const _hoisted_6$6 = {
   key: 1,
   class: "tt-chat-action-checkbox"
 };
-const _hoisted_7$5 = ["id"];
-const _hoisted_8$3 = ["for"];
-const _hoisted_9$3 = ["href"];
-const _hoisted_10$3 = {
+const _hoisted_7$6 = ["id"];
+const _hoisted_8$4 = ["for"];
+const _hoisted_9$4 = ["href"];
+const _hoisted_10$4 = {
   key: 1,
   class: "tt-chat-message-files"
 };
-const _sfc_main$d = /* @__PURE__ */ defineComponent({
+const _sfc_main$e = /* @__PURE__ */ defineComponent({
   __name: "ChatMessage",
   props: {
     message: {}
@@ -13860,16 +13860,16 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["tt-chat-message", classes.value])
       }, [
-        __props.message.sender === "bot" ? (openBlock(), createElementBlock("div", _hoisted_1$d, [..._cache[0] || (_cache[0] = [
+        __props.message.sender === "bot" ? (openBlock(), createElementBlock("div", _hoisted_1$e, [..._cache[0] || (_cache[0] = [
           createBaseVNode("span", { class: "sparkle" }, "✦", -1)
         ])])) : createCommentVNode("", true),
-        createBaseVNode("div", _hoisted_2$b, [
-          createBaseVNode("div", _hoisted_3$a, [
+        createBaseVNode("div", _hoisted_2$c, [
+          createBaseVNode("div", _hoisted_3$b, [
             createVNode(unref(VueMarkdown), {
               source: __props.message.text
             }, null, 8, ["source"])
           ]),
-          hasActions.value ? (openBlock(), createElementBlock("div", _hoisted_4$8, [
+          hasActions.value ? (openBlock(), createElementBlock("div", _hoisted_4$9, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(__props.message.actions, (action, index) => {
               return openBlock(), createElementBlock(Fragment, { key: index }, [
                 action.type === "button" ? (openBlock(), createElementBlock("button", {
@@ -13898,12 +13898,12 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
                       y2: "3"
                     })
                   ], -1))
-                ], 8, _hoisted_5$6)) : action.type === "checkbox" ? (openBlock(), createElementBlock("div", _hoisted_6$5, [
+                ], 8, _hoisted_5$7)) : action.type === "checkbox" ? (openBlock(), createElementBlock("div", _hoisted_6$6, [
                   createBaseVNode("input", {
                     type: "checkbox",
                     id: "action-checkbox-" + index,
                     class: "custom-checkbox"
-                  }, null, 8, _hoisted_7$5),
+                  }, null, 8, _hoisted_7$6),
                   createBaseVNode("label", {
                     for: "action-checkbox-" + index
                   }, [
@@ -13913,13 +13913,13 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
                       href: action.action,
                       target: "_blank",
                       rel: "noopener"
-                    }, "Details", 8, _hoisted_9$3)) : createCommentVNode("", true)
-                  ], 8, _hoisted_8$3)
+                    }, "Details", 8, _hoisted_9$4)) : createCommentVNode("", true)
+                  ], 8, _hoisted_8$4)
                 ])) : createCommentVNode("", true)
               ], 64);
             }), 128))
           ])) : createCommentVNode("", true),
-          __props.message.files && __props.message.files.length > 0 ? (openBlock(), createElementBlock("div", _hoisted_10$3, [
+          __props.message.files && __props.message.files.length > 0 ? (openBlock(), createElementBlock("div", _hoisted_10$4, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(__props.message.files, (file) => {
               return openBlock(), createElementBlock("div", {
                 key: file.name,
@@ -14023,32 +14023,33 @@ const CATALOG_PRODUCTS = [
     link: "https://healthyline.com/collections/soft-series"
   }
 ];
-const _hoisted_1$c = { class: "product-catalog" };
-const _hoisted_2$a = { class: "catalog-header" };
-const _hoisted_3$9 = { class: "catalog-title-group" };
-const _hoisted_4$7 = { class: "catalog-count" };
-const _hoisted_5$5 = ["onClick"];
-const _hoisted_6$4 = { class: "catalog-grid" };
-const _hoisted_7$4 = {
+const _hoisted_1$d = { class: "product-catalog" };
+const _hoisted_2$b = { class: "catalog-header" };
+const _hoisted_3$a = { class: "catalog-title-group" };
+const _hoisted_4$8 = { class: "catalog-header-actions" };
+const _hoisted_5$6 = { class: "catalog-count" };
+const _hoisted_6$5 = ["onClick"];
+const _hoisted_7$5 = { class: "catalog-grid" };
+const _hoisted_8$3 = {
   key: 0,
   class: "catalog-empty"
 };
-const _hoisted_8$2 = {
+const _hoisted_9$3 = {
   key: 1,
   class: "catalog-empty"
 };
-const _hoisted_9$2 = { class: "product-image-wrapper" };
-const _hoisted_10$2 = ["src", "alt"];
-const _hoisted_11$2 = { class: "product-category-badge" };
-const _hoisted_12$2 = { class: "product-info" };
-const _hoisted_13$2 = { class: "product-title" };
-const _hoisted_14$2 = { class: "product-desc" };
-const _hoisted_15$2 = { class: "product-actions" };
-const _hoisted_16$2 = ["onClick"];
-const _hoisted_17$2 = ["onClick"];
-const _sfc_main$c = /* @__PURE__ */ defineComponent({
+const _hoisted_10$3 = { class: "product-image-wrapper" };
+const _hoisted_11$3 = ["src", "alt"];
+const _hoisted_12$3 = { class: "product-category-badge" };
+const _hoisted_13$3 = { class: "product-info" };
+const _hoisted_14$3 = { class: "product-title" };
+const _hoisted_15$3 = { class: "product-desc" };
+const _hoisted_16$3 = { class: "product-actions" };
+const _hoisted_17$3 = ["onClick"];
+const _hoisted_18$2 = ["onClick"];
+const _sfc_main$d = /* @__PURE__ */ defineComponent({
   __name: "ProductCatalog",
-  emits: ["askQuestion"],
+  emits: ["askQuestion", "compareSeries"],
   setup(__props, { emit: __emit }) {
     const emit2 = __emit;
     const options = useOptions();
@@ -14139,11 +14140,20 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
       }
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$c, [
-        createBaseVNode("div", _hoisted_2$a, [
-          createBaseVNode("div", _hoisted_3$9, [
-            _cache[1] || (_cache[1] = createStaticVNode('<div class="title-with-badge" data-v-a240b3e2><div class="title-icon-star" data-v-a240b3e2><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" data-v-a240b3e2><path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z" data-v-a240b3e2></path></svg></div><div data-v-a240b3e2><h3 data-v-a240b3e2>Best Sellers</h3><p class="catalog-header-sub" data-v-a240b3e2>Curated Gemstone &amp; PEMF Therapy</p></div></div>', 1)),
-            createBaseVNode("span", _hoisted_4$7, toDisplayString(filteredProducts.value.length) + " items", 1)
+      return openBlock(), createElementBlock("div", _hoisted_1$d, [
+        createBaseVNode("div", _hoisted_2$b, [
+          createBaseVNode("div", _hoisted_3$a, [
+            _cache[3] || (_cache[3] = createStaticVNode('<div class="title-with-badge" data-v-912b76bd><div class="title-icon-star" data-v-912b76bd><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" data-v-912b76bd><path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z" data-v-912b76bd></path></svg></div><div data-v-912b76bd><h3 data-v-912b76bd>Best Sellers</h3><p class="catalog-header-sub" data-v-912b76bd>Curated Gemstone &amp; PEMF Therapy</p></div></div>', 1)),
+            createBaseVNode("div", _hoisted_4$8, [
+              createBaseVNode("button", {
+                class: "catalog-compare-btn",
+                onClick: _cache[0] || (_cache[0] = ($event) => emit2("compareSeries", selectedSeries.value !== "All" ? selectedSeries.value : "TAJ Series")),
+                title: "Open Series Comparison Matrix"
+              }, [..._cache[2] || (_cache[2] = [
+                createStaticVNode('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" data-v-912b76bd><path d="M16 3h5v5" data-v-912b76bd></path><path d="M4 20L21 3" data-v-912b76bd></path><path d="M21 16v5h-5" data-v-912b76bd></path><path d="M15 15l6 6" data-v-912b76bd></path><path d="M4 4l5 5" data-v-912b76bd></path></svg><span data-v-912b76bd>Compare Series</span>', 2)
+              ])]),
+              createBaseVNode("span", _hoisted_5$6, toDisplayString(filteredProducts.value.length) + " items", 1)
+            ])
           ]),
           createBaseVNode("div", {
             ref_key: "seriesPillsRef",
@@ -14160,19 +14170,19 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
                 key: series,
                 class: normalizeClass(["series-pill", { active: selectedSeries.value === series }]),
                 onClick: ($event) => onSelectSeries(series)
-              }, toDisplayString(series), 11, _hoisted_5$5);
+              }, toDisplayString(series), 11, _hoisted_6$5);
             }), 128))
           ], 544)
         ]),
-        createBaseVNode("div", _hoisted_6$4, [
-          isLoading.value ? (openBlock(), createElementBlock("div", _hoisted_7$4, [..._cache[2] || (_cache[2] = [
+        createBaseVNode("div", _hoisted_7$5, [
+          isLoading.value ? (openBlock(), createElementBlock("div", _hoisted_8$3, [..._cache[4] || (_cache[4] = [
             createBaseVNode("div", { class: "loading-spinner" }, null, -1),
             createBaseVNode("p", null, "Loading best sellers...", -1)
-          ])])) : filteredProducts.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_8$2, [
-            _cache[3] || (_cache[3] = createBaseVNode("p", null, "No products found matching your filter.", -1)),
+          ])])) : filteredProducts.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_9$3, [
+            _cache[5] || (_cache[5] = createBaseVNode("p", null, "No products found matching your filter.", -1)),
             createBaseVNode("button", {
               class: "reset-filter-btn",
-              onClick: _cache[0] || (_cache[0] = ($event) => selectedSeries.value = "All")
+              onClick: _cache[1] || (_cache[1] = ($event) => selectedSeries.value = "All")
             }, "Show All Products")
           ])) : createCommentVNode("", true),
           (openBlock(true), createElementBlock(Fragment, null, renderList(filteredProducts.value, (product) => {
@@ -14180,14 +14190,14 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
               key: product.id,
               class: "product-card"
             }, [
-              createBaseVNode("div", _hoisted_9$2, [
+              createBaseVNode("div", _hoisted_10$3, [
                 createBaseVNode("img", {
                   src: product.image,
                   alt: product.name,
                   loading: "lazy"
-                }, null, 8, _hoisted_10$2),
-                createBaseVNode("span", _hoisted_11$2, toDisplayString(product.category), 1),
-                _cache[4] || (_cache[4] = createBaseVNode("span", { class: "product-bestseller-badge" }, [
+                }, null, 8, _hoisted_11$3),
+                createBaseVNode("span", _hoisted_12$3, toDisplayString(product.category), 1),
+                _cache[6] || (_cache[6] = createBaseVNode("span", { class: "product-bestseller-badge" }, [
                   createBaseVNode("svg", {
                     xmlns: "http://www.w3.org/2000/svg",
                     width: "11",
@@ -14200,15 +14210,15 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
                   createTextVNode(" Top Rated ")
                 ], -1))
               ]),
-              createBaseVNode("div", _hoisted_12$2, [
-                createBaseVNode("h4", _hoisted_13$2, toDisplayString(product.name), 1),
-                createBaseVNode("p", _hoisted_14$2, toDisplayString(product.description), 1),
-                createBaseVNode("div", _hoisted_15$2, [
+              createBaseVNode("div", _hoisted_13$3, [
+                createBaseVNode("h4", _hoisted_14$3, toDisplayString(product.name), 1),
+                createBaseVNode("p", _hoisted_15$3, toDisplayString(product.description), 1),
+                createBaseVNode("div", _hoisted_16$3, [
                   createBaseVNode("button", {
                     class: "btn-ask-question",
                     onClick: ($event) => handleAskQuestion(product),
                     title: "Ask AI Assistant about this product"
-                  }, [..._cache[5] || (_cache[5] = [
+                  }, [..._cache[7] || (_cache[7] = [
                     createBaseVNode("svg", {
                       xmlns: "http://www.w3.org/2000/svg",
                       width: "14",
@@ -14223,12 +14233,12 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
                       createBaseVNode("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" })
                     ], -1),
                     createBaseVNode("span", null, "Ask AI", -1)
-                  ])], 8, _hoisted_16$2),
+                  ])], 8, _hoisted_17$3),
                   createBaseVNode("button", {
                     class: "btn-product-details",
                     onClick: ($event) => openProductPage(product.link),
                     title: "Open product page in new tab"
-                  }, [..._cache[6] || (_cache[6] = [
+                  }, [..._cache[8] || (_cache[8] = [
                     createBaseVNode("span", null, "View Details", -1),
                     createBaseVNode("svg", {
                       xmlns: "http://www.w3.org/2000/svg",
@@ -14250,7 +14260,7 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
                         y2: "3"
                       })
                     ], -1)
-                  ])], 8, _hoisted_17$2)
+                  ])], 8, _hoisted_18$2)
                 ])
               ])
             ]);
@@ -14267,7 +14277,522 @@ const _export_sfc = (sfc, props) => {
   }
   return target;
 };
-const ProductCatalog = /* @__PURE__ */ _export_sfc(_sfc_main$c, [["__scopeId", "data-v-a240b3e2"]]);
+const ProductCatalog = /* @__PURE__ */ _export_sfc(_sfc_main$d, [["__scopeId", "data-v-912b76bd"]]);
+const SPEC_DEFINITIONS = [
+  {
+    key: "farInfrared",
+    label: "Far Infrared (FIR)",
+    category: "core",
+    description: "Deep penetrating thermal heat that relaxes muscles, relieves stiffness, and boosts micro-circulation."
+  },
+  {
+    key: "negativeIon",
+    label: "Negative Ion Therapy",
+    category: "core",
+    description: "Natural negative ions from gemstones deliver antioxidant benefits and combat positive ion fatigue."
+  },
+  {
+    key: "hotGemstones",
+    label: "Hot Gemstone Therapy",
+    category: "core",
+    description: "Natural crushed and polished gemstones (Amethyst, Tourmaline, Jade, etc.) that radiate FIR rays."
+  },
+  {
+    key: "photonLight",
+    label: "Photon Therapy (Red Light)",
+    category: "core",
+    description: "Visible red 660nm LED light wavelengths supporting mitochondrial cellular energy, skin vitality, and collagen."
+  },
+  {
+    key: "pemfFrequencies",
+    label: "PEMF Frequencies",
+    category: "pemf",
+    description: "Pulsed Electromagnetic Fields. 7.83Hz represents Earth’s natural Schumann resonance; 1-30Hz allows multi-target biohacking."
+  },
+  {
+    key: "pemfMaxIntensity",
+    label: "PEMF Max Intensity",
+    category: "pemf",
+    description: "Magnetic flux density in Gauss (GS). 2-3GS is ideal for cellular recovery, while 8-12GS is high-power professional grade."
+  },
+  {
+    key: "pemfPulseDuration",
+    label: "PEMF Pulse Duration",
+    category: "pemf",
+    description: "Speed of magnetic pulses. Ultra-fast pulses deliver targeted resonance to deep tissues."
+  },
+  {
+    key: "pemfWaveType",
+    label: "PEMF Wave Type",
+    category: "pemf",
+    description: "Sine waves produce smooth natural biological frequencies; Square waves deliver rapid-rise electromagnetic stimulation."
+  },
+  {
+    key: "matFlexibility",
+    label: "Mat Flexibility",
+    category: "physical",
+    description: "Stiff mats maximize gemstone density on flat surfaces; Soft & Flexible mats allow folding and bed-cushion comfort."
+  }
+];
+const HEALTHYLINE_SERIES = [
+  {
+    id: "jet",
+    name: "Jet Series™",
+    shortName: "Jet",
+    categoryGroup: "Far Infrared and PEMF Mat with Photon",
+    badge: "High Intensity",
+    description: "High-power portable PEMF mat with intensive 8-12GS magnetic fields and photon red light for rapid recovery.",
+    bestFor: "Athletes, deep tissue recovery, rapid sports rehabilitation, intensive PEMF sessions",
+    gemstones: "Tourmaline, Jade, Amethyst",
+    priceRange: "$$$",
+    image: "https://healthyline.com/cdn/shop/files/Amethyst-Sodalite-Blue-Lace-Agate-Green-Aventurine-Yellow-Aventurine-Carnelian-Red-Jasper-Rainbow-Mat-4020-Firm-PEMF-InframatPro-4th-edition_1_9f2602ce-44a3-448f-a368-5f14e04e4c1c.webp?v=1772470017",
+    link: "https://healthyline.com/collections/jet-series",
+    specs: {
+      farInfrared: true,
+      negativeIon: true,
+      hotGemstones: true,
+      photonLight: true,
+      pemfFrequencies: "1 to 30Hz",
+      pemfMaxIntensity: "8 - 12GS",
+      pemfPulseDuration: "Medium",
+      pemfWaveType: "Square or Sine",
+      matFlexibility: "Stiff"
+    },
+    highlights: ["Max 12 Gauss intensity", "Photon LED therapy", "Dual Waveform (Square/Sine)", "Adjustable 1-30Hz"]
+  },
+  {
+    id: "rainbow-chakra",
+    name: "Rainbow Chakra Series™",
+    shortName: "Rainbow Chakra",
+    categoryGroup: "Far Infrared and PEMF Mat with Photon",
+    badge: "7 Gemstones",
+    description: "Holistic 5-therapy system featuring 7 natural gemstones mapped to the body’s 7 chakras for complete balance.",
+    bestFor: "Meditation, chakra balancing, stress relief, emotional harmony, spiritual wellness",
+    gemstones: "Amethyst, Sodalite, Blue Lace Agate, Green Aventurine, Yellow Aventurine, Carnelian, Red Jasper",
+    priceRange: "$$$$",
+    image: "https://healthyline.com/cdn/shop/files/Amethyst-Sodalite-Blue-Lace-Agate-Green-Aventurine-Yellow-Aventurine-Carnelian-Red-Jasper-Rainbow-Mat-4020-Firm-PEMF-InframatPro-4th-edition_1_9f2602ce-44a3-448f-a368-5f14e04e4c1c.webp?v=1772470017",
+    link: "https://healthyline.com/products/rainbow-chakra-pemf-farinfrared-red-light-mat?variant=47076949655604",
+    specs: {
+      farInfrared: true,
+      negativeIon: true,
+      hotGemstones: true,
+      photonLight: true,
+      pemfFrequencies: "7.83Hz",
+      pemfMaxIntensity: "3GS",
+      pemfPulseDuration: "Medium",
+      pemfWaveType: "Sine",
+      matFlexibility: "Stiff"
+    },
+    highlights: ["7 Chakra Gemstones", "Earth Schumann PEMF (7.83Hz)", "Photon 660nm Red Light", "Negative Ion saturation"]
+  },
+  {
+    id: "platinum",
+    name: "Platinum Series™",
+    shortName: "Platinum",
+    categoryGroup: "Far Infrared and PEMF Mat with Photon",
+    badge: "Flagship Biohack",
+    description: "The ultimate fully customizable wellness mat with programmable PEMF frequencies, waveforms, pulse speeds and photon lights.",
+    bestFor: "Advanced biohackers, clinics, customizable therapeutic protocols, maximum versatility",
+    gemstones: "5 Natural Gemstones (Amethyst, Tourmaline, Jade, Obsidian, Quartz)",
+    priceRange: "$$$$$",
+    image: "https://healthyline.com/cdn/shop/files/Amethyst-Sodalite-Blue-Lace-Agate-Green-Aventurine-Yellow-Aventurine-Carnelian-Red-Jasper-Rainbow-Mat-4020-Firm-PEMF-InframatPro-4th-edition_1_9f2602ce-44a3-448f-a368-5f14e04e4c1c.webp?v=1772470017",
+    link: "https://healthyline.com/collections/platinum-series",
+    specs: {
+      farInfrared: true,
+      negativeIon: true,
+      hotGemstones: true,
+      photonLight: true,
+      pemfFrequencies: "1 to 25Hz",
+      pemfMaxIntensity: "3GS",
+      pemfPulseDuration: "Ultra Fast, Fast, Medium",
+      pemfWaveType: "Square or Sine",
+      matFlexibility: "Stiff"
+    },
+    highlights: ["10+ Custom PEMF Programs", "Ultra-Fast Pulse Duration", "Square & Sine Wave Selection", "Full Spectrum 5 Therapies"]
+  },
+  {
+    id: "taj",
+    name: "TAJ Series™",
+    shortName: "TAJ",
+    categoryGroup: "FIR and PEMF Mat",
+    badge: "#1 Best Seller",
+    description: "HealthyLine’s award-winning signature 4-therapy mat combining Tourmaline, Amethyst, Jade, Far Infrared, and PEMF.",
+    bestFor: "Daily pain relief, stiffness, joint comfort, improved circulation, sleep enhancement",
+    gemstones: "Tourmaline, Amethyst, Jade (T-A-J)",
+    priceRange: "$$$",
+    image: "https://healthyline.com/cdn/shop/files/TAJ-3624-Firm-PEMF-InframatPro-1.webp?v=1772470000",
+    link: "https://healthyline.com/products/taj-mat-3624-firm-pemf-inframatpro",
+    specs: {
+      farInfrared: true,
+      negativeIon: true,
+      hotGemstones: true,
+      photonLight: false,
+      pemfFrequencies: "7.83Hz",
+      pemfMaxIntensity: "3GS",
+      pemfPulseDuration: "Medium",
+      pemfWaveType: "Sine",
+      matFlexibility: "Stiff"
+    },
+    highlights: ["Most popular model worldwide", "Triple Gemstone Synergy", "Proven 7.83Hz Schumann PEMF", "Reliable daily therapy"]
+  },
+  {
+    id: "tao",
+    name: "TAO Series™",
+    shortName: "TAO",
+    categoryGroup: "Far Infrared Mat",
+    badge: "Pure Thermal",
+    description: "Pure far infrared gemstone heating pad with Tourmaline, Obsidian, and Jade for concentrated deep warmth without PEMF.",
+    bestFor: "Deep muscle soothing, budget-conscious thermal therapy, users sensitive to electromagnetic fields",
+    gemstones: "Tourmaline, Obsidian, Jade",
+    priceRange: "$$",
+    image: "https://healthyline.com/cdn/shop/files/TAO-1818-Soft-InframatPro-1.webp?v=1772470010",
+    link: "https://healthyline.com/products/tao-chair-mat-1818-soft",
+    specs: {
+      farInfrared: true,
+      negativeIon: true,
+      hotGemstones: true,
+      photonLight: false,
+      pemfFrequencies: null,
+      pemfMaxIntensity: null,
+      pemfPulseDuration: null,
+      pemfWaveType: null,
+      matFlexibility: "Stiff"
+    },
+    highlights: ["EMF-Free Far Infrared Heat", "Negative Ion generation", "Chair & full body sizes", "Accessible entry price"]
+  },
+  {
+    id: "soft",
+    name: "Soft Series™",
+    shortName: "Soft",
+    categoryGroup: "Far Infrared Mat",
+    badge: "Bed & Sleep",
+    description: "Ultra-cushioned pillow-top gemstone heating mat designed with flexible memory foam for overnight bed therapy and deep restorative sleep.",
+    bestFor: "Overnight sleep, mattress topper use, users needing plush cushioned back/spine comfort",
+    gemstones: "Crushed Amethyst & Tourmaline",
+    priceRange: "$$$",
+    image: "https://healthyline.com/cdn/shop/files/TAO-1818-Soft-InframatPro-1.webp?v=1772470010",
+    link: "https://healthyline.com/collections/soft-series",
+    specs: {
+      farInfrared: true,
+      negativeIon: true,
+      hotGemstones: true,
+      photonLight: false,
+      pemfFrequencies: null,
+      pemfMaxIntensity: null,
+      pemfPulseDuration: null,
+      pemfWaveType: null,
+      matFlexibility: "Soft"
+    },
+    highlights: ["Pillow-top memory foam", "Designed for overnight sleep", "Comfortable on any mattress", "Gentle soothing FIR warmth"]
+  },
+  {
+    id: "mesh",
+    name: "Mesh Series™",
+    shortName: "Mesh",
+    categoryGroup: "Far Infrared Mat",
+    badge: "Flexible Wrap",
+    description: "Lightweight, flexible gemstone mat embedded in soft mesh, allowing you to wrap it around knees, shoulders, and legs.",
+    bestFor: "Targeted joint wrapping, lightweight travel, flexible positioning on couches or chairs",
+    gemstones: "Polished Jade & Tourmaline discs",
+    priceRange: "$$",
+    image: "https://healthyline.com/cdn/shop/files/TAJ-3624-Firm-PEMF-InframatPro-1.webp?v=1772470000",
+    link: "https://healthyline.com/collections/mesh-series",
+    specs: {
+      farInfrared: true,
+      negativeIon: true,
+      hotGemstones: true,
+      photonLight: false,
+      pemfFrequencies: null,
+      pemfMaxIntensity: null,
+      pemfPulseDuration: null,
+      pemfWaveType: null,
+      matFlexibility: "Flexible"
+    },
+    highlights: ["Bends & wraps around joints", "Ultra lightweight & portable", "Jade & Tourmaline thermal power", "Versatile multi-angle use"]
+  }
+];
+const _hoisted_1$c = { class: "split-comparison-view" };
+const _hoisted_2$a = { class: "models-header-grid" };
+const _hoisted_3$9 = { class: "model-picker-card" };
+const _hoisted_4$7 = { class: "model-select-wrapper" };
+const _hoisted_5$5 = ["value"];
+const _hoisted_6$4 = { class: "model-picker-card" };
+const _hoisted_7$4 = { class: "model-select-wrapper" };
+const _hoisted_8$2 = ["value"];
+const _hoisted_9$2 = { class: "comparison-specs-list" };
+const _hoisted_10$2 = ["onClick"];
+const _hoisted_11$2 = { class: "label-text-box" };
+const _hoisted_12$2 = { class: "spec-values-grid" };
+const _hoisted_13$2 = {
+  key: 0,
+  class: "val-check"
+};
+const _hoisted_14$2 = {
+  key: 1,
+  class: "val-cross"
+};
+const _hoisted_15$2 = {
+  key: 1,
+  class: "val-cross"
+};
+const _hoisted_16$2 = {
+  key: 0,
+  class: "val-check"
+};
+const _hoisted_17$2 = {
+  key: 1,
+  class: "val-cross"
+};
+const _hoisted_18$1 = {
+  key: 1,
+  class: "val-cross"
+};
+const _hoisted_19$1 = { class: "spec-comparison-row is-diff" };
+const _hoisted_20$1 = { class: "spec-values-grid" };
+const _hoisted_21$1 = { class: "spec-val-cell text-left-cell" };
+const _hoisted_22$1 = { class: "gemstone-text" };
+const _hoisted_23$1 = { class: "spec-val-cell text-left-cell" };
+const _hoisted_24$1 = { class: "gemstone-text" };
+const _hoisted_25$1 = { class: "action-footer-grid" };
+const _hoisted_26$1 = { class: "series-card-action" };
+const _hoisted_27$1 = { class: "series-card-action" };
+const _hoisted_28$1 = { class: "info-card-header" };
+const _hoisted_29$1 = { class: "info-title-group" };
+const _hoisted_30$1 = { class: "info-card-body" };
+const _hoisted_31$1 = { class: "info-card-footer" };
+const _sfc_main$c = /* @__PURE__ */ defineComponent({
+  __name: "SeriesComparison",
+  props: {
+    initialSeriesIdA: {},
+    initialSeriesIdB: {}
+  },
+  emits: ["askQuestion", "selectCatalogSeries"],
+  setup(__props, { emit: __emit }) {
+    const props = __props;
+    const emit2 = __emit;
+    const rootRef = /* @__PURE__ */ ref(null);
+    onMounted(() => {
+      if (rootRef.value) {
+        const parentScroll = rootRef.value.closest(".tt-chat-body");
+        if (parentScroll) {
+          parentScroll.scrollTop = 0;
+        }
+      }
+    });
+    const selectedIdA = /* @__PURE__ */ ref(props.initialSeriesIdA || "taj");
+    const selectedIdB = /* @__PURE__ */ ref(props.initialSeriesIdB || "platinum");
+    const activeTooltip = /* @__PURE__ */ ref(null);
+    const seriesA = computed(() => HEALTHYLINE_SERIES.find((s) => s.id === selectedIdA.value) || HEALTHYLINE_SERIES[3]);
+    const seriesB = computed(() => HEALTHYLINE_SERIES.find((s) => s.id === selectedIdB.value) || HEALTHYLINE_SERIES[2]);
+    const visibleSpecs = computed(() => SPEC_DEFINITIONS);
+    function handleAskAbout(series) {
+      emit2("askQuestion", `Can you explain the key benefits and health applications of the ${series.name}?`);
+    }
+    function showSpecInfo(def2) {
+      activeTooltip.value = def2;
+    }
+    function closeSpecInfo() {
+      activeTooltip.value = null;
+    }
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", {
+        ref_key: "rootRef",
+        ref: rootRef,
+        class: "series-comparison-container"
+      }, [
+        _cache[17] || (_cache[17] = createStaticVNode('<div class="comparison-header"><div class="comparison-title-row"><div class="title-with-icon"><div class="compare-icon-badge"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"></path><path d="M4 20L21 3"></path><path d="M21 16v5h-5"></path><path d="M15 15l6 6"></path><path d="M4 4l5 5"></path></svg></div><div><h3 class="compare-title">Compare HealthyLine Series</h3><p class="compare-subtitle">Tailor a mat to your unique wellness routine.</p></div></div></div></div>', 1)),
+        createBaseVNode("div", _hoisted_1$c, [
+          createBaseVNode("div", _hoisted_2$a, [
+            createBaseVNode("div", _hoisted_3$9, [
+              createBaseVNode("div", _hoisted_4$7, [
+                withDirectives(createBaseVNode("select", {
+                  "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => selectedIdA.value = $event),
+                  class: "series-select-input"
+                }, [
+                  (openBlock(true), createElementBlock(Fragment, null, renderList(unref(HEALTHYLINE_SERIES), (item) => {
+                    return openBlock(), createElementBlock("option", {
+                      key: "a-" + item.id,
+                      value: item.id
+                    }, toDisplayString(item.name), 9, _hoisted_5$5);
+                  }), 128))
+                ], 512), [
+                  [vModelSelect, selectedIdA.value]
+                ])
+              ])
+            ]),
+            _cache[6] || (_cache[6] = createBaseVNode("div", { class: "vs-badge" }, "VS", -1)),
+            createBaseVNode("div", _hoisted_6$4, [
+              createBaseVNode("div", _hoisted_7$4, [
+                withDirectives(createBaseVNode("select", {
+                  "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => selectedIdB.value = $event),
+                  class: "series-select-input"
+                }, [
+                  (openBlock(true), createElementBlock(Fragment, null, renderList(unref(HEALTHYLINE_SERIES), (item) => {
+                    return openBlock(), createElementBlock("option", {
+                      key: "b-" + item.id,
+                      value: item.id
+                    }, toDisplayString(item.name), 9, _hoisted_8$2);
+                  }), 128))
+                ], 512), [
+                  [vModelSelect, selectedIdB.value]
+                ])
+              ])
+            ])
+          ]),
+          createBaseVNode("div", _hoisted_9$2, [
+            _cache[11] || (_cache[11] = createBaseVNode("div", { class: "spec-section-divider" }, [
+              createBaseVNode("span", null, "Core Technologies & Light")
+            ], -1)),
+            (openBlock(true), createElementBlock(Fragment, null, renderList(visibleSpecs.value, (spec) => {
+              return openBlock(), createElementBlock("div", {
+                key: spec.key,
+                class: "spec-comparison-row"
+              }, [
+                createBaseVNode("div", {
+                  class: "spec-label-col",
+                  onClick: ($event) => showSpecInfo(spec)
+                }, [
+                  createBaseVNode("div", _hoisted_11$2, [
+                    createBaseVNode("strong", null, toDisplayString(spec.label), 1),
+                    _cache[7] || (_cache[7] = createStaticVNode('<button class="info-bubble-btn" title="Learn more about this therapy"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>', 1))
+                  ])
+                ], 8, _hoisted_10$2),
+                createBaseVNode("div", _hoisted_12$2, [
+                  createBaseVNode("div", {
+                    class: normalizeClass(["spec-val-cell", { positive: seriesA.value.specs[spec.key] === true }])
+                  }, [
+                    typeof seriesA.value.specs[spec.key] === "boolean" ? (openBlock(), createElementBlock(Fragment, { key: 0 }, [
+                      seriesA.value.specs[spec.key] ? (openBlock(), createElementBlock("span", _hoisted_13$2, [..._cache[8] || (_cache[8] = [
+                        createBaseVNode("svg", {
+                          xmlns: "http://www.w3.org/2000/svg",
+                          width: "15",
+                          height: "15",
+                          viewBox: "0 0 24 24",
+                          fill: "currentColor"
+                        }, [
+                          createBaseVNode("path", { d: "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" })
+                        ], -1),
+                        createTextVNode(" Yes ", -1)
+                      ])])) : (openBlock(), createElementBlock("span", _hoisted_14$2, "✕ No"))
+                    ], 64)) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+                      seriesA.value.specs[spec.key] ? (openBlock(), createElementBlock("span", {
+                        key: 0,
+                        class: normalizeClass(["val-string", { highlight: spec.key === "pemfMaxIntensity" || spec.key === "pemfWaveType" }])
+                      }, toDisplayString(seriesA.value.specs[spec.key]), 3)) : (openBlock(), createElementBlock("span", _hoisted_15$2, "✕ None"))
+                    ], 64))
+                  ], 2),
+                  createBaseVNode("div", {
+                    class: normalizeClass(["spec-val-cell", { positive: seriesB.value.specs[spec.key] === true }])
+                  }, [
+                    typeof seriesB.value.specs[spec.key] === "boolean" ? (openBlock(), createElementBlock(Fragment, { key: 0 }, [
+                      seriesB.value.specs[spec.key] ? (openBlock(), createElementBlock("span", _hoisted_16$2, [..._cache[9] || (_cache[9] = [
+                        createBaseVNode("svg", {
+                          xmlns: "http://www.w3.org/2000/svg",
+                          width: "15",
+                          height: "15",
+                          viewBox: "0 0 24 24",
+                          fill: "currentColor"
+                        }, [
+                          createBaseVNode("path", { d: "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" })
+                        ], -1),
+                        createTextVNode(" Yes ", -1)
+                      ])])) : (openBlock(), createElementBlock("span", _hoisted_17$2, "✕ No"))
+                    ], 64)) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+                      seriesB.value.specs[spec.key] ? (openBlock(), createElementBlock("span", {
+                        key: 0,
+                        class: normalizeClass(["val-string", { highlight: spec.key === "pemfMaxIntensity" || spec.key === "pemfWaveType" }])
+                      }, toDisplayString(seriesB.value.specs[spec.key]), 3)) : (openBlock(), createElementBlock("span", _hoisted_18$1, "✕ None"))
+                    ], 64))
+                  ], 2)
+                ])
+              ]);
+            }), 128)),
+            _cache[12] || (_cache[12] = createBaseVNode("div", { class: "spec-section-divider" }, [
+              createBaseVNode("span", null, "Gemstones")
+            ], -1)),
+            createBaseVNode("div", _hoisted_19$1, [
+              _cache[10] || (_cache[10] = createBaseVNode("div", { class: "spec-label-col" }, [
+                createBaseVNode("div", { class: "label-text-box" }, [
+                  createBaseVNode("strong", null, "Natural Gemstones")
+                ])
+              ], -1)),
+              createBaseVNode("div", _hoisted_20$1, [
+                createBaseVNode("div", _hoisted_21$1, [
+                  createBaseVNode("span", _hoisted_22$1, toDisplayString(seriesA.value.gemstones), 1)
+                ]),
+                createBaseVNode("div", _hoisted_23$1, [
+                  createBaseVNode("span", _hoisted_24$1, toDisplayString(seriesB.value.gemstones), 1)
+                ])
+              ])
+            ])
+          ]),
+          createBaseVNode("div", _hoisted_25$1, [
+            createBaseVNode("div", _hoisted_26$1, [
+              createBaseVNode("button", {
+                class: "ask-btn",
+                onClick: _cache[2] || (_cache[2] = ($event) => handleAskAbout(seriesA.value))
+              }, [
+                _cache[13] || (_cache[13] = createBaseVNode("span", { class: "sparkle" }, "✦", -1)),
+                createTextVNode(" Ask about " + toDisplayString(seriesA.value.shortName), 1)
+              ])
+            ]),
+            createBaseVNode("div", _hoisted_27$1, [
+              createBaseVNode("button", {
+                class: "ask-btn",
+                onClick: _cache[3] || (_cache[3] = ($event) => handleAskAbout(seriesB.value))
+              }, [
+                _cache[14] || (_cache[14] = createBaseVNode("span", { class: "sparkle" }, "✦", -1)),
+                createTextVNode(" Ask about " + toDisplayString(seriesB.value.shortName), 1)
+              ])
+            ])
+          ])
+        ]),
+        createVNode(Transition, { name: "fade" }, {
+          default: withCtx(() => [
+            activeTooltip.value ? (openBlock(), createElementBlock("div", {
+              key: 0,
+              class: "spec-info-backdrop",
+              onClick: closeSpecInfo
+            }, [
+              createBaseVNode("div", {
+                class: "spec-info-card",
+                onClick: _cache[5] || (_cache[5] = withModifiers(() => {
+                }, ["stop"]))
+              }, [
+                createBaseVNode("div", _hoisted_28$1, [
+                  createBaseVNode("div", _hoisted_29$1, [
+                    _cache[15] || (_cache[15] = createBaseVNode("span", { class: "info-tag" }, "Therapy Guide", -1)),
+                    createBaseVNode("h4", null, toDisplayString(activeTooltip.value.label), 1)
+                  ]),
+                  createBaseVNode("button", {
+                    class: "close-info-btn",
+                    onClick: closeSpecInfo
+                  }, "✕")
+                ]),
+                createBaseVNode("div", _hoisted_30$1, [
+                  createBaseVNode("p", null, toDisplayString(activeTooltip.value.description), 1)
+                ]),
+                createBaseVNode("div", _hoisted_31$1, [
+                  createBaseVNode("button", {
+                    class: "info-action-btn",
+                    onClick: _cache[4] || (_cache[4] = ($event) => {
+                      emit2("askQuestion", `Can you explain how ${activeTooltip.value.label} works in HealthyLine mats and its benefits?`);
+                      closeSpecInfo();
+                    })
+                  }, [..._cache[16] || (_cache[16] = [
+                    createBaseVNode("span", { class: "sparkle" }, "✦", -1),
+                    createTextVNode(" Ask AI about this therapy ", -1)
+                  ])])
+                ])
+              ])
+            ])) : createCommentVNode("", true)
+          ]),
+          _: 1
+        })
+      ], 512);
+    };
+  }
+});
 const _hoisted_1$b = ["disabled"];
 const _hoisted_2$9 = ["src"];
 const _hoisted_3$8 = {
@@ -34988,50 +35513,54 @@ const _hoisted_19 = {
 };
 const _hoisted_20 = {
   key: 2,
-  class: "tt-chat-messages-view"
+  class: "tt-chat-compare-view"
 };
 const _hoisted_21 = {
+  key: 3,
+  class: "tt-chat-messages-view"
+};
+const _hoisted_22 = {
   key: 0,
   class: "empty-messages-prompt"
 };
-const _hoisted_22 = { class: "starter-suggestions" };
-const _hoisted_23 = ["onClick"];
-const _hoisted_24 = { class: "chip-icon" };
-const _hoisted_25 = { class: "chip-text-group" };
-const _hoisted_26 = { class: "chip-title" };
-const _hoisted_27 = { class: "chip-sub" };
-const _hoisted_28 = {
+const _hoisted_23 = { class: "starter-suggestions" };
+const _hoisted_24 = ["onClick"];
+const _hoisted_25 = { class: "chip-icon" };
+const _hoisted_26 = { class: "chip-text-group" };
+const _hoisted_27 = { class: "chip-title" };
+const _hoisted_28 = { class: "chip-sub" };
+const _hoisted_29 = {
   key: 1,
   class: "tt-chat-typing"
 };
-const _hoisted_29 = { class: "tt-chat-footer" };
-const _hoisted_30 = {
+const _hoisted_30 = { class: "tt-chat-footer" };
+const _hoisted_31 = {
   key: 0,
   class: "footer-input-section"
 };
-const _hoisted_31 = {
+const _hoisted_32 = {
   key: 0,
   class: "tt-chat-privacy-container"
 };
-const _hoisted_32 = {
+const _hoisted_33 = {
   key: 1,
   class: "tt-chat-province-container"
 };
-const _hoisted_33 = {
+const _hoisted_34 = {
   key: 2,
   class: "tt-chat-datepicker-container"
 };
-const _hoisted_34 = {
+const _hoisted_35 = {
   key: 3,
   class: "tt-chat-input-component-container"
 };
-const _hoisted_35 = {
+const _hoisted_36 = {
   key: 4,
   class: "tt-chat-input-container"
 };
-const _hoisted_36 = { class: "bottom-nav-bar" };
-const _hoisted_37 = { class: "nav-icon-box" };
-const _hoisted_38 = {
+const _hoisted_37 = { class: "bottom-nav-bar" };
+const _hoisted_38 = { class: "nav-icon-box" };
+const _hoisted_39 = {
   key: 0,
   class: "messages-badge"
 };
@@ -35047,6 +35576,8 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     const options = useOptions();
     const { messages, currentSessionId, waitingForResponse, sendMessage: sendMessage2, startNewSession } = chatStore;
     const activeTab = /* @__PURE__ */ ref("home");
+    const compareInitialA = /* @__PURE__ */ ref("taj");
+    const compareInitialB = /* @__PURE__ */ ref("platinum");
     const showOrderAuthCard = /* @__PURE__ */ ref(false);
     const hasUserMessages = computed(() => messages.value.some((m2) => m2.sender === "user"));
     const starterSuggestions = [
@@ -35070,6 +35601,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     });
     const headerSubtitle = computed(() => {
       var _a2;
+      if (activeTab.value === "compare") return "Series & Technology Matrix";
       if (activeTab.value === "catalog") return "Best Sellers & Gemstone Mats";
       if (activeTab.value === "messages") return "How can we help?";
       return ((_a2 = options.value) == null ? void 0 : _a2.subtitle) || "Chat with AI Assistant";
@@ -35078,6 +35610,13 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
       nextTick(() => {
         if (chatBodyRef.value) {
           chatBodyRef.value.scrollTop = chatBodyRef.value.scrollHeight;
+        }
+      });
+    }
+    function scrollToTop() {
+      nextTick(() => {
+        if (chatBodyRef.value) {
+          chatBodyRef.value.scrollTop = 0;
         }
       });
     }
@@ -35246,7 +35785,30 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
       activeTab.value = tab;
       if (tab === "messages") {
         scrollToBottom();
+      } else {
+        scrollToTop();
       }
+    }
+    function handleOpenCompare(seriesName) {
+      if (seriesName) {
+        const s = seriesName.toLowerCase();
+        if (s.includes("rainbow") || s.includes("chakra")) {
+          compareInitialA.value = "rainbow-chakra";
+        } else if (s.includes("jet")) {
+          compareInitialA.value = "jet";
+        } else if (s.includes("soft")) {
+          compareInitialA.value = "soft";
+        } else if (s.includes("mesh")) {
+          compareInitialA.value = "mesh";
+        } else if (s.includes("tao")) {
+          compareInitialA.value = "tao";
+        } else if (s.includes("platinum")) {
+          compareInitialA.value = "platinum";
+        } else {
+          compareInitialA.value = "taj";
+        }
+      }
+      switchTab("compare");
     }
     watch(messages, (newMessages) => {
       if (activeTab.value === "messages") {
@@ -35288,7 +35850,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
       return openBlock(), createElementBlock("div", _hoisted_1$4, [
         createBaseVNode("div", _hoisted_2$2, [
           createBaseVNode("div", _hoisted_3$1, [
-            _cache[12] || (_cache[12] = createBaseVNode("div", {
+            _cache[14] || (_cache[14] = createBaseVNode("div", {
               class: "online-status-dot",
               title: "Online"
             }, [
@@ -35298,7 +35860,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
             createBaseVNode("div", _hoisted_4$1, [
               createBaseVNode("div", _hoisted_5, [
                 createBaseVNode("h2", null, toDisplayString(headerTitle.value), 1),
-                _cache[11] || (_cache[11] = createBaseVNode("span", { class: "verified-pill" }, [
+                _cache[13] || (_cache[13] = createBaseVNode("span", { class: "verified-pill" }, [
                   createBaseVNode("svg", {
                     xmlns: "http://www.w3.org/2000/svg",
                     width: "10",
@@ -35325,7 +35887,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                 onClick: withModifiers(toggleMenu, ["stop"]),
                 title: "More options",
                 "aria-label": "More options"
-              }, [..._cache[13] || (_cache[13] = [
+              }, [..._cache[15] || (_cache[15] = [
                 createBaseVNode("svg", {
                   xmlns: "http://www.w3.org/2000/svg",
                   width: "18",
@@ -35356,7 +35918,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                     createBaseVNode("button", {
                       class: "dropdown-item",
                       onClick: handleNewChat
-                    }, [..._cache[14] || (_cache[14] = [
+                    }, [..._cache[16] || (_cache[16] = [
                       createBaseVNode("span", { class: "dropdown-item-label" }, "New Chat", -1),
                       createBaseVNode("svg", {
                         xmlns: "http://www.w3.org/2000/svg",
@@ -35380,7 +35942,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                       target: "_blank",
                       rel: "noopener noreferrer",
                       onClick: _cache[0] || (_cache[0] = ($event) => isMenuOpen.value = false)
-                    }, [..._cache[15] || (_cache[15] = [
+                    }, [..._cache[17] || (_cache[17] = [
                       createBaseVNode("span", { class: "dropdown-item-label" }, "FAQ", -1),
                       createBaseVNode("svg", {
                         xmlns: "http://www.w3.org/2000/svg",
@@ -35414,7 +35976,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                       target: "_blank",
                       rel: "noopener noreferrer",
                       onClick: _cache[1] || (_cache[1] = ($event) => isMenuOpen.value = false)
-                    }, [..._cache[16] || (_cache[16] = [
+                    }, [..._cache[18] || (_cache[18] = [
                       createBaseVNode("span", { class: "dropdown-item-label" }, "Support", -1),
                       createBaseVNode("svg", {
                         xmlns: "http://www.w3.org/2000/svg",
@@ -35441,7 +36003,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
               onClick: _cache[2] || (_cache[2] = ($event) => emit2("close")),
               title: "Close chat (Закрыть чат)",
               "aria-label": "Close chat"
-            }, [..._cache[17] || (_cache[17] = [
+            }, [..._cache[19] || (_cache[19] = [
               createBaseVNode("svg", {
                 xmlns: "http://www.w3.org/2000/svg",
                 width: "18",
@@ -35485,34 +36047,40 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                 key: 1,
                 class: "spotlight-card",
                 onClick: _cache[4] || (_cache[4] = ($event) => switchTab("messages"))
-              }, [..._cache[18] || (_cache[18] = [
+              }, [..._cache[20] || (_cache[20] = [
                 createStaticVNode('<div class="spotlight-content"><div class="spotlight-badge"><span class="sparkle-icon">✦</span><span>AI Agent and team can help</span></div><strong class="spotlight-title">Ask a question</strong><p class="spotlight-desc">Get instant personalized guidance 24/7</p></div><div class="spotlight-action"><div class="action-btn-circle"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div></div>', 2)
               ])])) : createCommentVNode("", true),
               !showOrderAuthCard.value ? (openBlock(), createElementBlock("div", _hoisted_10, [
-                _cache[22] || (_cache[22] = createBaseVNode("div", { class: "section-label" }, "Explore & Services", -1)),
+                _cache[25] || (_cache[25] = createBaseVNode("div", { class: "section-label" }, "Explore & Services", -1)),
                 createBaseVNode("button", {
                   class: "pinterest-action-card best-sellers-card",
                   onClick: _cache[5] || (_cache[5] = ($event) => switchTab("catalog"))
-                }, [..._cache[19] || (_cache[19] = [
+                }, [..._cache[21] || (_cache[21] = [
                   createStaticVNode('<div class="card-left-visual"><div class="star-halo"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z"></path></svg></div></div><div class="card-body-text"><div class="card-header-line"><strong class="card-main-title">Best Sellers</strong><span class="gold-pill">★ Top Rated</span></div><p class="card-sub-title">Explore Far Infrared, PEMF &amp; Gemstone Mats</p></div><div class="card-right-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>', 3)
+                ])]),
+                createBaseVNode("button", {
+                  class: "pinterest-action-card compare-series-card",
+                  onClick: _cache[6] || (_cache[6] = ($event) => switchTab("compare"))
+                }, [..._cache[22] || (_cache[22] = [
+                  createStaticVNode('<div class="card-left-visual"><div class="compare-halo"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"></path><path d="M4 20L21 3"></path><path d="M21 16v5h-5"></path><path d="M15 15l6 6"></path><path d="M4 4l5 5"></path></svg></div></div><div class="card-body-text"><div class="card-header-line"><strong class="card-main-title">Compare Series</strong><span class="emerald-pill">✦ Side-by-Side</span></div><p class="card-sub-title">PEMF, Waveforms, Photon Light &amp; Gemstones</p></div><div class="card-right-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></div>', 3)
                 ])]),
                 createBaseVNode("div", _hoisted_11, [
                   createBaseVNode("button", {
                     class: "duo-card",
-                    onClick: _cache[6] || (_cache[6] = ($event) => showOrderAuthCard.value = true)
-                  }, [..._cache[20] || (_cache[20] = [
+                    onClick: _cache[7] || (_cache[7] = ($event) => showOrderAuthCard.value = true)
+                  }, [..._cache[23] || (_cache[23] = [
                     createStaticVNode('<div class="duo-icon-box order-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div><div class="duo-info"><strong>My Orders</strong><small>Track and manage orders</small></div>', 2)
                   ])]),
                   createBaseVNode("button", {
                     class: "duo-card",
-                    onClick: _cache[7] || (_cache[7] = ($event) => handleSendMessage("I want to partner with HealthyLine"))
-                  }, [..._cache[21] || (_cache[21] = [
+                    onClick: _cache[8] || (_cache[8] = ($event) => handleSendMessage("I want to partner with HealthyLine"))
+                  }, [..._cache[24] || (_cache[24] = [
                     createStaticVNode('<div class="duo-icon-box partner-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div><div class="duo-info"><strong>Partnership</strong><small>Sponsorship &amp; collab inquiries</small></div>', 2)
                   ])])
                 ])
               ])) : createCommentVNode("", true),
               !showOrderAuthCard.value ? (openBlock(), createElementBlock("div", _hoisted_12, [
-                _cache[23] || (_cache[23] = createBaseVNode("div", { class: "section-label" }, "Recommended Topics", -1)),
+                _cache[26] || (_cache[26] = createBaseVNode("div", { class: "section-label" }, "Recommended Topics", -1)),
                 createBaseVNode("div", _hoisted_13, [
                   (openBlock(), createElementBlock(Fragment, null, renderList(starterSuggestions, (item, idx) => {
                     return createBaseVNode("button", {
@@ -35531,32 +36099,42 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
               ])) : createCommentVNode("", true)
             ])
           ])) : activeTab.value === "catalog" ? (openBlock(), createElementBlock("div", _hoisted_19, [
-            createVNode(ProductCatalog, { onAskQuestion: handleSendMessage })
-          ])) : (openBlock(), createElementBlock("div", _hoisted_20, [
+            createVNode(ProductCatalog, {
+              onAskQuestion: handleSendMessage,
+              onCompareSeries: handleOpenCompare
+            })
+          ])) : activeTab.value === "compare" ? (openBlock(), createElementBlock("div", _hoisted_20, [
+            createVNode(_sfc_main$c, {
+              initialSeriesIdA: compareInitialA.value,
+              initialSeriesIdB: compareInitialB.value,
+              onAskQuestion: handleSendMessage,
+              onSelectCatalogSeries: handleOpenCompare
+            }, null, 8, ["initialSeriesIdA", "initialSeriesIdB"])
+          ])) : (openBlock(), createElementBlock("div", _hoisted_21, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(unref(messages), (message2) => {
-              return openBlock(), createBlock(_sfc_main$d, {
+              return openBlock(), createBlock(_sfc_main$e, {
                 key: message2.id,
                 message: message2
               }, null, 8, ["message"]);
             }), 128)),
-            !hasUserMessages.value ? (openBlock(), createElementBlock("div", _hoisted_21, [
-              _cache[25] || (_cache[25] = createBaseVNode("div", { class: "starter-header" }, [
+            !hasUserMessages.value ? (openBlock(), createElementBlock("div", _hoisted_22, [
+              _cache[28] || (_cache[28] = createBaseVNode("div", { class: "starter-header" }, [
                 createBaseVNode("h3", null, "How can we help you today?"),
                 createBaseVNode("p", null, "Select a quick topic or type your message below:")
               ], -1)),
-              createBaseVNode("div", _hoisted_22, [
+              createBaseVNode("div", _hoisted_23, [
                 (openBlock(), createElementBlock(Fragment, null, renderList(starterSuggestions, (suggestion, idx) => {
                   return createBaseVNode("button", {
                     key: idx,
                     class: "suggestion-chip",
                     onClick: ($event) => handleSendMessage(suggestion.query)
                   }, [
-                    createBaseVNode("span", _hoisted_24, toDisplayString(suggestion.icon), 1),
-                    createBaseVNode("div", _hoisted_25, [
-                      createBaseVNode("span", _hoisted_26, toDisplayString(suggestion.title), 1),
-                      createBaseVNode("span", _hoisted_27, toDisplayString(suggestion.desc), 1)
+                    createBaseVNode("span", _hoisted_25, toDisplayString(suggestion.icon), 1),
+                    createBaseVNode("div", _hoisted_26, [
+                      createBaseVNode("span", _hoisted_27, toDisplayString(suggestion.title), 1),
+                      createBaseVNode("span", _hoisted_28, toDisplayString(suggestion.desc), 1)
                     ]),
-                    _cache[24] || (_cache[24] = createBaseVNode("svg", {
+                    _cache[27] || (_cache[27] = createBaseVNode("svg", {
                       class: "chip-arrow",
                       xmlns: "http://www.w3.org/2000/svg",
                       width: "16",
@@ -35570,46 +36148,46 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                     }, [
                       createBaseVNode("polyline", { points: "9 18 15 12 9 6" })
                     ], -1))
-                  ], 8, _hoisted_23);
+                  ], 8, _hoisted_24);
                 }), 64))
               ])
             ])) : createCommentVNode("", true),
-            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_28, [..._cache[26] || (_cache[26] = [
+            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_29, [..._cache[29] || (_cache[29] = [
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1)
             ])])) : createCommentVNode("", true)
           ]))
         ], 512),
-        createBaseVNode("div", _hoisted_29, [
-          activeTab.value === "messages" ? (openBlock(), createElementBlock("div", _hoisted_30, [
-            showPrivacyForm.value ? (openBlock(), createElementBlock("div", _hoisted_31, [
+        createBaseVNode("div", _hoisted_30, [
+          activeTab.value === "messages" ? (openBlock(), createElementBlock("div", _hoisted_31, [
+            showPrivacyForm.value ? (openBlock(), createElementBlock("div", _hoisted_32, [
               createVNode(_sfc_main$9, {
                 privacyUrl: (_a2 = currentPrivacyAction.value) == null ? void 0 : _a2.action,
                 onConfirm: handlePrivacyConfirm
               }, null, 8, ["privacyUrl"])
-            ])) : showProvinceForm.value ? (openBlock(), createElementBlock("div", _hoisted_32, [
+            ])) : showProvinceForm.value ? (openBlock(), createElementBlock("div", _hoisted_33, [
               createVNode(_sfc_main$8, { onSelect: handleProvinceSelect })
-            ])) : showDatePicker.value ? (openBlock(), createElementBlock("div", _hoisted_33, [
+            ])) : showDatePicker.value ? (openBlock(), createElementBlock("div", _hoisted_34, [
               createVNode(_sfc_main$7, {
                 label: (_b = currentDatePickerAction.value) == null ? void 0 : _b.label,
                 onSelect: handleDateSelect
               }, null, 8, ["label"])
-            ])) : showInputComponent.value ? (openBlock(), createElementBlock("div", _hoisted_34, [
+            ])) : showInputComponent.value ? (openBlock(), createElementBlock("div", _hoisted_35, [
               createVNode(_sfc_main$6, {
                 inputType: ((_c = currentInputAction.value) == null ? void 0 : _c.type) || "input_type_text",
                 label: (_d = currentInputAction.value) == null ? void 0 : _d.label,
                 onSubmit: handleInputSubmit
               }, null, 8, ["inputType", "label"])
-            ])) : (openBlock(), createElementBlock("div", _hoisted_35, [
+            ])) : (openBlock(), createElementBlock("div", _hoisted_36, [
               createVNode(_sfc_main$a, { onSend: handleSendMessage })
             ]))
           ])) : createCommentVNode("", true),
-          createBaseVNode("div", _hoisted_36, [
+          createBaseVNode("div", _hoisted_37, [
             createBaseVNode("button", {
               class: normalizeClass(["nav-tab-btn", { active: activeTab.value === "home" }]),
-              onClick: _cache[8] || (_cache[8] = ($event) => switchTab("home"))
-            }, [..._cache[27] || (_cache[27] = [
+              onClick: _cache[9] || (_cache[9] = ($event) => switchTab("home"))
+            }, [..._cache[30] || (_cache[30] = [
               createBaseVNode("div", { class: "nav-icon-box" }, [
                 createBaseVNode("svg", {
                   xmlns: "http://www.w3.org/2000/svg",
@@ -35630,10 +36208,10 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
             ])], 2),
             createBaseVNode("button", {
               class: normalizeClass(["nav-tab-btn", { active: activeTab.value === "messages" }]),
-              onClick: _cache[9] || (_cache[9] = ($event) => switchTab("messages"))
+              onClick: _cache[10] || (_cache[10] = ($event) => switchTab("messages"))
             }, [
-              createBaseVNode("div", _hoisted_37, [
-                _cache[28] || (_cache[28] = createBaseVNode("svg", {
+              createBaseVNode("div", _hoisted_38, [
+                _cache[31] || (_cache[31] = createBaseVNode("svg", {
                   xmlns: "http://www.w3.org/2000/svg",
                   width: "20",
                   height: "20",
@@ -35646,14 +36224,14 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                 }, [
                   createBaseVNode("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" })
                 ], -1)),
-                unref(messages).length > 0 ? (openBlock(), createElementBlock("span", _hoisted_38, toDisplayString(unref(messages).length), 1)) : createCommentVNode("", true)
+                unref(messages).length > 0 ? (openBlock(), createElementBlock("span", _hoisted_39, toDisplayString(unref(messages).length), 1)) : createCommentVNode("", true)
               ]),
-              _cache[29] || (_cache[29] = createBaseVNode("span", null, "Messages", -1))
+              _cache[32] || (_cache[32] = createBaseVNode("span", null, "Messages", -1))
             ], 2),
             createBaseVNode("button", {
               class: normalizeClass(["nav-tab-btn nav-catalog-btn", { active: activeTab.value === "catalog" }]),
-              onClick: _cache[10] || (_cache[10] = ($event) => switchTab("catalog"))
-            }, [..._cache[30] || (_cache[30] = [
+              onClick: _cache[11] || (_cache[11] = ($event) => switchTab("catalog"))
+            }, [..._cache[33] || (_cache[33] = [
               createBaseVNode("div", { class: "nav-icon-box" }, [
                 createBaseVNode("svg", {
                   xmlns: "http://www.w3.org/2000/svg",
@@ -35670,6 +36248,12 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                 ])
               ], -1),
               createBaseVNode("span", null, "Best Sellers", -1)
+            ])], 2),
+            createBaseVNode("button", {
+              class: normalizeClass(["nav-tab-btn nav-compare-btn", { active: activeTab.value === "compare" }]),
+              onClick: _cache[12] || (_cache[12] = ($event) => switchTab("compare"))
+            }, [..._cache[34] || (_cache[34] = [
+              createStaticVNode('<div class="nav-icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"></path><path d="M4 20L21 3"></path><path d="M21 16v5h-5"></path><path d="M15 15l6 6"></path><path d="M4 4l5 5"></path></svg></div><span>Compare</span>', 2)
             ])], 2)
           ])
         ])
@@ -35913,13 +36497,15 @@ if (typeof window !== "undefined") {
 export {
   _sfc_main$4 as Chat,
   _sfc_main$a as ChatInput,
-  _sfc_main$d as ChatMessage,
+  _sfc_main$e as ChatMessage,
   _sfc_main$2 as ChatToggle,
   _sfc_main$1 as ChatWindow,
   _sfc_main$9 as ConfirmPrivacy,
   _sfc_main$7 as Datepicker,
   _sfc_main$3 as IconLoader,
+  ProductCatalog,
   _sfc_main$8 as SelectProvince,
+  _sfc_main$c as SeriesComparison,
   _sfc_main$6 as SpecialInput,
   createChat
 };
