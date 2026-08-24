@@ -14027,7 +14027,7 @@ const _hoisted_1$d = { class: "product-catalog" };
 const _hoisted_2$b = { class: "catalog-header" };
 const _hoisted_3$a = { class: "catalog-title-group" };
 const _hoisted_4$8 = { class: "catalog-header-actions" };
-const _hoisted_5$6 = { class: "catalog-count" };
+const _hoisted_5$6 = { class: "series-button-group" };
 const _hoisted_6$5 = ["onClick"];
 const _hoisted_7$5 = { class: "catalog-grid" };
 const _hoisted_8$3 = {
@@ -14046,7 +14046,6 @@ const _hoisted_14$3 = { class: "product-title" };
 const _hoisted_15$3 = { class: "product-desc" };
 const _hoisted_16$3 = { class: "product-actions" };
 const _hoisted_17$3 = ["onClick"];
-const _hoisted_18$2 = ["onClick"];
 const _sfc_main$d = /* @__PURE__ */ defineComponent({
   __name: "ProductCatalog",
   emits: ["askQuestion", "compareSeries"],
@@ -14058,42 +14057,7 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
     const isLoading = /* @__PURE__ */ ref(true);
     const loadError = /* @__PURE__ */ ref(null);
     const selectedSeries = /* @__PURE__ */ ref("All");
-    const seriesPillsRef = /* @__PURE__ */ ref(null);
-    let isDragging = false;
-    let startX = 0;
-    let scrollStart = 0;
-    let hasMoved = false;
-    function onPillsWheel(e) {
-      if (!seriesPillsRef.value) return;
-      if (Math.abs(e.deltaY) > 0) {
-        e.preventDefault();
-        seriesPillsRef.value.scrollLeft += e.deltaY * 0.9;
-      }
-    }
-    function onMouseDown(e) {
-      if (!seriesPillsRef.value) return;
-      isDragging = true;
-      hasMoved = false;
-      startX = e.pageX - seriesPillsRef.value.offsetLeft;
-      scrollStart = seriesPillsRef.value.scrollLeft;
-    }
-    function onMouseMove(e) {
-      if (!isDragging || !seriesPillsRef.value) return;
-      const x2 = e.pageX - seriesPillsRef.value.offsetLeft;
-      const walk = x2 - startX;
-      if (Math.abs(walk) > 4) {
-        hasMoved = true;
-      }
-      seriesPillsRef.value.scrollLeft = scrollStart - walk;
-    }
-    function onMouseUp() {
-      isDragging = false;
-    }
     function onSelectSeries(series) {
-      if (hasMoved) {
-        hasMoved = false;
-        return;
-      }
       selectedSeries.value = series;
     }
     async function loadCatalog() {
@@ -14134,45 +14098,30 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
     function handleAskQuestion(product) {
       emit2("askQuestion", `Can you tell me more about ${product.name}?`);
     }
-    function openProductPage(url) {
-      if (url) {
-        window.open(url, "_blank", "noopener");
-      }
-    }
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", _hoisted_1$d, [
         createBaseVNode("div", _hoisted_2$b, [
           createBaseVNode("div", _hoisted_3$a, [
-            _cache[3] || (_cache[3] = createStaticVNode('<div class="title-with-badge" data-v-912b76bd><div class="title-icon-star" data-v-912b76bd><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" data-v-912b76bd><path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z" data-v-912b76bd></path></svg></div><div data-v-912b76bd><h3 data-v-912b76bd>Best Sellers</h3><p class="catalog-header-sub" data-v-912b76bd>Curated Gemstone &amp; PEMF Therapy</p></div></div>', 1)),
+            _cache[3] || (_cache[3] = createStaticVNode('<div class="title-with-badge" data-v-dd5aa25d><div class="title-icon-star" data-v-dd5aa25d><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" data-v-dd5aa25d><path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z" data-v-dd5aa25d></path></svg></div><div data-v-dd5aa25d><h3 data-v-dd5aa25d>Best Sellers</h3><p class="catalog-header-sub" data-v-dd5aa25d>Which Series is Right for You?</p></div></div>', 1)),
             createBaseVNode("div", _hoisted_4$8, [
               createBaseVNode("button", {
                 class: "catalog-compare-btn",
                 onClick: _cache[0] || (_cache[0] = ($event) => emit2("compareSeries", selectedSeries.value !== "All" ? selectedSeries.value : "TAJ Series")),
                 title: "Open Series Comparison Matrix"
               }, [..._cache[2] || (_cache[2] = [
-                createStaticVNode('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" data-v-912b76bd><path d="M16 3h5v5" data-v-912b76bd></path><path d="M4 20L21 3" data-v-912b76bd></path><path d="M21 16v5h-5" data-v-912b76bd></path><path d="M15 15l6 6" data-v-912b76bd></path><path d="M4 4l5 5" data-v-912b76bd></path></svg><span data-v-912b76bd>Compare Series</span>', 2)
-              ])]),
-              createBaseVNode("span", _hoisted_5$6, toDisplayString(filteredProducts.value.length) + " items", 1)
+                createStaticVNode('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" data-v-dd5aa25d><path d="M16 3h5v5" data-v-dd5aa25d></path><path d="M4 20L21 3" data-v-dd5aa25d></path><path d="M21 16v5h-5" data-v-dd5aa25d></path><path d="M15 15l6 6" data-v-dd5aa25d></path><path d="M4 4l5 5" data-v-dd5aa25d></path></svg><span data-v-dd5aa25d>Compare Series</span>', 2)
+              ])])
             ])
           ]),
-          createBaseVNode("div", {
-            ref_key: "seriesPillsRef",
-            ref: seriesPillsRef,
-            class: "series-pills",
-            onWheelPassive: onPillsWheel,
-            onMousedown: onMouseDown,
-            onMousemove: onMouseMove,
-            onMouseup: onMouseUp,
-            onMouseleave: onMouseUp
-          }, [
+          createBaseVNode("div", _hoisted_5$6, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(categoryList.value, (series) => {
               return openBlock(), createElementBlock("button", {
                 key: series,
-                class: normalizeClass(["series-pill", { active: selectedSeries.value === series }]),
+                class: normalizeClass(["series-filter-btn", { active: selectedSeries.value === series }]),
                 onClick: ($event) => onSelectSeries(series)
               }, toDisplayString(series), 11, _hoisted_6$5);
             }), 128))
-          ], 544)
+          ])
         ]),
         createBaseVNode("div", _hoisted_7$5, [
           isLoading.value ? (openBlock(), createElementBlock("div", _hoisted_8$3, [..._cache[4] || (_cache[4] = [
@@ -14233,34 +14182,7 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
                       createBaseVNode("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" })
                     ], -1),
                     createBaseVNode("span", null, "Ask AI", -1)
-                  ])], 8, _hoisted_17$3),
-                  createBaseVNode("button", {
-                    class: "btn-product-details",
-                    onClick: ($event) => openProductPage(product.link),
-                    title: "Open product page in new tab"
-                  }, [..._cache[8] || (_cache[8] = [
-                    createBaseVNode("span", null, "View Details", -1),
-                    createBaseVNode("svg", {
-                      xmlns: "http://www.w3.org/2000/svg",
-                      width: "13",
-                      height: "13",
-                      viewBox: "0 0 24 24",
-                      fill: "none",
-                      stroke: "currentColor",
-                      "stroke-width": "2.2",
-                      "stroke-linecap": "round",
-                      "stroke-linejoin": "round"
-                    }, [
-                      createBaseVNode("path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" }),
-                      createBaseVNode("polyline", { points: "15 3 21 3 21 9" }),
-                      createBaseVNode("line", {
-                        x1: "10",
-                        y1: "14",
-                        x2: "21",
-                        y2: "3"
-                      })
-                    ], -1)
-                  ])], 8, _hoisted_18$2)
+                  ])], 8, _hoisted_17$3)
                 ])
               ])
             ]);
@@ -14277,7 +14199,7 @@ const _export_sfc = (sfc, props) => {
   }
   return target;
 };
-const ProductCatalog = /* @__PURE__ */ _export_sfc(_sfc_main$d, [["__scopeId", "data-v-912b76bd"]]);
+const ProductCatalog = /* @__PURE__ */ _export_sfc(_sfc_main$d, [["__scopeId", "data-v-dd5aa25d"]]);
 const SPEC_DEFINITIONS = [
   {
     key: "farInfrared",
@@ -36001,7 +35923,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
             createBaseVNode("button", {
               class: "header-action-btn close-btn",
               onClick: _cache[2] || (_cache[2] = ($event) => emit2("close")),
-              title: "Close chat (Закрыть чат)",
+              title: "Close chat",
               "aria-label": "Close chat"
             }, [..._cache[19] || (_cache[19] = [
               createBaseVNode("svg", {
@@ -36010,8 +35932,8 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                 height: "18",
                 viewBox: "0 0 24 24",
                 fill: "none",
-                stroke: "currentColor",
-                "stroke-width": "2.3",
+                stroke: "#1e293b",
+                "stroke-width": "2.5",
                 "stroke-linecap": "round",
                 "stroke-linejoin": "round"
               }, [
