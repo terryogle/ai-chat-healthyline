@@ -7,6 +7,7 @@ import type { CatalogProduct } from '../types';
 
 const emit = defineEmits<{
   (e: 'askQuestion', text: string): void;
+  (e: 'compareSeries', seriesName: string): void;
 }>();
 
 const options = useOptions();
@@ -134,7 +135,23 @@ function openProductPage(url: string) {
             <p class="catalog-header-sub">Curated Gemstone &amp; PEMF Therapy</p>
           </div>
         </div>
-        <span class="catalog-count">{{ filteredProducts.length }} items</span>
+        <div class="catalog-header-actions">
+          <button 
+            class="catalog-compare-btn" 
+            @click="emit('compareSeries', selectedSeries !== 'All' ? selectedSeries : 'TAJ Series')"
+            title="Open Series Comparison Matrix"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M16 3h5v5"/>
+              <path d="M4 20L21 3"/>
+              <path d="M21 16v5h-5"/>
+              <path d="M15 15l6 6"/>
+              <path d="M4 4l5 5"/>
+            </svg>
+            <span>Compare Series</span>
+          </button>
+          <span class="catalog-count">{{ filteredProducts.length }} items</span>
+        </div>
       </div>
 
       <!-- Series Filter Tags (Pills) with Horizontal Scroll -->
@@ -281,15 +298,44 @@ function openProductPage(url: string) {
       }
     }
 
-    .catalog-count {
-      font-size: 12px;
-      color: #1a3b3d;
-      background: #eef7f8;
-      border: 1px solid #d4ebed;
-      padding: 3px 10px;
-      border-radius: 14px;
-      font-weight: 700;
-      white-space: nowrap;
+    .catalog-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .catalog-compare-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #1a3b3d;
+        color: #ffffff;
+        border: none;
+        padding: 4px 9px;
+        border-radius: 14px;
+        font-size: 11.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+
+        svg {
+          color: #d4af37;
+        }
+
+        &:hover {
+          background: #275659;
+        }
+      }
+
+      .catalog-count {
+        font-size: 12px;
+        color: #1a3b3d;
+        background: #eef7f8;
+        border: 1px solid #d4ebed;
+        padding: 3px 8px;
+        border-radius: 14px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
     }
   }
 

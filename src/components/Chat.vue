@@ -2,6 +2,7 @@
 import { ref, onMounted, onBeforeUnmount, nextTick, computed, watch } from 'vue';
 import ChatMessage from './ChatMessage.vue';
 import ProductCatalog from './ProductCatalog.vue';
+import SeriesComparison from './SeriesComparison.vue';
 import ChatInput from './input/ChatInput.vue';
 import ConfirmPrivacy from './input/ConfirmPrivacy.vue';
 import SelectProvince from './input/SelectProvince.vue';
@@ -24,7 +25,9 @@ const chatStore = useChat();
 const options = useOptions();
 const { messages, currentSessionId, waitingForResponse, sendMessage, startNewSession } = chatStore;
 
-const activeTab = ref<'home' | 'messages' | 'catalog'>('home');
+const activeTab = ref<'home' | 'messages' | 'catalog' | 'compare'>('home');
+const compareInitialA = ref<string>('taj');
+const compareInitialB = ref<string>('platinum');
 const showOrderAuthCard = ref(false);
 
 const hasUserMessages = computed(() => messages.value.some(m => m.sender === 'user'));
@@ -52,8 +55,9 @@ const lastProcessedMessageId = ref<string | null>(null);
 
 const headerTitle = computed(() => options.value?.title || 'HealthyLine');
 const headerSubtitle = computed(() => {
+  if (activeTab.value === 'compare') return 'Series & Technology Matrix';
   if (activeTab.value === 'catalog') return 'Best Sellers & Gemstone Mats';
-  if (activeTab.value === 'messages') return '24/7 AI Wellness Concierge';
+  if (activeTab.value === 'messages') return 'How can we help?';
   return options.value?.subtitle || 'Chat with AI Assistant';
 });
 
@@ -61,6 +65,14 @@ function scrollToBottom() {
   nextTick(() => {
     if (chatBodyRef.value) {
       chatBodyRef.value.scrollTop = chatBodyRef.value.scrollHeight;
+    }
+  });
+}
+
+function scrollToTop() {
+  nextTick(() => {
+    if (chatBodyRef.value) {
+      chatBodyRef.value.scrollTop = 0;
     }
   });
 }
@@ -222,11 +234,35 @@ function handleClickOutside(event: MouseEvent) {
   }
 }
 
-function switchTab(tab: 'home' | 'messages' | 'catalog') {
+function switchTab(tab: 'home' | 'messages' | 'catalog' | 'compare') {
   activeTab.value = tab;
   if (tab === 'messages') {
     scrollToBottom();
+  } else {
+    scrollToTop();
   }
+}
+
+function handleOpenCompare(seriesName?: string) {
+  if (seriesName) {
+    const s = seriesName.toLowerCase();
+    if (s.includes('rainbow') || s.includes('chakra')) {
+      compareInitialA.value = 'rainbow-chakra';
+    } else if (s.includes('jet')) {
+      compareInitialA.value = 'jet';
+    } else if (s.includes('soft')) {
+      compareInitialA.value = 'soft';
+    } else if (s.includes('mesh')) {
+      compareInitialA.value = 'mesh';
+    } else if (s.includes('tao')) {
+      compareInitialA.value = 'tao';
+    } else if (s.includes('platinum')) {
+      compareInitialA.value = 'platinum';
+    } else {
+      compareInitialA.value = 'taj';
+    }
+  }
+  switchTab('compare');
 }
 
 watch(messages, (newMessages) => {
@@ -423,6 +459,33 @@ onBeforeUnmount(() => {
               </div>
             </button>
 
+            <!-- COMPARE SERIES MATRIX CARD -->
+            <button class="pinterest-action-card compare-series-card" @click="switchTab('compare')">
+              <div class="card-left-visual">
+                <div class="compare-halo">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 3h5v5"/>
+                    <path d="M4 20L21 3"/>
+                    <path d="M21 16v5h-5"/>
+                    <path d="M15 15l6 6"/>
+                    <path d="M4 4l5 5"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="card-body-text">
+                <div class="card-header-line">
+                  <strong class="card-main-title">Compare Series</strong>
+                  <span class="emerald-pill">✦ Side-by-Side</span>
+                </div>
+                <p class="card-sub-title">PEMF, Waveforms, Photon Light &amp; Gemstones</p>
+              </div>
+              <div class="card-right-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            </button>
+
             <!-- 2-COLUMN ACTION CARDS -->
             <div class="cards-duo-grid">
               <!-- MY ORDERS CARD -->
@@ -482,7 +545,20 @@ onBeforeUnmount(() => {
       
       <!-- CATALOG VIEW -->
       <div v-else-if="activeTab === 'catalog'" class="tt-chat-catalog-view">
-        <ProductCatalog @askQuestion="handleSendMessage" />
+        <ProductCatalog 
+          @askQuestion="handleSendMessage" 
+          @compareSeries="handleOpenCompare"
+        />
+      </div>
+
+      <!-- SERIES COMPARISON VIEW -->
+      <div v-else-if="activeTab === 'compare'" class="tt-chat-compare-view">
+        <SeriesComparison 
+          :initialSeriesIdA="compareInitialA" 
+          :initialSeriesIdB="compareInitialB" 
+          @askQuestion="handleSendMessage" 
+          @selectCatalogSeries="handleOpenCompare"
+        />
       </div>
 
       <!-- MESSAGES VIEW -->
@@ -562,7 +638,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- BOTTOM NAVIGATION BAR (Home, Messages, Catalog) -->
+      <!-- BOTTOM NAVIGATION BAR (Home, Messages, Catalog, Compare) -->
       <div class="bottom-nav-bar">
         <button 
           class="nav-tab-btn" 
@@ -603,6 +679,23 @@ onBeforeUnmount(() => {
             </svg>
           </div>
           <span>Best Sellers</span>
+        </button>
+
+        <button 
+          class="nav-tab-btn nav-compare-btn"
+          :class="{ active: activeTab === 'compare' }"
+          @click="switchTab('compare')"
+        >
+          <div class="nav-icon-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 3h5v5"/>
+              <path d="M4 20L21 3"/>
+              <path d="M21 16v5h-5"/>
+              <path d="M15 15l6 6"/>
+              <path d="M4 4l5 5"/>
+            </svg>
+          </div>
+          <span>Compare</span>
         </button>
       </div>
     </div>
@@ -826,7 +919,8 @@ onBeforeUnmount(() => {
     background: #fafbfc;
   }
   
-  &-catalog-view {
+  &-catalog-view,
+  &-compare-view {
     width: 100%;
     max-width: 480px;
     margin: 0 auto;
@@ -1045,6 +1139,80 @@ onBeforeUnmount(() => {
           .gold-pill {
             background: #fef3c7;
             color: #b45309;
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 10px;
+          }
+        }
+
+        .card-sub-title {
+          margin: 0;
+          font-size: 12px;
+          color: #64748b;
+        }
+      }
+
+      .card-right-arrow {
+        color: #94a3b8;
+      }
+    }
+
+    .compare-series-card {
+      width: 100%;
+      background: #ffffff;
+      border: 1.5px solid #d4ebed;
+      border-radius: 18px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 0 4px 14px rgba(26, 59, 61, 0.06);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(26, 59, 61, 0.12);
+        border-color: #29575a;
+      }
+
+      .card-left-visual {
+        .compare-halo {
+          width: 44px;
+          height: 44px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #1a3b3d 0%, #29575a 100%);
+          color: #d4af37;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 3px 10px rgba(26, 59, 61, 0.2);
+        }
+      }
+
+      .card-body-text {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .card-header-line {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .card-main-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+          }
+
+          .emerald-pill {
+            background: #ecfdf5;
+            color: #047857;
             font-size: 10.5px;
             font-weight: 700;
             padding: 1px 7px;
