@@ -19,48 +19,7 @@ const loadError = ref<string | null>(null);
 
 const selectedSeries = ref<string>('All');
 
-const seriesPillsRef = ref<HTMLElement | null>(null);
-
-let isDragging = false;
-let startX = 0;
-let scrollStart = 0;
-let hasMoved = false;
-
-function onPillsWheel(e: WheelEvent) {
-  if (!seriesPillsRef.value) return;
-  if (Math.abs(e.deltaY) > 0) {
-    e.preventDefault();
-    seriesPillsRef.value.scrollLeft += e.deltaY * 0.9;
-  }
-}
-
-function onMouseDown(e: MouseEvent) {
-  if (!seriesPillsRef.value) return;
-  isDragging = true;
-  hasMoved = false;
-  startX = e.pageX - seriesPillsRef.value.offsetLeft;
-  scrollStart = seriesPillsRef.value.scrollLeft;
-}
-
-function onMouseMove(e: MouseEvent) {
-  if (!isDragging || !seriesPillsRef.value) return;
-  const x = e.pageX - seriesPillsRef.value.offsetLeft;
-  const walk = (x - startX);
-  if (Math.abs(walk) > 4) {
-    hasMoved = true;
-  }
-  seriesPillsRef.value.scrollLeft = scrollStart - walk;
-}
-
-function onMouseUp() {
-  isDragging = false;
-}
-
 function onSelectSeries(series: string) {
-  if (hasMoved) {
-    hasMoved = false;
-    return;
-  }
   selectedSeries.value = series;
 }
 
@@ -132,7 +91,7 @@ function openProductPage(url: string) {
           </div>
           <div>
             <h3>Best Sellers</h3>
-            <p class="catalog-header-sub">Curated Gemstone &amp; PEMF Therapy</p>
+            <p class="catalog-header-sub">Which Series is Right for You?</p>
           </div>
         </div>
         <div class="catalog-header-actions">
@@ -150,24 +109,15 @@ function openProductPage(url: string) {
             </svg>
             <span>Compare Series</span>
           </button>
-          <span class="catalog-count">{{ filteredProducts.length }} items</span>
         </div>
       </div>
 
-      <!-- Series Filter Tags (Pills) with Horizontal Scroll -->
-      <div 
-        ref="seriesPillsRef" 
-        class="series-pills"
-        @wheel.passive="onPillsWheel"
-        @mousedown="onMouseDown"
-        @mousemove="onMouseMove"
-        @mouseup="onMouseUp"
-        @mouseleave="onMouseUp"
-      >
+      <!-- Series Filter Buttons Group -->
+      <div class="series-button-group">
         <button
           v-for="series in categoryList"
           :key="series"
-          class="series-pill"
+          class="series-filter-btn"
           :class="{ active: selectedSeries === series }"
           @click="onSelectSeries(series)"
         >
@@ -221,18 +171,7 @@ function openProductPage(url: string) {
               <span>Ask AI</span>
             </button>
 
-            <button
-              class="btn-product-details"
-              @click="openProductPage(product.link)"
-              title="Open product page in new tab"
-            >
-              <span>View Details</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                <polyline points="15 3 21 3 21 9"/>
-                <line x1="10" y1="14" x2="21" y2="3"/>
-              </svg>
-            </button>
+
           </div>
         </div>
       </div>
@@ -339,53 +278,41 @@ function openProductPage(url: string) {
     }
   }
 
-  .series-pills {
+  .series-button-group {
     display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    gap: 8px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 2px 0 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 0;
     width: 100%;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
-    cursor: grab;
-    user-select: none;
-    scrollbar-width: none;
 
-    &:active {
-      cursor: grabbing;
-    }
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-
-    .series-pill {
-      flex-shrink: 0;
-      white-space: nowrap;
-      padding: 7px 14px;
-      border-radius: 20px;
+    .series-filter-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      border-radius: 8px;
       border: 1px solid #e2e8f0;
       background: #f8fafc;
       color: #334155;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      line-height: 1.3;
+      white-space: nowrap;
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 
       &:hover {
         background: #f1f5f9;
         border-color: #cbd5e1;
+        color: #0f172a;
       }
 
       &.active {
         background: #1a3b3d;
         color: #ffffff;
         border-color: #1a3b3d;
-        box-shadow: 0 3px 10px rgba(26, 59, 61, 0.25);
+        box-shadow: 0 2px 6px rgba(26, 59, 61, 0.22);
       }
     }
   }
@@ -548,26 +475,20 @@ function openProductPage(url: string) {
       }
 
       .btn-ask-question {
-        background: #f1f5f9;
-        color: #1e293b;
-        border: 1px solid #e2e8f0;
-
-        &:hover {
-          background: #e2e8f0;
-          border-color: #cbd5e1;
-        }
-      }
-
-      .btn-product-details {
         background: #1a3b3d;
         color: #ffffff;
         border: 1px solid #1a3b3d;
+        width: 100%;
+        padding: 12px 16px;
+        min-height: 42px;
 
         &:hover {
           background: #255457;
           border-color: #255457;
         }
       }
+
+
     }
   }
 }

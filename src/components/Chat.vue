@@ -390,8 +390,8 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Close Button -->
-        <button class="header-action-btn close-btn" @click="emit('close')" title="Close chat (Закрыть чат)" aria-label="Close chat">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+        <button class="header-action-btn close-btn" @click="emit('close')" title="Close chat" aria-label="Close chat">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
@@ -811,9 +811,9 @@ onBeforeUnmount(() => {
       }
 
       .header-action-btn {
-        background: #f8fafc;
+        background: #f1f5f9;
         border: 1px solid #e2e8f0;
-        color: #64748b;
+        color: #334155;
         width: 36px;
         height: 36px;
         border-radius: 10px;
@@ -824,26 +824,43 @@ onBeforeUnmount(() => {
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         padding: 0;
 
+        svg {
+          display: block;
+          width: 18px;
+          height: 18px;
+        }
+
         &.more-btn {
-          color: #475569;
+          color: #334155;
 
           &:hover, &.active {
-            background: #f1f5f9;
+            background: #e2e8f0;
             color: #0f172a;
             border-color: #cbd5e1;
           }
         }
 
         &.close-btn {
-          background: #f8fafc;
-          border-color: #e2e8f0;
-          color: #475569;
+          background: #f1f5f9;
+          border: 1px solid #cbd5e1;
+          color: #0f172a;
+
+          svg {
+            display: block;
+            width: 16px;
+            height: 16px;
+            stroke: #0f172a;
+          }
 
           &:hover {
             background: #ef4444;
             color: #ffffff;
             border-color: #ef4444;
             transform: scale(1.05);
+
+            svg {
+              stroke: #ffffff;
+            }
           }
         }
       }
