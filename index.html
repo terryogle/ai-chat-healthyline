@@ -64,9 +64,11 @@
   <script type="module">
     import { createChat } from './src/main.ts';
     
-    const REAL_WEBHOOK_URL = 'https://app.healthyline.com/webhook/ai-chat';
+    const VITE_WEBHOOK = import.meta.env?.VITE_WEBHOOK_URL;
+    const REAL_WEBHOOK_URL = VITE_WEBHOOK || 'https://app.healthyline.com/webhook/ai-chat';
     const DEMO_WEBHOOK_URL = '/api/webhook';
-    
+    const ACTIVE_WEBHOOK_URL = VITE_WEBHOOK || REAL_WEBHOOK_URL || DEMO_WEBHOOK_URL;
+
     function startChat() {
       if (typeof window.SimpleChatN8N !== 'undefined') {
         window.SimpleChatN8N.createChat({
@@ -74,7 +76,7 @@
           subtitle: "Chat with AI Assistant",
           placeholder: "Type your message...",
           tooltipText: "Got questions? We're here 24/7",
-          webhookUrl: REAL_WEBHOOK_URL || DEMO_WEBHOOK_URL,
+          webhookUrl: ACTIVE_WEBHOOK_URL,
           loadPreviousSession: true,
           showTooltip: true,
           icons: {
@@ -83,7 +85,7 @@
         });
       } else {
         createChat({
-          webhookUrl: REAL_WEBHOOK_URL || DEMO_WEBHOOK_URL,
+          webhookUrl: ACTIVE_WEBHOOK_URL,
           mode: 'window',
           title: 'HealthyLine',
           subtitle: 'Chat with AI Assistant',

@@ -400,7 +400,7 @@ onBeforeUnmount(() => {
     </div>
     
     <!-- Body Scroll Container -->
-    <div ref="chatBodyRef" class="tt-chat-body">
+    <div ref="chatBodyRef" class="tt-chat-body" :class="{ 'is-compare-tab': activeTab === 'compare' }">
       <!-- HOME VIEW -->
       <div v-if="activeTab === 'home'" class="tt-chat-home-view">
         <div class="welcome-box">
@@ -423,12 +423,12 @@ onBeforeUnmount(() => {
               <p class="spotlight-desc">Get instant personalized guidance 24/7</p>
             </div>
             <div class="spotlight-action">
-              <div class="action-btn-circle">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <button class="action-btn-circle" aria-label="Start asking question" title="Ask a question">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                   <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>
-              </div>
+              </button>
             </div>
           </div>
 
@@ -934,14 +934,24 @@ onBeforeUnmount(() => {
     display: flex;
     flex-direction: column;
     background: #fafbfc;
+
+    &.is-compare-tab {
+      padding: 0;
+    }
   }
   
-  &-catalog-view,
-  &-compare-view {
+  &-catalog-view {
     width: 100%;
     max-width: 480px;
     margin: 0 auto;
     padding: 4px 0 20px;
+  }
+
+  &-compare-view {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 0 20px;
   }
 
   &-messages-view {
@@ -1010,7 +1020,7 @@ onBeforeUnmount(() => {
   .spotlight-card {
     position: relative;
     width: 100%;
-    background: linear-gradient(145deg, #1a3b3d 0%, #244c4e 100%);
+    background: linear-gradient(135deg, #132e30 0%, #1a3b3d 60%, #245255 100%);
     color: #ffffff;
     border-radius: 20px;
     padding: 18px 20px;
@@ -1018,18 +1028,31 @@ onBeforeUnmount(() => {
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
-    box-shadow: 0 10px 24px -4px rgba(26, 59, 61, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 24px -4px rgba(19, 46, 48, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08);
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
 
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(26, 59, 61, 0) 70%);
+      pointer-events: none;
+    }
+
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 14px 30px -4px rgba(26, 59, 61, 0.45);
+      box-shadow: 0 14px 30px -4px rgba(19, 46, 48, 0.55), 0 0 0 1.5px rgba(212, 175, 55, 0.4);
 
       .action-btn-circle {
         transform: scale(1.08) translateX(2px);
         background: #ffffff;
         color: #1a3b3d;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
       }
     }
 
@@ -1043,21 +1066,27 @@ onBeforeUnmount(() => {
       .spotlight-badge {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: 5px;
         font-size: 11px;
-        font-weight: 700;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #99f6e4;
+        letter-spacing: 0.6px;
+        color: #5eead4;
+        background: rgba(94, 234, 212, 0.12);
+        border: 1px solid rgba(94, 234, 212, 0.25);
+        padding: 2px 8px;
+        border-radius: 20px;
+        width: fit-content;
         margin-bottom: 2px;
 
         .sparkle-icon {
           font-size: 12px;
+          color: #d4af37;
         }
       }
 
       .spotlight-title {
-        font-size: 15.5px;
+        font-size: 16px;
         font-weight: 700;
         line-height: 1.25;
         color: #ffffff;
@@ -1065,24 +1094,31 @@ onBeforeUnmount(() => {
 
       .spotlight-desc {
         margin: 0;
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.8);
+        font-size: 12.5px;
+        color: rgba(255, 255, 255, 0.88);
       }
     }
 
     .spotlight-action {
       z-index: 1;
       .action-btn-circle {
-        width: 38px;
-        height: 38px;
+        width: 44px;
+        height: 44px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.18);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: #ffffff;
+        border: none;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #ffffff;
-        transition: all 0.2s ease;
+        color: #1a3b3d;
+        cursor: pointer;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(255, 255, 255, 0.4);
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+
+        &:hover {
+          background: #f8fafc;
+          transform: scale(1.06);
+        }
       }
     }
   }

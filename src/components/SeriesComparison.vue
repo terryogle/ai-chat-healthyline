@@ -61,22 +61,61 @@ function closeSpecInfo() {
 
 <template>
   <div ref="rootRef" class="series-comparison-container">
-    <!-- Header & Controls Bar -->
-    <div class="comparison-header">
-      <div class="comparison-title-row">
-        <div class="title-with-icon">
-          <div class="compare-icon-badge">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M16 3h5v5"/>
-              <path d="M4 20L21 3"/>
-              <path d="M21 16v5h-5"/>
-              <path d="M15 15l6 6"/>
-              <path d="M4 4l5 5"/>
-            </svg>
+    <!-- STICKY TOP COMPARISON BAR (Header + Series Pickers) -->
+    <div class="sticky-comparison-bar">
+      <!-- Header & Controls Bar -->
+      <div class="comparison-header">
+        <div class="comparison-title-row">
+          <div class="title-with-icon">
+            <div class="compare-icon-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 3h5v5"/>
+                <path d="M4 20L21 3"/>
+                <path d="M21 16v5h-5"/>
+                <path d="M15 15l6 6"/>
+                <path d="M4 4l5 5"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="compare-title">Compare HealthyLine Series</h3>
+              <p class="compare-subtitle">Tailor a mat to your unique wellness routine.</p>
+            </div>
           </div>
-          <div>
-            <h3 class="compare-title">Compare HealthyLine Series</h3>
-            <p class="compare-subtitle">Tailor a mat to your unique wellness routine.</p>
+        </div>
+      </div>
+
+      <!-- Choose Series Selector Bar -->
+      <div class="sticky-models-panel">
+        <div class="models-selector-instruction">
+          <span class="instruction-icon">✦</span>
+          <span class="instruction-text">Choose series to compare side-by-side:</span>
+        </div>
+
+        <!-- Series Model Selector Cards -->
+        <div class="models-header-grid">
+          <!-- Series A -->
+          <div class="model-picker-card">
+            <div class="model-select-wrapper">
+              <select v-model="selectedIdA" class="series-select-input" aria-label="Choose Series A">
+                <option v-for="item in HEALTHYLINE_SERIES" :key="'a-' + item.id" :value="item.id">
+                  {{ item.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- VS Divider Badge -->
+          <div class="vs-badge">VS</div>
+
+          <!-- Series B -->
+          <div class="model-picker-card">
+            <div class="model-select-wrapper">
+              <select v-model="selectedIdB" class="series-select-input" aria-label="Choose Series B">
+                <option v-for="item in HEALTHYLINE_SERIES" :key="'b-' + item.id" :value="item.id">
+                  {{ item.name }}
+                </option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -84,34 +123,6 @@ function closeSpecInfo() {
 
     <!-- SIDE-BY-SIDE SPLIT COMPARISON (2 Models Side-by-Side) -->
     <div class="split-comparison-view">
-      
-      <!-- Series Model Selector Cards -->
-      <div class="models-header-grid">
-        <!-- Series A -->
-        <div class="model-picker-card">
-          <div class="model-select-wrapper">
-            <select v-model="selectedIdA" class="series-select-input">
-              <option v-for="item in HEALTHYLINE_SERIES" :key="'a-' + item.id" :value="item.id">
-                {{ item.name }}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <!-- VS Divider Badge -->
-        <div class="vs-badge">VS</div>
-
-        <!-- Series B -->
-        <div class="model-picker-card">
-          <div class="model-select-wrapper">
-            <select v-model="selectedIdB" class="series-select-input">
-              <option v-for="item in HEALTHYLINE_SERIES" :key="'b-' + item.id" :value="item.id">
-                {{ item.name }}
-              </option>
-            </select>
-          </div>
-        </div>
-      </div>
 
       <!-- Comparison Rows List -->
       <div class="comparison-specs-list">
@@ -255,32 +266,28 @@ function closeSpecInfo() {
 .series-comparison-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 100%;
   width: 100%;
   background: #f8fafc;
   color: #1e293b;
   font-family: var(--tt-chat-font-family);
-  overflow-y: auto;
   padding-bottom: 24px;
+  position: relative;
+}
 
-  /* Custom subtle scrollbar */
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
-  }
+.sticky-comparison-bar {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
 }
 
 .comparison-header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
   background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 14px 16px 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  padding: 12px 14px 8px;
 
   .comparison-title-row {
     display: flex;
@@ -294,8 +301,8 @@ function closeSpecInfo() {
       gap: 10px;
 
       .compare-icon-badge {
-        width: 34px;
-        height: 34px;
+        width: 32px;
+        height: 32px;
         border-radius: 9px;
         background: linear-gradient(135deg, #1a3b3d 0%, #29575a 100%);
         color: #d4af37;
@@ -307,7 +314,7 @@ function closeSpecInfo() {
       }
 
       .compare-title {
-        font-size: 15px;
+        font-size: 14.5px;
         font-weight: 700;
         color: #0f172a;
         margin: 0;
@@ -315,11 +322,35 @@ function closeSpecInfo() {
       }
 
       .compare-subtitle {
-        font-size: 11.5px;
+        font-size: 11px;
         color: #64748b;
         margin: 2px 0 0;
         line-height: 1.2;
       }
+    }
+  }
+}
+
+.sticky-models-panel {
+  padding: 0 12px 10px;
+  background: #ffffff;
+
+  .models-selector-instruction {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 2px 8px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #475569;
+
+    .instruction-icon {
+      color: #059669;
+      font-size: 12px;
+    }
+
+    .instruction-text {
+      letter-spacing: 0.2px;
     }
   }
 }
@@ -334,14 +365,20 @@ function closeSpecInfo() {
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
 
   .model-picker-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 9px 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    transition: all 0.15s ease;
+
+    &:hover {
+      border-color: #cbd5e1;
+      background: #ffffff;
+    }
 
     .model-select-wrapper {
       display: flex;
@@ -349,34 +386,35 @@ function closeSpecInfo() {
 
       .series-select-input {
         width: 100%;
-        padding: 7px 8px;
+        padding: 6px 7px;
         border: 1px solid #cbd5e1;
         border-radius: 8px;
-        background: #f8fafc;
-        font-size: 13px;
+        background: #ffffff;
+        font-size: 12.5px;
         font-weight: 700;
         color: #0f172a;
         cursor: pointer;
         outline: none;
+        transition: all 0.15s ease;
 
         &:focus {
           border-color: #1a3b3d;
-          background: #ffffff;
+          box-shadow: 0 0 0 2px rgba(26, 59, 61, 0.12);
         }
       }
     }
   }
 
   .vs-badge {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     background: #f1f5f9;
     border: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 800;
     color: #64748b;
   }
