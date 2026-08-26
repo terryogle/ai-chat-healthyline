@@ -14433,55 +14433,57 @@ const HEALTHYLINE_SERIES = [
     highlights: ["Bends & wraps around joints", "Ultra lightweight & portable", "Jade & Tourmaline thermal power", "Versatile multi-angle use"]
   }
 ];
-const _hoisted_1$c = { class: "split-comparison-view" };
-const _hoisted_2$a = { class: "models-header-grid" };
-const _hoisted_3$9 = { class: "model-picker-card" };
-const _hoisted_4$7 = { class: "model-select-wrapper" };
-const _hoisted_5$5 = ["value"];
-const _hoisted_6$4 = { class: "model-picker-card" };
-const _hoisted_7$4 = { class: "model-select-wrapper" };
-const _hoisted_8$2 = ["value"];
-const _hoisted_9$2 = { class: "comparison-specs-list" };
-const _hoisted_10$2 = ["onClick"];
-const _hoisted_11$2 = { class: "label-text-box" };
-const _hoisted_12$2 = { class: "spec-values-grid" };
-const _hoisted_13$2 = {
+const _hoisted_1$c = { class: "sticky-comparison-bar" };
+const _hoisted_2$a = { class: "sticky-models-panel" };
+const _hoisted_3$9 = { class: "models-header-grid" };
+const _hoisted_4$7 = { class: "model-picker-card" };
+const _hoisted_5$5 = { class: "model-select-wrapper" };
+const _hoisted_6$4 = ["value"];
+const _hoisted_7$4 = { class: "model-picker-card" };
+const _hoisted_8$2 = { class: "model-select-wrapper" };
+const _hoisted_9$2 = ["value"];
+const _hoisted_10$2 = { class: "split-comparison-view" };
+const _hoisted_11$2 = { class: "comparison-specs-list" };
+const _hoisted_12$2 = ["onClick"];
+const _hoisted_13$2 = { class: "label-text-box" };
+const _hoisted_14$2 = { class: "spec-values-grid" };
+const _hoisted_15$2 = {
   key: 0,
   class: "val-check"
-};
-const _hoisted_14$2 = {
-  key: 1,
-  class: "val-cross"
-};
-const _hoisted_15$2 = {
-  key: 1,
-  class: "val-cross"
 };
 const _hoisted_16$2 = {
-  key: 0,
-  class: "val-check"
+  key: 1,
+  class: "val-cross"
 };
 const _hoisted_17$2 = {
   key: 1,
   class: "val-cross"
 };
 const _hoisted_18$1 = {
+  key: 0,
+  class: "val-check"
+};
+const _hoisted_19$1 = {
   key: 1,
   class: "val-cross"
 };
-const _hoisted_19$1 = { class: "spec-comparison-row is-diff" };
-const _hoisted_20$1 = { class: "spec-values-grid" };
-const _hoisted_21$1 = { class: "spec-val-cell text-left-cell" };
-const _hoisted_22$1 = { class: "gemstone-text" };
+const _hoisted_20$1 = {
+  key: 1,
+  class: "val-cross"
+};
+const _hoisted_21$1 = { class: "spec-comparison-row is-diff" };
+const _hoisted_22$1 = { class: "spec-values-grid" };
 const _hoisted_23$1 = { class: "spec-val-cell text-left-cell" };
 const _hoisted_24$1 = { class: "gemstone-text" };
-const _hoisted_25$1 = { class: "action-footer-grid" };
-const _hoisted_26$1 = { class: "series-card-action" };
-const _hoisted_27$1 = { class: "series-card-action" };
-const _hoisted_28$1 = { class: "info-card-header" };
-const _hoisted_29$1 = { class: "info-title-group" };
-const _hoisted_30$1 = { class: "info-card-body" };
-const _hoisted_31$1 = { class: "info-card-footer" };
+const _hoisted_25$1 = { class: "spec-val-cell text-left-cell" };
+const _hoisted_26$1 = { class: "gemstone-text" };
+const _hoisted_27$1 = { class: "action-footer-grid" };
+const _hoisted_28$1 = { class: "series-card-action" };
+const _hoisted_29$1 = { class: "series-card-action" };
+const _hoisted_30$1 = { class: "info-card-header" };
+const _hoisted_31$1 = { class: "info-title-group" };
+const _hoisted_32$1 = { class: "info-card-body" };
+const _hoisted_33$1 = { class: "info-card-footer" };
 const _sfc_main$c = /* @__PURE__ */ defineComponent({
   __name: "SeriesComparison",
   props: {
@@ -14522,47 +14524,57 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
         ref: rootRef,
         class: "series-comparison-container"
       }, [
-        _cache[17] || (_cache[17] = createStaticVNode('<div class="comparison-header"><div class="comparison-title-row"><div class="title-with-icon"><div class="compare-icon-badge"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"></path><path d="M4 20L21 3"></path><path d="M21 16v5h-5"></path><path d="M15 15l6 6"></path><path d="M4 4l5 5"></path></svg></div><div><h3 class="compare-title">Compare HealthyLine Series</h3><p class="compare-subtitle">Tailor a mat to your unique wellness routine.</p></div></div></div></div>', 1)),
         createBaseVNode("div", _hoisted_1$c, [
+          _cache[8] || (_cache[8] = createStaticVNode('<div class="comparison-header"><div class="comparison-title-row"><div class="title-with-icon"><div class="compare-icon-badge"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"></path><path d="M4 20L21 3"></path><path d="M21 16v5h-5"></path><path d="M15 15l6 6"></path><path d="M4 4l5 5"></path></svg></div><div><h3 class="compare-title">Compare HealthyLine Series</h3><p class="compare-subtitle">Tailor a mat to your unique wellness routine.</p></div></div></div></div>', 1)),
           createBaseVNode("div", _hoisted_2$a, [
+            _cache[7] || (_cache[7] = createBaseVNode("div", { class: "models-selector-instruction" }, [
+              createBaseVNode("span", { class: "instruction-icon" }, "✦"),
+              createBaseVNode("span", { class: "instruction-text" }, "Choose series to compare side-by-side:")
+            ], -1)),
             createBaseVNode("div", _hoisted_3$9, [
               createBaseVNode("div", _hoisted_4$7, [
-                withDirectives(createBaseVNode("select", {
-                  "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => selectedIdA.value = $event),
-                  class: "series-select-input"
-                }, [
-                  (openBlock(true), createElementBlock(Fragment, null, renderList(unref(HEALTHYLINE_SERIES), (item) => {
-                    return openBlock(), createElementBlock("option", {
-                      key: "a-" + item.id,
-                      value: item.id
-                    }, toDisplayString(item.name), 9, _hoisted_5$5);
-                  }), 128))
-                ], 512), [
-                  [vModelSelect, selectedIdA.value]
+                createBaseVNode("div", _hoisted_5$5, [
+                  withDirectives(createBaseVNode("select", {
+                    "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => selectedIdA.value = $event),
+                    class: "series-select-input",
+                    "aria-label": "Choose Series A"
+                  }, [
+                    (openBlock(true), createElementBlock(Fragment, null, renderList(unref(HEALTHYLINE_SERIES), (item) => {
+                      return openBlock(), createElementBlock("option", {
+                        key: "a-" + item.id,
+                        value: item.id
+                      }, toDisplayString(item.name), 9, _hoisted_6$4);
+                    }), 128))
+                  ], 512), [
+                    [vModelSelect, selectedIdA.value]
+                  ])
                 ])
-              ])
-            ]),
-            _cache[6] || (_cache[6] = createBaseVNode("div", { class: "vs-badge" }, "VS", -1)),
-            createBaseVNode("div", _hoisted_6$4, [
+              ]),
+              _cache[6] || (_cache[6] = createBaseVNode("div", { class: "vs-badge" }, "VS", -1)),
               createBaseVNode("div", _hoisted_7$4, [
-                withDirectives(createBaseVNode("select", {
-                  "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => selectedIdB.value = $event),
-                  class: "series-select-input"
-                }, [
-                  (openBlock(true), createElementBlock(Fragment, null, renderList(unref(HEALTHYLINE_SERIES), (item) => {
-                    return openBlock(), createElementBlock("option", {
-                      key: "b-" + item.id,
-                      value: item.id
-                    }, toDisplayString(item.name), 9, _hoisted_8$2);
-                  }), 128))
-                ], 512), [
-                  [vModelSelect, selectedIdB.value]
+                createBaseVNode("div", _hoisted_8$2, [
+                  withDirectives(createBaseVNode("select", {
+                    "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => selectedIdB.value = $event),
+                    class: "series-select-input",
+                    "aria-label": "Choose Series B"
+                  }, [
+                    (openBlock(true), createElementBlock(Fragment, null, renderList(unref(HEALTHYLINE_SERIES), (item) => {
+                      return openBlock(), createElementBlock("option", {
+                        key: "b-" + item.id,
+                        value: item.id
+                      }, toDisplayString(item.name), 9, _hoisted_9$2);
+                    }), 128))
+                  ], 512), [
+                    [vModelSelect, selectedIdB.value]
+                  ])
                 ])
               ])
             ])
-          ]),
-          createBaseVNode("div", _hoisted_9$2, [
-            _cache[11] || (_cache[11] = createBaseVNode("div", { class: "spec-section-divider" }, [
+          ])
+        ]),
+        createBaseVNode("div", _hoisted_10$2, [
+          createBaseVNode("div", _hoisted_11$2, [
+            _cache[13] || (_cache[13] = createBaseVNode("div", { class: "spec-section-divider" }, [
               createBaseVNode("span", null, "Core Technologies & Light")
             ], -1)),
             (openBlock(true), createElementBlock(Fragment, null, renderList(visibleSpecs.value, (spec) => {
@@ -14574,17 +14586,17 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
                   class: "spec-label-col",
                   onClick: ($event) => showSpecInfo(spec)
                 }, [
-                  createBaseVNode("div", _hoisted_11$2, [
+                  createBaseVNode("div", _hoisted_13$2, [
                     createBaseVNode("strong", null, toDisplayString(spec.label), 1),
-                    _cache[7] || (_cache[7] = createStaticVNode('<button class="info-bubble-btn" title="Learn more about this therapy"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>', 1))
+                    _cache[9] || (_cache[9] = createStaticVNode('<button class="info-bubble-btn" title="Learn more about this therapy"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>', 1))
                   ])
-                ], 8, _hoisted_10$2),
-                createBaseVNode("div", _hoisted_12$2, [
+                ], 8, _hoisted_12$2),
+                createBaseVNode("div", _hoisted_14$2, [
                   createBaseVNode("div", {
                     class: normalizeClass(["spec-val-cell", { positive: seriesA.value.specs[spec.key] === true }])
                   }, [
                     typeof seriesA.value.specs[spec.key] === "boolean" ? (openBlock(), createElementBlock(Fragment, { key: 0 }, [
-                      seriesA.value.specs[spec.key] ? (openBlock(), createElementBlock("span", _hoisted_13$2, [..._cache[8] || (_cache[8] = [
+                      seriesA.value.specs[spec.key] ? (openBlock(), createElementBlock("span", _hoisted_15$2, [..._cache[10] || (_cache[10] = [
                         createBaseVNode("svg", {
                           xmlns: "http://www.w3.org/2000/svg",
                           width: "15",
@@ -14595,19 +14607,19 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
                           createBaseVNode("path", { d: "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" })
                         ], -1),
                         createTextVNode(" Yes ", -1)
-                      ])])) : (openBlock(), createElementBlock("span", _hoisted_14$2, "✕ No"))
+                      ])])) : (openBlock(), createElementBlock("span", _hoisted_16$2, "✕ No"))
                     ], 64)) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
                       seriesA.value.specs[spec.key] ? (openBlock(), createElementBlock("span", {
                         key: 0,
                         class: normalizeClass(["val-string", { highlight: spec.key === "pemfMaxIntensity" || spec.key === "pemfWaveType" }])
-                      }, toDisplayString(seriesA.value.specs[spec.key]), 3)) : (openBlock(), createElementBlock("span", _hoisted_15$2, "✕ None"))
+                      }, toDisplayString(seriesA.value.specs[spec.key]), 3)) : (openBlock(), createElementBlock("span", _hoisted_17$2, "✕ None"))
                     ], 64))
                   ], 2),
                   createBaseVNode("div", {
                     class: normalizeClass(["spec-val-cell", { positive: seriesB.value.specs[spec.key] === true }])
                   }, [
                     typeof seriesB.value.specs[spec.key] === "boolean" ? (openBlock(), createElementBlock(Fragment, { key: 0 }, [
-                      seriesB.value.specs[spec.key] ? (openBlock(), createElementBlock("span", _hoisted_16$2, [..._cache[9] || (_cache[9] = [
+                      seriesB.value.specs[spec.key] ? (openBlock(), createElementBlock("span", _hoisted_18$1, [..._cache[11] || (_cache[11] = [
                         createBaseVNode("svg", {
                           xmlns: "http://www.w3.org/2000/svg",
                           width: "15",
@@ -14618,52 +14630,52 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
                           createBaseVNode("path", { d: "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" })
                         ], -1),
                         createTextVNode(" Yes ", -1)
-                      ])])) : (openBlock(), createElementBlock("span", _hoisted_17$2, "✕ No"))
+                      ])])) : (openBlock(), createElementBlock("span", _hoisted_19$1, "✕ No"))
                     ], 64)) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
                       seriesB.value.specs[spec.key] ? (openBlock(), createElementBlock("span", {
                         key: 0,
                         class: normalizeClass(["val-string", { highlight: spec.key === "pemfMaxIntensity" || spec.key === "pemfWaveType" }])
-                      }, toDisplayString(seriesB.value.specs[spec.key]), 3)) : (openBlock(), createElementBlock("span", _hoisted_18$1, "✕ None"))
+                      }, toDisplayString(seriesB.value.specs[spec.key]), 3)) : (openBlock(), createElementBlock("span", _hoisted_20$1, "✕ None"))
                     ], 64))
                   ], 2)
                 ])
               ]);
             }), 128)),
-            _cache[12] || (_cache[12] = createBaseVNode("div", { class: "spec-section-divider" }, [
+            _cache[14] || (_cache[14] = createBaseVNode("div", { class: "spec-section-divider" }, [
               createBaseVNode("span", null, "Gemstones")
             ], -1)),
-            createBaseVNode("div", _hoisted_19$1, [
-              _cache[10] || (_cache[10] = createBaseVNode("div", { class: "spec-label-col" }, [
+            createBaseVNode("div", _hoisted_21$1, [
+              _cache[12] || (_cache[12] = createBaseVNode("div", { class: "spec-label-col" }, [
                 createBaseVNode("div", { class: "label-text-box" }, [
                   createBaseVNode("strong", null, "Natural Gemstones")
                 ])
               ], -1)),
-              createBaseVNode("div", _hoisted_20$1, [
-                createBaseVNode("div", _hoisted_21$1, [
-                  createBaseVNode("span", _hoisted_22$1, toDisplayString(seriesA.value.gemstones), 1)
-                ]),
+              createBaseVNode("div", _hoisted_22$1, [
                 createBaseVNode("div", _hoisted_23$1, [
-                  createBaseVNode("span", _hoisted_24$1, toDisplayString(seriesB.value.gemstones), 1)
+                  createBaseVNode("span", _hoisted_24$1, toDisplayString(seriesA.value.gemstones), 1)
+                ]),
+                createBaseVNode("div", _hoisted_25$1, [
+                  createBaseVNode("span", _hoisted_26$1, toDisplayString(seriesB.value.gemstones), 1)
                 ])
               ])
             ])
           ]),
-          createBaseVNode("div", _hoisted_25$1, [
-            createBaseVNode("div", _hoisted_26$1, [
+          createBaseVNode("div", _hoisted_27$1, [
+            createBaseVNode("div", _hoisted_28$1, [
               createBaseVNode("button", {
                 class: "ask-btn",
                 onClick: _cache[2] || (_cache[2] = ($event) => handleAskAbout(seriesA.value))
               }, [
-                _cache[13] || (_cache[13] = createBaseVNode("span", { class: "sparkle" }, "✦", -1)),
+                _cache[15] || (_cache[15] = createBaseVNode("span", { class: "sparkle" }, "✦", -1)),
                 createTextVNode(" Ask about " + toDisplayString(seriesA.value.shortName), 1)
               ])
             ]),
-            createBaseVNode("div", _hoisted_27$1, [
+            createBaseVNode("div", _hoisted_29$1, [
               createBaseVNode("button", {
                 class: "ask-btn",
                 onClick: _cache[3] || (_cache[3] = ($event) => handleAskAbout(seriesB.value))
               }, [
-                _cache[14] || (_cache[14] = createBaseVNode("span", { class: "sparkle" }, "✦", -1)),
+                _cache[16] || (_cache[16] = createBaseVNode("span", { class: "sparkle" }, "✦", -1)),
                 createTextVNode(" Ask about " + toDisplayString(seriesB.value.shortName), 1)
               ])
             ])
@@ -14681,9 +14693,9 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
                 onClick: _cache[5] || (_cache[5] = withModifiers(() => {
                 }, ["stop"]))
               }, [
-                createBaseVNode("div", _hoisted_28$1, [
-                  createBaseVNode("div", _hoisted_29$1, [
-                    _cache[15] || (_cache[15] = createBaseVNode("span", { class: "info-tag" }, "Therapy Guide", -1)),
+                createBaseVNode("div", _hoisted_30$1, [
+                  createBaseVNode("div", _hoisted_31$1, [
+                    _cache[17] || (_cache[17] = createBaseVNode("span", { class: "info-tag" }, "Therapy Guide", -1)),
                     createBaseVNode("h4", null, toDisplayString(activeTooltip.value.label), 1)
                   ]),
                   createBaseVNode("button", {
@@ -14691,17 +14703,17 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
                     onClick: closeSpecInfo
                   }, "✕")
                 ]),
-                createBaseVNode("div", _hoisted_30$1, [
+                createBaseVNode("div", _hoisted_32$1, [
                   createBaseVNode("p", null, toDisplayString(activeTooltip.value.description), 1)
                 ]),
-                createBaseVNode("div", _hoisted_31$1, [
+                createBaseVNode("div", _hoisted_33$1, [
                   createBaseVNode("button", {
                     class: "info-action-btn",
                     onClick: _cache[4] || (_cache[4] = ($event) => {
                       emit2("askQuestion", `Can you explain how ${activeTooltip.value.label} works in HealthyLine mats and its benefits?`);
                       closeSpecInfo();
                     })
-                  }, [..._cache[16] || (_cache[16] = [
+                  }, [..._cache[18] || (_cache[18] = [
                     createBaseVNode("span", { class: "sparkle" }, "✦", -1),
                     createTextVNode(" Ask AI about this therapy ", -1)
                   ])])
@@ -35956,7 +35968,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
         createBaseVNode("div", {
           ref_key: "chatBodyRef",
           ref: chatBodyRef,
-          class: "tt-chat-body"
+          class: normalizeClass(["tt-chat-body", { "is-compare-tab": activeTab.value === "compare" }])
         }, [
           activeTab.value === "home" ? (openBlock(), createElementBlock("div", _hoisted_8, [
             createBaseVNode("div", _hoisted_9, [
@@ -35970,7 +35982,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                 class: "spotlight-card",
                 onClick: _cache[4] || (_cache[4] = ($event) => switchTab("messages"))
               }, [..._cache[20] || (_cache[20] = [
-                createStaticVNode('<div class="spotlight-content"><div class="spotlight-badge"><span class="sparkle-icon">✦</span><span>AI Agent and team can help</span></div><strong class="spotlight-title">Ask a question</strong><p class="spotlight-desc">Get instant personalized guidance 24/7</p></div><div class="spotlight-action"><div class="action-btn-circle"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div></div>', 2)
+                createStaticVNode('<div class="spotlight-content"><div class="spotlight-badge"><span class="sparkle-icon">✦</span><span>AI Agent and team can help</span></div><strong class="spotlight-title">Ask a question</strong><p class="spotlight-desc">Get instant personalized guidance 24/7</p></div><div class="spotlight-action"><button class="action-btn-circle" aria-label="Start asking question" title="Ask a question"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button></div>', 2)
               ])])) : createCommentVNode("", true),
               !showOrderAuthCard.value ? (openBlock(), createElementBlock("div", _hoisted_10, [
                 _cache[25] || (_cache[25] = createBaseVNode("div", { class: "section-label" }, "Explore & Services", -1)),
@@ -36080,7 +36092,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1)
             ])])) : createCommentVNode("", true)
           ]))
-        ], 512),
+        ], 2),
         createBaseVNode("div", _hoisted_30, [
           activeTab.value === "messages" ? (openBlock(), createElementBlock("div", _hoisted_31, [
             showPrivacyForm.value ? (openBlock(), createElementBlock("div", _hoisted_32, [
