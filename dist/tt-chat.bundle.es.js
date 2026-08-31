@@ -8060,6 +8060,34 @@ ${cssVariables}
   }
   document.head.appendChild(style);
 }
+function extractActionTagsAndCleanText(rawText) {
+  if (!rawText || typeof rawText !== "string") {
+    return { cleanText: rawText || "", actions: [] };
+  }
+  const actions = [];
+  const tagRegex = /\[ACTION:\s*([a-zA-Z0-9_-]+)\s*\]/gi;
+  let match3;
+  while ((match3 = tagRegex.exec(rawText)) !== null) {
+    const actionName = (match3[1] || "").trim().toLowerCase();
+    if (actionName) {
+      if (actionName === "customer_auth" || actionName === "customerauth" || actionName === "account_auth") {
+        actions.push({
+          type: "customer_auth",
+          label: "Verify Account",
+          action: "customer_auth"
+        });
+      } else {
+        actions.push({
+          type: actionName,
+          label: actionName,
+          action: actionName
+        });
+      }
+    }
+  }
+  const cleanText = rawText.replace(tagRegex, "").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+  return { cleanText, actions };
+}
 const LOCAL_STORAGE_SESSION_KEY = "tt-chat-n8n-session-id";
 async function fetchApi(url, options = {}) {
   console.log("Calling API:", url, options);
@@ -8336,21 +8364,29 @@ class SessionManager {
           if (Array.isArray(messageContent)) {
             messageContent.forEach((text2, textIndex) => {
               if (typeof text2 === "string" && text2.trim() !== "") {
-                loadedMessages.push({
-                  id: `${index}-${textIndex}-${generateId()}`,
-                  text: text2,
-                  sender,
-                  createdAt: timestamp
-                });
+                const { cleanText, actions } = sender === "bot" ? extractActionTagsAndCleanText(text2) : { cleanText: text2.trim(), actions: [] };
+                if (cleanText !== "" || actions.length > 0) {
+                  loadedMessages.push({
+                    id: `${index}-${textIndex}-${generateId()}`,
+                    text: cleanText,
+                    sender,
+                    createdAt: timestamp,
+                    actions: actions.length > 0 ? actions : void 0
+                  });
+                }
               }
             });
           } else if (typeof messageContent === "string" && messageContent.trim() !== "") {
-            loadedMessages.push({
-              id: `${index}-${generateId()}`,
-              text: messageContent,
-              sender,
-              createdAt: timestamp
-            });
+            const { cleanText, actions } = sender === "bot" ? extractActionTagsAndCleanText(messageContent) : { cleanText: messageContent.trim(), actions: [] };
+            if (cleanText !== "" || actions.length > 0) {
+              loadedMessages.push({
+                id: `${index}-${generateId()}`,
+                text: cleanText,
+                sender,
+                createdAt: timestamp,
+                actions: actions.length > 0 ? actions : void 0
+              });
+            }
           }
         });
         console.log("Messaggi caricati:", loadedMessages);
@@ -8453,28 +8489,42 @@ class MessageProcessor {
    * Crea e aggiunge i messaggi di risposta del bot
    */
   addBotMessages(responseTexts, actions) {
-    responseTexts.forEach((responseText, index) => {
-      const receivedMessage = {
-        id: generateId(),
-        text: responseText,
-        sender: "bot",
-        createdAt: (/* @__PURE__ */ new Date()).toISOString()
-      };
-      if (index === 0 && (actions == null ? void 0 : actions.length)) {
-        receivedMessage.actions = actions;
-        this.processActions(actions);
+    const serverActions = actions || [];
+    let hasCreatedMessage = false;
+    responseTexts.forEach((rawText, index) => {
+      const { cleanText, actions: tagActions } = extractActionTagsAndCleanText(rawText);
+      const combinedActions = [...tagActions];
+      if (index === 0 && serverActions.length > 0) {
+        serverActions.forEach((sa2) => {
+          if (!combinedActions.some((a) => a.type === sa2.type && a.action === sa2.action)) {
+            combinedActions.push(sa2);
+          }
+        });
       }
-      this.messages.value.push(receivedMessage);
+      if (cleanText.length > 0 || combinedActions.length > 0 && !hasCreatedMessage) {
+        const receivedMessage = {
+          id: generateId(),
+          text: cleanText,
+          sender: "bot",
+          createdAt: (/* @__PURE__ */ new Date()).toISOString()
+        };
+        if (combinedActions.length > 0) {
+          receivedMessage.actions = combinedActions;
+          this.processActions(combinedActions);
+        }
+        this.messages.value.push(receivedMessage);
+        hasCreatedMessage = true;
+      }
     });
-    if (responseTexts.length === 0 && (actions == null ? void 0 : actions.length)) {
+    if (!hasCreatedMessage && serverActions.length > 0) {
       const actionsMessage = {
         id: generateId(),
         text: "",
         sender: "bot",
         createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-        actions
+        actions: serverActions
       };
-      this.processActions(actions);
+      this.processActions(serverActions);
       this.messages.value.push(actionsMessage);
     }
   }
@@ -13911,7 +13961,7 @@ const _hoisted_4$9 = {
 };
 const _hoisted_5$7 = ["onClick"];
 const _hoisted_6$6 = {
-  key: 1,
+  key: 2,
   class: "tt-chat-action-checkbox"
 };
 const _hoisted_7$6 = ["id"];
@@ -13926,8 +13976,10 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
   props: {
     message: {}
   },
-  setup(__props) {
+  emits: ["openCustomerAuth"],
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emit2 = __emit;
     const classes = computed(() => {
       return {
         "tt-chat-message-from-user": props.message.sender === "user",
@@ -13946,7 +13998,7 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["tt-chat-message", classes.value])
       }, [
-        __props.message.sender === "bot" ? (openBlock(), createElementBlock("div", _hoisted_1$e, [..._cache[0] || (_cache[0] = [
+        __props.message.sender === "bot" ? (openBlock(), createElementBlock("div", _hoisted_1$e, [..._cache[1] || (_cache[1] = [
           createBaseVNode("span", { class: "sparkle" }, "✦", -1)
         ])])) : createCommentVNode("", true),
         createBaseVNode("div", _hoisted_2$c, [
@@ -13964,7 +14016,7 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
                   onClick: ($event) => handleButtonClick(action.action)
                 }, [
                   createBaseVNode("span", null, toDisplayString(action.label), 1),
-                  _cache[1] || (_cache[1] = createBaseVNode("svg", {
+                  _cache[2] || (_cache[2] = createBaseVNode("svg", {
                     xmlns: "http://www.w3.org/2000/svg",
                     width: "14",
                     height: "14",
@@ -13984,7 +14036,31 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
                       y2: "3"
                     })
                   ], -1))
-                ], 8, _hoisted_5$7)) : action.type === "checkbox" ? (openBlock(), createElementBlock("div", _hoisted_6$6, [
+                ], 8, _hoisted_5$7)) : action.type === "customer_auth" ? (openBlock(), createElementBlock("button", {
+                  key: 1,
+                  class: "tt-chat-action-button auth-action-btn",
+                  onClick: _cache[0] || (_cache[0] = ($event) => emit2("openCustomerAuth"))
+                }, [
+                  _cache[3] || (_cache[3] = createBaseVNode("svg", {
+                    xmlns: "http://www.w3.org/2000/svg",
+                    width: "14",
+                    height: "14",
+                    viewBox: "0 0 24 24",
+                    fill: "none",
+                    stroke: "currentColor",
+                    "stroke-width": "2",
+                    "stroke-linecap": "round",
+                    "stroke-linejoin": "round"
+                  }, [
+                    createBaseVNode("path", { d: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" }),
+                    createBaseVNode("circle", {
+                      cx: "12",
+                      cy: "7",
+                      r: "4"
+                    })
+                  ], -1)),
+                  createBaseVNode("span", null, toDisplayString(action.label || "Verify Account"), 1)
+                ])) : action.type === "checkbox" ? (openBlock(), createElementBlock("div", _hoisted_6$6, [
                   createBaseVNode("input", {
                     type: "checkbox",
                     id: "action-checkbox-" + index,
@@ -14011,7 +14087,7 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
                 key: file.name,
                 class: "tt-chat-message-file"
               }, [
-                _cache[2] || (_cache[2] = createBaseVNode("svg", {
+                _cache[4] || (_cache[4] = createBaseVNode("svg", {
                   xmlns: "http://www.w3.org/2000/svg",
                   width: "13",
                   height: "13",
@@ -35541,46 +35617,50 @@ const _hoisted_21 = {
 };
 const _hoisted_22 = {
   key: 0,
+  class: "chat-auth-card-inline-container"
+};
+const _hoisted_23 = {
+  key: 1,
   class: "empty-messages-prompt"
 };
-const _hoisted_23 = { class: "starter-suggestions" };
-const _hoisted_24 = ["onClick"];
-const _hoisted_25 = { class: "chip-icon" };
-const _hoisted_26 = { class: "chip-text-group" };
-const _hoisted_27 = { class: "chip-title" };
-const _hoisted_28 = { class: "chip-sub" };
-const _hoisted_29 = {
-  key: 1,
+const _hoisted_24 = { class: "starter-suggestions" };
+const _hoisted_25 = ["onClick"];
+const _hoisted_26 = { class: "chip-icon" };
+const _hoisted_27 = { class: "chip-text-group" };
+const _hoisted_28 = { class: "chip-title" };
+const _hoisted_29 = { class: "chip-sub" };
+const _hoisted_30 = {
+  key: 2,
   class: "tt-chat-typing"
 };
-const _hoisted_30 = { class: "tt-chat-footer" };
-const _hoisted_31 = {
+const _hoisted_31 = { class: "tt-chat-footer" };
+const _hoisted_32 = {
   key: 0,
   class: "footer-input-section"
 };
-const _hoisted_32 = {
+const _hoisted_33 = {
   key: 0,
   class: "tt-chat-privacy-container"
 };
-const _hoisted_33 = {
+const _hoisted_34 = {
   key: 1,
   class: "tt-chat-province-container"
 };
-const _hoisted_34 = {
+const _hoisted_35 = {
   key: 2,
   class: "tt-chat-datepicker-container"
 };
-const _hoisted_35 = {
+const _hoisted_36 = {
   key: 3,
   class: "tt-chat-input-component-container"
 };
-const _hoisted_36 = {
+const _hoisted_37 = {
   key: 4,
   class: "tt-chat-input-container"
 };
-const _hoisted_37 = { class: "bottom-nav-bar" };
-const _hoisted_38 = { class: "nav-icon-box" };
-const _hoisted_39 = {
+const _hoisted_38 = { class: "bottom-nav-bar" };
+const _hoisted_39 = { class: "nav-icon-box" };
+const _hoisted_40 = {
   key: 0,
   class: "messages-badge"
 };
@@ -35599,6 +35679,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     const compareInitialA = /* @__PURE__ */ ref("taj");
     const compareInitialB = /* @__PURE__ */ ref("platinum");
     const showOrderAuthCard = /* @__PURE__ */ ref(false);
+    const authTriggerSource = /* @__PURE__ */ ref("menu");
     const hasUserMessages = computed(() => messages.value.some((m2) => m2.sender === "user"));
     const starterSuggestions = [
       { icon: "✨", title: "What are you looking to improve?", desc: "", query: "What can HealthyLine mats help with for health, energy and recovery?" },
@@ -35660,6 +35741,16 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
         return;
       }
       if ((message2 == null ? void 0 : message2.actions) && Array.isArray(message2.actions)) {
+        const customerAuthAction = message2.actions.find(
+          (action) => action && (action.type === "customer_auth" || action.action === "customer_auth")
+        );
+        if (customerAuthAction) {
+          showOrderAuthCard.value = true;
+          authTriggerSource.value = "rag";
+          lastProcessedMessageId.value = message2.id;
+          scrollToBottom();
+          return;
+        }
         const privacyAction = message2.actions.find(
           (action) => action && action.type === "privacy"
         );
@@ -35765,8 +35856,15 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     function handleOrderAuthSubmit(data) {
       showOrderAuthCard.value = false;
       activeTab.value = "messages";
-      const text2 = `I'd like to check orders for ${data.value}`;
-      handleSendMessage(text2);
+      if (authTriggerSource.value === "rag") {
+        handleSendMessage(`I've verified my account (${data.value})`);
+      } else {
+        const text2 = `I'd like to check orders for ${data.value}`;
+        handleSendMessage(text2);
+      }
+    }
+    function handleOrderAuthCancel() {
+      showOrderAuthCard.value = false;
     }
     async function handleReload() {
       if (startNewSession) {
@@ -35870,7 +35968,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
       return openBlock(), createElementBlock("div", _hoisted_1$4, [
         createBaseVNode("div", _hoisted_2$2, [
           createBaseVNode("div", _hoisted_3$1, [
-            _cache[17] || (_cache[17] = createBaseVNode("div", {
+            _cache[18] || (_cache[18] = createBaseVNode("div", {
               class: "online-status-dot",
               title: "Online"
             }, [
@@ -35880,7 +35978,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
             createBaseVNode("div", _hoisted_4$1, [
               createBaseVNode("div", _hoisted_5, [
                 createBaseVNode("h2", null, toDisplayString(headerTitle.value), 1),
-                _cache[16] || (_cache[16] = createBaseVNode("span", { class: "verified-pill" }, [
+                _cache[17] || (_cache[17] = createBaseVNode("span", { class: "verified-pill" }, [
                   createBaseVNode("svg", {
                     xmlns: "http://www.w3.org/2000/svg",
                     width: "10",
@@ -35907,7 +36005,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                 onClick: withModifiers(toggleMenu, ["stop"]),
                 title: "More options",
                 "aria-label": "More options"
-              }, [..._cache[18] || (_cache[18] = [
+              }, [..._cache[19] || (_cache[19] = [
                 createBaseVNode("svg", {
                   xmlns: "http://www.w3.org/2000/svg",
                   width: "18",
@@ -35941,8 +36039,9 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                         isMenuOpen.value = false;
                         switchTab("home");
                         showOrderAuthCard.value = true;
+                        authTriggerSource.value = "menu";
                       })
-                    }, [..._cache[19] || (_cache[19] = [
+                    }, [..._cache[20] || (_cache[20] = [
                       createBaseVNode("span", { class: "dropdown-item-label" }, "My Orders", -1),
                       createBaseVNode("svg", {
                         xmlns: "http://www.w3.org/2000/svg",
@@ -35969,7 +36068,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                     createBaseVNode("button", {
                       class: "dropdown-item",
                       onClick: handleNewChat
-                    }, [..._cache[20] || (_cache[20] = [
+                    }, [..._cache[21] || (_cache[21] = [
                       createBaseVNode("span", { class: "dropdown-item-label" }, "New Chat", -1),
                       createBaseVNode("svg", {
                         xmlns: "http://www.w3.org/2000/svg",
@@ -35993,7 +36092,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                       target: "_blank",
                       rel: "noopener noreferrer",
                       onClick: _cache[1] || (_cache[1] = ($event) => isMenuOpen.value = false)
-                    }, [..._cache[21] || (_cache[21] = [
+                    }, [..._cache[22] || (_cache[22] = [
                       createBaseVNode("span", { class: "dropdown-item-label" }, "FAQ", -1),
                       createBaseVNode("svg", {
                         xmlns: "http://www.w3.org/2000/svg",
@@ -36027,7 +36126,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                       target: "_blank",
                       rel: "noopener noreferrer",
                       onClick: _cache[2] || (_cache[2] = ($event) => isMenuOpen.value = false)
-                    }, [..._cache[22] || (_cache[22] = [
+                    }, [..._cache[23] || (_cache[23] = [
                       createBaseVNode("span", { class: "dropdown-item-label" }, "Support", -1),
                       createBaseVNode("svg", {
                         xmlns: "http://www.w3.org/2000/svg",
@@ -36054,7 +36153,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
               onClick: _cache[3] || (_cache[3] = ($event) => emit2("close")),
               title: "Close chat",
               "aria-label": "Close chat"
-            }, [..._cache[23] || (_cache[23] = [
+            }, [..._cache[24] || (_cache[24] = [
               createBaseVNode("svg", {
                 xmlns: "http://www.w3.org/2000/svg",
                 width: "18",
@@ -36104,16 +36203,16 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                   _cache[6] || (_cache[6] = withKeys(($event) => switchTab("messages"), ["enter"])),
                   _cache[7] || (_cache[7] = withKeys(withModifiers(($event) => switchTab("messages"), ["prevent"]), ["space"]))
                 ]
-              }, [..._cache[24] || (_cache[24] = [
+              }, [..._cache[25] || (_cache[25] = [
                 createStaticVNode('<div class="spotlight-content"><strong class="spotlight-title">Ask a question</strong><p class="spotlight-desc">✦ AI Agent and team can help</p></div><div class="spotlight-action"><button class="action-cta-btn" aria-label="Start chat and ask a question" title="Start chat"><span class="cta-label">Chat now</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="cta-icon"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button></div>', 2)
               ])], 32)) : createCommentVNode("", true),
               !showOrderAuthCard.value ? (openBlock(), createElementBlock("div", _hoisted_10, [
-                _cache[29] || (_cache[29] = createBaseVNode("div", { class: "section-label" }, "Explore & Services", -1)),
+                _cache[30] || (_cache[30] = createBaseVNode("div", { class: "section-label" }, "Explore & Services", -1)),
                 createBaseVNode("div", _hoisted_11, [
                   createBaseVNode("button", {
                     class: "duo-card",
                     onClick: _cache[8] || (_cache[8] = ($event) => switchTab("catalog"))
-                  }, [..._cache[25] || (_cache[25] = [
+                  }, [..._cache[26] || (_cache[26] = [
                     createBaseVNode("div", { class: "duo-icon-box best-sellers-icon" }, [
                       createBaseVNode("svg", {
                         xmlns: "http://www.w3.org/2000/svg",
@@ -36133,25 +36232,28 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                   createBaseVNode("button", {
                     class: "duo-card",
                     onClick: _cache[9] || (_cache[9] = ($event) => switchTab("compare"))
-                  }, [..._cache[26] || (_cache[26] = [
+                  }, [..._cache[27] || (_cache[27] = [
                     createStaticVNode('<div class="duo-icon-box compare-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"></path><path d="M4 20L21 3"></path><path d="M21 16v5h-5"></path><path d="M15 15l6 6"></path><path d="M4 4l5 5"></path></svg></div><div class="duo-info"><strong>Compare Series</strong><small>Side-by-side specs</small></div>', 2)
                   ])]),
                   createBaseVNode("button", {
                     class: "duo-card",
-                    onClick: _cache[10] || (_cache[10] = ($event) => showOrderAuthCard.value = true)
-                  }, [..._cache[27] || (_cache[27] = [
+                    onClick: _cache[10] || (_cache[10] = ($event) => {
+                      showOrderAuthCard.value = true;
+                      authTriggerSource.value = "menu";
+                    })
+                  }, [..._cache[28] || (_cache[28] = [
                     createStaticVNode('<div class="duo-icon-box order-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div><div class="duo-info"><strong>My Orders</strong><small>Track &amp; manage</small></div>', 2)
                   ])]),
                   createBaseVNode("button", {
                     class: "duo-card",
                     onClick: _cache[11] || (_cache[11] = ($event) => handleSendMessage("I want to partner with HealthyLine"))
-                  }, [..._cache[28] || (_cache[28] = [
+                  }, [..._cache[29] || (_cache[29] = [
                     createStaticVNode('<div class="duo-icon-box partner-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div><div class="duo-info"><strong>Partnership</strong><small>Collab inquiries</small></div>', 2)
                   ])])
                 ])
               ])) : createCommentVNode("", true),
               !showOrderAuthCard.value ? (openBlock(), createElementBlock("div", _hoisted_12, [
-                _cache[30] || (_cache[30] = createBaseVNode("div", { class: "section-label" }, "Recommended Topics", -1)),
+                _cache[31] || (_cache[31] = createBaseVNode("div", { class: "section-label" }, "Recommended Topics", -1)),
                 createBaseVNode("div", _hoisted_13, [
                   (openBlock(), createElementBlock(Fragment, null, renderList(starterSuggestions, (item, idx) => {
                     return createBaseVNode("button", {
@@ -36185,27 +36287,38 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
             (openBlock(true), createElementBlock(Fragment, null, renderList(unref(messages), (message2) => {
               return openBlock(), createBlock(_sfc_main$e, {
                 key: message2.id,
-                message: message2
+                message: message2,
+                onOpenCustomerAuth: _cache[12] || (_cache[12] = ($event) => {
+                  showOrderAuthCard.value = true;
+                  authTriggerSource.value = "rag";
+                  scrollToBottom();
+                })
               }, null, 8, ["message"]);
             }), 128)),
-            !hasUserMessages.value ? (openBlock(), createElementBlock("div", _hoisted_22, [
-              _cache[32] || (_cache[32] = createBaseVNode("div", { class: "starter-header" }, [
+            showOrderAuthCard.value ? (openBlock(), createElementBlock("div", _hoisted_22, [
+              createVNode(OrderAuthCard, {
+                onSubmit: handleOrderAuthSubmit,
+                onCancel: handleOrderAuthCancel
+              })
+            ])) : createCommentVNode("", true),
+            !hasUserMessages.value ? (openBlock(), createElementBlock("div", _hoisted_23, [
+              _cache[33] || (_cache[33] = createBaseVNode("div", { class: "starter-header" }, [
                 createBaseVNode("h3", null, "How can we help you today?"),
                 createBaseVNode("p", null, "Select a quick topic or type your message below:")
               ], -1)),
-              createBaseVNode("div", _hoisted_23, [
+              createBaseVNode("div", _hoisted_24, [
                 (openBlock(), createElementBlock(Fragment, null, renderList(starterSuggestions, (suggestion, idx) => {
                   return createBaseVNode("button", {
                     key: idx,
                     class: "suggestion-chip",
                     onClick: ($event) => handleSendMessage(suggestion.query)
                   }, [
-                    createBaseVNode("span", _hoisted_25, toDisplayString(suggestion.icon), 1),
-                    createBaseVNode("div", _hoisted_26, [
-                      createBaseVNode("span", _hoisted_27, toDisplayString(suggestion.title), 1),
-                      createBaseVNode("span", _hoisted_28, toDisplayString(suggestion.desc), 1)
+                    createBaseVNode("span", _hoisted_26, toDisplayString(suggestion.icon), 1),
+                    createBaseVNode("div", _hoisted_27, [
+                      createBaseVNode("span", _hoisted_28, toDisplayString(suggestion.title), 1),
+                      createBaseVNode("span", _hoisted_29, toDisplayString(suggestion.desc), 1)
                     ]),
-                    _cache[31] || (_cache[31] = createBaseVNode("svg", {
+                    _cache[32] || (_cache[32] = createBaseVNode("svg", {
                       class: "chip-arrow",
                       xmlns: "http://www.w3.org/2000/svg",
                       width: "16",
@@ -36219,46 +36332,46 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                     }, [
                       createBaseVNode("polyline", { points: "9 18 15 12 9 6" })
                     ], -1))
-                  ], 8, _hoisted_24);
+                  ], 8, _hoisted_25);
                 }), 64))
               ])
             ])) : createCommentVNode("", true),
-            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_29, [..._cache[33] || (_cache[33] = [
+            unref(waitingForResponse) ? (openBlock(), createElementBlock("div", _hoisted_30, [..._cache[34] || (_cache[34] = [
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1),
               createBaseVNode("div", { class: "tt-chat-typing-dot" }, null, -1)
             ])])) : createCommentVNode("", true)
           ]))
         ], 2),
-        createBaseVNode("div", _hoisted_30, [
-          activeTab.value === "messages" ? (openBlock(), createElementBlock("div", _hoisted_31, [
-            showPrivacyForm.value ? (openBlock(), createElementBlock("div", _hoisted_32, [
+        createBaseVNode("div", _hoisted_31, [
+          activeTab.value === "messages" ? (openBlock(), createElementBlock("div", _hoisted_32, [
+            showPrivacyForm.value ? (openBlock(), createElementBlock("div", _hoisted_33, [
               createVNode(_sfc_main$9, {
                 privacyUrl: (_a2 = currentPrivacyAction.value) == null ? void 0 : _a2.action,
                 onConfirm: handlePrivacyConfirm
               }, null, 8, ["privacyUrl"])
-            ])) : showProvinceForm.value ? (openBlock(), createElementBlock("div", _hoisted_33, [
+            ])) : showProvinceForm.value ? (openBlock(), createElementBlock("div", _hoisted_34, [
               createVNode(_sfc_main$8, { onSelect: handleProvinceSelect })
-            ])) : showDatePicker.value ? (openBlock(), createElementBlock("div", _hoisted_34, [
+            ])) : showDatePicker.value ? (openBlock(), createElementBlock("div", _hoisted_35, [
               createVNode(_sfc_main$7, {
                 label: (_b = currentDatePickerAction.value) == null ? void 0 : _b.label,
                 onSelect: handleDateSelect
               }, null, 8, ["label"])
-            ])) : showInputComponent.value ? (openBlock(), createElementBlock("div", _hoisted_35, [
+            ])) : showInputComponent.value ? (openBlock(), createElementBlock("div", _hoisted_36, [
               createVNode(_sfc_main$6, {
                 inputType: ((_c = currentInputAction.value) == null ? void 0 : _c.type) || "input_type_text",
                 label: (_d = currentInputAction.value) == null ? void 0 : _d.label,
                 onSubmit: handleInputSubmit
               }, null, 8, ["inputType", "label"])
-            ])) : (openBlock(), createElementBlock("div", _hoisted_36, [
+            ])) : (openBlock(), createElementBlock("div", _hoisted_37, [
               createVNode(_sfc_main$a, { onSend: handleSendMessage })
             ]))
           ])) : createCommentVNode("", true),
-          createBaseVNode("div", _hoisted_37, [
+          createBaseVNode("div", _hoisted_38, [
             createBaseVNode("button", {
               class: normalizeClass(["nav-tab-btn", { active: activeTab.value === "home" }]),
-              onClick: _cache[12] || (_cache[12] = ($event) => switchTab("home"))
-            }, [..._cache[34] || (_cache[34] = [
+              onClick: _cache[13] || (_cache[13] = ($event) => switchTab("home"))
+            }, [..._cache[35] || (_cache[35] = [
               createBaseVNode("div", { class: "nav-icon-box" }, [
                 createBaseVNode("svg", {
                   xmlns: "http://www.w3.org/2000/svg",
@@ -36279,10 +36392,10 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
             ])], 2),
             createBaseVNode("button", {
               class: normalizeClass(["nav-tab-btn", { active: activeTab.value === "messages" }]),
-              onClick: _cache[13] || (_cache[13] = ($event) => switchTab("messages"))
+              onClick: _cache[14] || (_cache[14] = ($event) => switchTab("messages"))
             }, [
-              createBaseVNode("div", _hoisted_38, [
-                _cache[35] || (_cache[35] = createBaseVNode("svg", {
+              createBaseVNode("div", _hoisted_39, [
+                _cache[36] || (_cache[36] = createBaseVNode("svg", {
                   xmlns: "http://www.w3.org/2000/svg",
                   width: "20",
                   height: "20",
@@ -36295,14 +36408,14 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
                 }, [
                   createBaseVNode("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" })
                 ], -1)),
-                unref(messages).length > 0 ? (openBlock(), createElementBlock("span", _hoisted_39, toDisplayString(unref(messages).length), 1)) : createCommentVNode("", true)
+                unref(messages).length > 0 ? (openBlock(), createElementBlock("span", _hoisted_40, toDisplayString(unref(messages).length), 1)) : createCommentVNode("", true)
               ]),
-              _cache[36] || (_cache[36] = createBaseVNode("span", null, "Messages", -1))
+              _cache[37] || (_cache[37] = createBaseVNode("span", null, "Messages", -1))
             ], 2),
             createBaseVNode("button", {
               class: normalizeClass(["nav-tab-btn nav-catalog-btn", { active: activeTab.value === "catalog" }]),
-              onClick: _cache[14] || (_cache[14] = ($event) => switchTab("catalog"))
-            }, [..._cache[37] || (_cache[37] = [
+              onClick: _cache[15] || (_cache[15] = ($event) => switchTab("catalog"))
+            }, [..._cache[38] || (_cache[38] = [
               createBaseVNode("div", { class: "nav-icon-box" }, [
                 createBaseVNode("svg", {
                   xmlns: "http://www.w3.org/2000/svg",
@@ -36322,8 +36435,8 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
             ])], 2),
             createBaseVNode("button", {
               class: normalizeClass(["nav-tab-btn nav-compare-btn", { active: activeTab.value === "compare" }]),
-              onClick: _cache[15] || (_cache[15] = ($event) => switchTab("compare"))
-            }, [..._cache[38] || (_cache[38] = [
+              onClick: _cache[16] || (_cache[16] = ($event) => switchTab("compare"))
+            }, [..._cache[39] || (_cache[39] = [
               createStaticVNode('<div class="nav-icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"></path><path d="M4 20L21 3"></path><path d="M21 16v5h-5"></path><path d="M15 15l6 6"></path><path d="M4 4l5 5"></path></svg></div><span>Compare</span>', 2)
             ])], 2)
           ])

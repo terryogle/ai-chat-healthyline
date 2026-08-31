@@ -11,3 +11,11 @@ export declare function createMountingElement(target: string): HTMLElement;
  * Applica il tema dinamicamente
  */
 export declare function applyTheme(theme?: Record<string, string>): void;
+/**
+ * Estrae i tag [ACTION:nome_azione] dal testo del messaggio,
+ * ripulisce il testo rimuovendo i tag e restituisce le azioni corrispondenti
+ */
+export declare function extractActionTagsAndCleanText(rawText: string): {
+    cleanText: string;
+    actions: import('../types').ChatAction[];
+};
