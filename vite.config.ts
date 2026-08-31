@@ -95,60 +95,66 @@ function mockWebhookPlugin() {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  server: {
-    host: '0.0.0.0',
-    port: 3000,
-    allowedHosts: true,
-  },
-  plugins: [
-    vue(),
-    dts({ include: ['src'] }),
-    mockWebhookPlugin(),
-  ],
-  define: {
-    'process.env.NODE_ENV': '"production"',
-  },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src'),
+export default defineConfig(({ mode }) => {
+  // Always build as library when building for production/lib unless explicitly overridden
+  const isAppOnly = mode === 'app';
+
+  return {
+    server: {
+      host: '0.0.0.0',
+      port: 3000,
+      allowedHosts: true,
     },
-  },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        loadPaths: [resolve(__dirname, './src/scss')],
-        api: "modern"
+    plugins: [
+      vue(),
+      dts({ include: ['src'] }),
+      mockWebhookPlugin(),
+    ],
+    define: {
+      'process.env.NODE_ENV': '"production"',
+    },
+    resolve: {
+      alias: {
+        '@': resolve(__dirname, 'src'),
+      },
+    },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          loadPaths: [resolve(__dirname, './src/scss')],
+          api: "modern"
+        }
       }
-    }
-  },
-  build: process.env.BUILD_LIB ? {
-    assetsInlineLimit: 8192,
-    lib: {
-      entry: resolve(__dirname, 'src/main.ts'),
-      name: 'SimpleChatN8N',
-      fileName: (format) => (includeVue ? `tt-chat.bundle.${format}.js` : `tt-chat.${format}.js`),
     },
-    rollupOptions: {
-      // Decidi se includere o escludere Vue e dipendenze dal bundle
-      external: includeVue ? [] : ['vue', 'vue-select'],
-      output: {
-        globals: includeVue ? {} : {
-          vue: 'Vue',
-          'vue-select': 'VueSelect',
+    build: isAppOnly ? {
+      outDir: 'dist',
+    } : {
+      outDir: 'dist',
+      assetsInlineLimit: 8192,
+      lib: {
+        entry: resolve(__dirname, 'src/main.ts'),
+        name: 'SimpleChatN8N',
+        fileName: (format) => (includeVue ? `tt-chat.bundle.${format}.js` : `tt-chat.${format}.js`),
+      },
+      rollupOptions: {
+        // Decidi se includere o escludere Vue e dipendenze dal bundle
+        external: includeVue ? [] : ['vue', 'vue-select'],
+        output: {
+          globals: includeVue ? {} : {
+            vue: 'Vue',
+            'vue-select': 'VueSelect',
+          },
+          exports: 'named',
         },
-        exports: 'named',
+      },
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+          pure_funcs: ['console.log', 'console.error', 'console.warn', 'console.info', 'console.debug'],
+        },
       },
     },
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.error', 'console.warn', 'console.info', 'console.debug'],
-      },
-    },
-  } : {
-    outDir: 'dist',
-  },
+  };
 });

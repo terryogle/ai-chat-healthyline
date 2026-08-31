@@ -33,6 +33,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
+    "build:lib": "vite build --mode lib",
     "typecheck": "vue-tsc --noEmit",
     "lint": "vue-tsc --noEmit",
     "preview": "vite preview"
