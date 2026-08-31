@@ -350,6 +350,15 @@ onBeforeUnmount(() => {
           <!-- Dropdown Popover -->
           <transition name="menu-pop">
             <div v-if="isMenuOpen" class="header-dropdown-menu">
+              <button class="dropdown-item" @click="isMenuOpen = false; switchTab('home'); showOrderAuthCard = true">
+                <span class="dropdown-item-label">My Orders</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dropdown-item-icon">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                  <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+              </button>
+
               <button class="dropdown-item" @click="handleNewChat">
                 <span class="dropdown-item-label">New Chat</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dropdown-item-icon">
@@ -413,18 +422,23 @@ onBeforeUnmount(() => {
           />
 
           <!-- Ask a Question Hero Card (Pinterest Spotlight) -->
-          <div v-if="!showOrderAuthCard" class="spotlight-card" @click="switchTab('messages')">
+          <div 
+            v-if="!showOrderAuthCard" 
+            class="spotlight-card" 
+            role="button"
+            tabindex="0"
+            @click="switchTab('messages')"
+            @keydown.enter="switchTab('messages')"
+            @keydown.space.prevent="switchTab('messages')"
+          >
             <div class="spotlight-content">
-              <div class="spotlight-badge">
-                <span class="sparkle-icon">✦</span>
-                <span>AI Agent and team can help</span>
-              </div>
               <strong class="spotlight-title">Ask a question</strong>
-              <p class="spotlight-desc">Get instant personalized guidance 24/7</p>
+              <p class="spotlight-desc">✦ AI Agent and team can help</p>
             </div>
             <div class="spotlight-action">
-              <button class="action-btn-circle" aria-label="Start asking question" title="Ask a question">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+              <button class="action-cta-btn" aria-label="Start chat and ask a question" title="Start chat">
+                <span class="cta-label">Chat now</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="cta-icon">
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                   <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>
@@ -432,38 +446,28 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <!-- Quick Navigation Cards Grid -->
+          <!-- Quick Navigation Cards Grid (2x2) -->
           <div v-if="!showOrderAuthCard" class="pinterest-cards-section">
             <div class="section-label">Explore &amp; Services</div>
 
-            <!-- BEST SELLERS FEATURE CARD -->
-            <button class="pinterest-action-card best-sellers-card" @click="switchTab('catalog')">
-              <div class="card-left-visual">
-                <div class="star-halo">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <div class="cards-duo-grid">
+              <!-- BEST SELLERS -->
+              <button class="duo-card" @click="switchTab('catalog')">
+                <div class="duo-icon-box best-sellers-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z"/>
                   </svg>
                 </div>
-              </div>
-              <div class="card-body-text">
-                <div class="card-header-line">
-                  <strong class="card-main-title">Best Sellers</strong>
-                  <span class="gold-pill">★ Top Rated</span>
+                <div class="duo-info">
+                  <strong>Best Sellers</strong>
+                  <small>Explore top mats</small>
                 </div>
-                <p class="card-sub-title">Explore Far Infrared, PEMF &amp; Gemstone Mats</p>
-              </div>
-              <div class="card-right-arrow">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"/>
-                </svg>
-              </div>
-            </button>
+              </button>
 
-            <!-- COMPARE SERIES MATRIX CARD -->
-            <button class="pinterest-action-card compare-series-card" @click="switchTab('compare')">
-              <div class="card-left-visual">
-                <div class="compare-halo">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <!-- COMPARE SERIES -->
+              <button class="duo-card" @click="switchTab('compare')">
+                <div class="duo-icon-box compare-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M16 3h5v5"/>
                     <path d="M4 20L21 3"/>
                     <path d="M21 16v5h-5"/>
@@ -471,27 +475,16 @@ onBeforeUnmount(() => {
                     <path d="M4 4l5 5"/>
                   </svg>
                 </div>
-              </div>
-              <div class="card-body-text">
-                <div class="card-header-line">
-                  <strong class="card-main-title">Compare Series</strong>
-                  <span class="emerald-pill">✦ Side-by-Side</span>
+                <div class="duo-info">
+                  <strong>Compare Series</strong>
+                  <small>Side-by-side specs</small>
                 </div>
-                <p class="card-sub-title">PEMF, Waveforms, Photon Light &amp; Gemstones</p>
-              </div>
-              <div class="card-right-arrow">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"/>
-                </svg>
-              </div>
-            </button>
+              </button>
 
-            <!-- 2-COLUMN ACTION CARDS -->
-            <div class="cards-duo-grid">
-              <!-- MY ORDERS CARD -->
+              <!-- MY ORDERS -->
               <button class="duo-card" @click="showOrderAuthCard = true">
                 <div class="duo-icon-box order-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
                     <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
                     <line x1="12" y1="22.08" x2="12" y2="12"/>
@@ -499,14 +492,14 @@ onBeforeUnmount(() => {
                 </div>
                 <div class="duo-info">
                   <strong>My Orders</strong>
-                  <small>Track and manage orders</small>
+                  <small>Track &amp; manage</small>
                 </div>
               </button>
 
-              <!-- PARTNER WITH US CARD -->
+              <!-- PARTNER WITH US -->
               <button class="duo-card" @click="handleSendMessage('I want to partner with HealthyLine')">
                 <div class="duo-icon-box partner-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="9" cy="7" r="4"></circle>
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -515,7 +508,7 @@ onBeforeUnmount(() => {
                 </div>
                 <div class="duo-info">
                   <strong>Partnership</strong>
-                  <small>Sponsorship &amp; collab inquiries</small>
+                  <small>Collab inquiries</small>
                 </div>
               </button>
             </div>
@@ -841,26 +834,34 @@ onBeforeUnmount(() => {
         }
 
         &.close-btn {
-          background: #f1f5f9;
-          border: 1px solid #cbd5e1;
-          color: #0f172a;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          color: #475569;
+          box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
 
           svg {
             display: block;
-            width: 16px;
-            height: 16px;
-            stroke: #0f172a;
+            width: 17px;
+            height: 17px;
+            stroke: #475569;
+            transition: stroke 0.15s ease, transform 0.15s ease;
           }
 
           &:hover {
             background: #ef4444;
             color: #ffffff;
             border-color: #ef4444;
-            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+            transform: scale(1.06);
 
             svg {
               stroke: #ffffff;
+              transform: rotate(90deg);
             }
+          }
+
+          &:active {
+            transform: scale(0.94);
           }
         }
       }
@@ -1014,7 +1015,38 @@ onBeforeUnmount(() => {
   padding: 4px 0 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+
+  /* Top AI status badge */
+  .home-top-badge-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+
+    .home-top-badge {
+      width: 100%;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #132e30;
+      background: rgba(19, 46, 48, 0.06);
+      border: 1px solid rgba(19, 46, 48, 0.1);
+      padding: 7px 14px;
+      border-radius: 12px;
+      letter-spacing: 0.1px;
+      text-align: center;
+
+      .sparkle-icon {
+        font-size: 13px;
+        color: #d4af37;
+      }
+    }
+  }
 
   /* Spotlight Ask Hero Card */
   .spotlight-card {
@@ -1048,12 +1080,21 @@ onBeforeUnmount(() => {
       transform: translateY(-2px);
       box-shadow: 0 14px 30px -4px rgba(19, 46, 48, 0.55), 0 0 0 1.5px rgba(212, 175, 55, 0.4);
 
-      .action-btn-circle {
-        transform: scale(1.08) translateX(2px);
+      .action-cta-btn {
         background: #ffffff;
-        color: #1a3b3d;
+        color: #132e30;
         box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+        transform: scale(1.04);
+
+        .cta-icon {
+          transform: translateX(2px);
+        }
       }
+    }
+
+    &:focus-visible {
+      outline: 2px solid #5eead4;
+      outline-offset: 2px;
     }
 
     .spotlight-content {
@@ -1101,23 +1142,39 @@ onBeforeUnmount(() => {
 
     .spotlight-action {
       z-index: 1;
-      .action-btn-circle {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
+      flex-shrink: 0;
+
+      .action-cta-btn {
+        padding: 9px 15px;
+        border-radius: 9999px;
         background: #ffffff;
         border: none;
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        justify-content: center;
-        color: #1a3b3d;
+        gap: 6px;
+        color: #132e30;
+        font-size: 13.5px;
+        font-weight: 700;
         cursor: pointer;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(255, 255, 255, 0.4);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(255, 255, 255, 0.35);
         transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        white-space: nowrap;
+
+        .cta-label {
+          line-height: 1;
+        }
+
+        .cta-icon {
+          transition: transform 0.2s ease;
+        }
 
         &:hover {
           background: #f8fafc;
-          transform: scale(1.06);
+          transform: scale(1.05);
+        }
+
+        &:active {
+          transform: scale(0.97);
         }
       }
     }
@@ -1137,154 +1194,6 @@ onBeforeUnmount(() => {
     display: flex;
     flex-direction: column;
 
-    .best-sellers-card {
-      width: 100%;
-      background: #ffffff;
-      border: 1.5px solid #fef08a;
-      border-radius: 18px;
-      padding: 14px 16px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      cursor: pointer;
-      text-align: left;
-      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.08);
-      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(217, 119, 6, 0.15);
-        border-color: #fde047;
-      }
-
-      .card-left-visual {
-        .star-halo {
-          width: 44px;
-          height: 44px;
-          border-radius: 12px;
-          background: #fef3c7;
-          border: 1px solid #fde68a;
-          color: #d97706;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-      }
-
-      .card-body-text {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-
-        .card-header-line {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-
-          .card-main-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: #0f172a;
-          }
-
-          .gold-pill {
-            background: #fef3c7;
-            color: #b45309;
-            font-size: 10.5px;
-            font-weight: 700;
-            padding: 1px 7px;
-            border-radius: 10px;
-          }
-        }
-
-        .card-sub-title {
-          margin: 0;
-          font-size: 12px;
-          color: #64748b;
-        }
-      }
-
-      .card-right-arrow {
-        color: #94a3b8;
-      }
-    }
-
-    .compare-series-card {
-      width: 100%;
-      background: #ffffff;
-      border: 1.5px solid #d4ebed;
-      border-radius: 18px;
-      padding: 14px 16px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      cursor: pointer;
-      text-align: left;
-      box-shadow: 0 4px 14px rgba(26, 59, 61, 0.06);
-      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(26, 59, 61, 0.12);
-        border-color: #29575a;
-      }
-
-      .card-left-visual {
-        .compare-halo {
-          width: 44px;
-          height: 44px;
-          border-radius: 12px;
-          background: linear-gradient(135deg, #1a3b3d 0%, #29575a 100%);
-          color: #d4af37;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 3px 10px rgba(26, 59, 61, 0.2);
-        }
-      }
-
-      .card-body-text {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-
-        .card-header-line {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-
-          .card-main-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: #0f172a;
-          }
-
-          .emerald-pill {
-            background: #ecfdf5;
-            color: #047857;
-            font-size: 10.5px;
-            font-weight: 700;
-            padding: 1px 7px;
-            border-radius: 10px;
-          }
-        }
-
-        .card-sub-title {
-          margin: 0;
-          font-size: 12px;
-          color: #64748b;
-        }
-      }
-
-      .card-right-arrow {
-        color: #94a3b8;
-      }
-    }
-
     .cards-duo-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1302,21 +1211,39 @@ onBeforeUnmount(() => {
         cursor: pointer;
         text-align: left;
         box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
-        transition: all 0.2s ease;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        height: 100%;
 
         &:hover {
           transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(15, 23, 42, 0.07);
+          box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
           border-color: #cbd5e1;
         }
 
+        &:active {
+          transform: translateY(0);
+        }
+
         .duo-icon-box {
-          width: 36px;
-          height: 36px;
-          border-radius: 10px;
+          width: 38px;
+          height: 38px;
+          border-radius: 11px;
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-shrink: 0;
+
+          &.best-sellers-icon {
+            background: #fef3c7;
+            color: #d97706;
+            border: 1px solid #fde68a;
+          }
+
+          &.compare-icon {
+            background: #e6f4f1;
+            color: #0d655f;
+            border: 1px solid #ccebe6;
+          }
 
           &.order-icon {
             background: #eef7f8;
@@ -1509,62 +1436,107 @@ onBeforeUnmount(() => {
 .bottom-nav-bar {
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-between;
   background: #ffffff;
-  border-top: 1px solid #f1f5f9;
-  padding: 8px 12px 10px;
+  border-top: 1px solid #eef2f6;
+  padding: 8px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+  gap: 6px;
+  box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.03);
+  position: relative;
+  z-index: 20;
 
   .nav-tab-btn {
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 3px;
-    background: transparent;
-    border: none;
-    color: #94a3b8;
-    font-size: 11.5px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 11px;
     font-weight: 600;
     cursor: pointer;
-    padding: 6px 0;
-    transition: all 0.2s ease;
+    padding: 7px 4px;
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    -webkit-tap-highlight-color: transparent;
 
     &:hover {
-      color: #1a3b3d;
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      color: #0f172a;
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: scale(0.95);
+      background: #e2e8f0;
     }
 
     &.active {
-      color: #1a3b3d;
-      font-weight: 700;
+      background: #132e30;
+      border-color: #132e30;
+      color: #ffffff;
+      box-shadow: 0 3px 10px rgba(19, 46, 48, 0.28);
+      transform: translateY(-1px);
 
       .nav-icon-box {
-        background: #eef7f8;
-        color: #1a3b3d;
+        color: #d4af37;
+      }
+
+      span {
+        color: #ffffff;
+        font-weight: 700;
       }
     }
 
     .nav-icon-box {
       position: relative;
-      width: 36px;
-      height: 28px;
-      border-radius: 14px;
+      width: 22px;
+      height: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
+      color: inherit;
       transition: all 0.2s ease;
+
+      svg {
+        transition: transform 0.2s ease;
+      }
 
       .messages-badge {
         position: absolute;
-        top: -3px;
-        right: 0px;
-        background: #1a3b3d;
+        top: -6px;
+        right: -8px;
+        min-width: 16px;
+        height: 16px;
+        background: #e11d48;
         color: #ffffff;
-        font-size: 9.5px;
-        font-weight: 700;
-        padding: 1px 5px;
-        border-radius: 10px;
+        font-size: 9px;
+        font-weight: 800;
+        padding: 0 4px;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         line-height: 1;
+        border: 2px solid #ffffff;
+        box-shadow: 0 2px 5px rgba(225, 29, 72, 0.35);
       }
+    }
+
+    span {
+      letter-spacing: 0.1px;
+      transition: color 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
     }
   }
 }

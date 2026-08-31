@@ -122,7 +122,7 @@ export default defineConfig({
       }
     }
   },
-  build: {
+  build: process.env.BUILD_LIB ? {
     assetsInlineLimit: 8192,
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
@@ -148,5 +148,7 @@ export default defineConfig({
         pure_funcs: ['console.log', 'console.error', 'console.warn', 'console.info', 'console.debug'],
       },
     },
+  } : {
+    outDir: 'dist',
   },
 });
