@@ -80,9 +80,13 @@ function mockWebhookPlugin() {
             }));
           }
 
-          const userText = parsedBody.chatInput || parsedBody.message || 'Message received!';
+          const userText = (parsedBody.chatInput || parsedBody.message || '').trim();
           let responseText = `Thank you for your message: "${userText}". How can I assist you with HealthyLine products or orders?`;
           let actions: any[] = [];
+
+          if (userText && /auth|verify|account|order auth|check order/i.test(userText)) {
+            responseText = `To view and manage your orders or account details, please verify your email address:\n\n[ACTION:customer_auth]`;
+          }
 
           res.end(JSON.stringify({
             output: responseText,
@@ -96,8 +100,8 @@ function mockWebhookPlugin() {
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  // Always build as library when building for production/lib unless explicitly overridden
-  const isAppOnly = mode === 'app';
+  // Build as SPA app for production unless explicitly running in lib mode
+  const isAppOnly = mode !== 'lib';
 
   return {
     server: {

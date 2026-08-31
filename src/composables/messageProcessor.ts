@@ -1,6 +1,6 @@
 // src/composables/messageProcessor.ts
 import type { Ref } from 'vue';
-import { generateId } from '../utils/helpers';
+import { generateId, extractActionTagsAndCleanText } from '../utils/helpers';
 import type { ChatMessage, ChatAction } from '../types';
 
 export class MessageProcessor {
@@ -89,34 +89,53 @@ export class MessageProcessor {
    * Crea e aggiunge i messaggi di risposta del bot
    */
   addBotMessages(responseTexts: string[], actions?: ChatAction[]): void {
-    responseTexts.forEach((responseText, index) => {
-      const receivedMessage: ChatMessage = {
-        id: generateId(),
-        text: responseText,
-        sender: 'bot',
-        createdAt: new Date().toISOString(),
-      };
+    const serverActions = actions || [];
+    let hasCreatedMessage = false;
 
-      // Aggiunge le azioni solo al primo messaggio per evitare duplicazioni
-      if (index === 0 && actions?.length) {
-        receivedMessage.actions = actions;
-        this.processActions(actions);
+    responseTexts.forEach((rawText, index) => {
+      // Estrae i tag [ACTION:...] e ripulisce il testo
+      const { cleanText, actions: tagActions } = extractActionTagsAndCleanText(rawText);
+
+      // Combina le azioni del server con quelle estratte dai tag per il primo messaggio
+      const combinedActions: ChatAction[] = [...tagActions];
+      if (index === 0 && serverActions.length > 0) {
+        serverActions.forEach(sa => {
+          if (!combinedActions.some(a => a.type === sa.type && a.action === sa.action)) {
+            combinedActions.push(sa);
+          }
+        });
       }
 
-      this.messages.value.push(receivedMessage);
+      // Crea il messaggio solo se c'è testo pulito oppure azioni
+      if (cleanText.length > 0 || (combinedActions.length > 0 && !hasCreatedMessage)) {
+        const receivedMessage: ChatMessage = {
+          id: generateId(),
+          text: cleanText,
+          sender: 'bot',
+          createdAt: new Date().toISOString(),
+        };
+
+        if (combinedActions.length > 0) {
+          receivedMessage.actions = combinedActions;
+          this.processActions(combinedActions);
+        }
+
+        this.messages.value.push(receivedMessage);
+        hasCreatedMessage = true;
+      }
     });
 
-    // Se ci sono azioni ma nessun testo, crea comunque un messaggio per le azioni
-    if (responseTexts.length === 0 && actions?.length) {
+    // Se ci sono azioni ma nessun messaggio è stato creato (es. testo completamente vuoto)
+    if (!hasCreatedMessage && serverActions.length > 0) {
       const actionsMessage: ChatMessage = {
         id: generateId(),
         text: '',
         sender: 'bot',
         createdAt: new Date().toISOString(),
-        actions,
+        actions: serverActions,
       };
 
-      this.processActions(actions);
+      this.processActions(serverActions);
       this.messages.value.push(actionsMessage);
     }
   }

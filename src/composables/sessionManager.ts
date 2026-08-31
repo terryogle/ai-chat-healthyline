@@ -1,7 +1,7 @@
 // src/composables/sessionManager.ts
 import type { Ref } from 'vue';
 import { LOCAL_STORAGE_SESSION_KEY, loadPreviousSession } from '../utils/api';
-import { generateId } from '../utils/helpers';
+import { generateId, extractActionTagsAndCleanText } from '../utils/helpers';
 import type { ChatOptions, ChatMessage } from '../types';
 
 export class SessionManager {
@@ -63,27 +63,41 @@ export class SessionManager {
             ? (message.id.some(id => String(id).includes('HumanMessage')) ? 'user' : 'bot')
             : (String(message.id).includes('HumanMessage') ? 'user' : 'bot');
 
-          // MODIFICA MINIMA: Se content è un array, crea messaggi multipli
+          // Se content è un array, crea messaggi multipli
           if (Array.isArray(messageContent)) {
             messageContent.forEach((text: any, textIndex: number) => {
               if (typeof text === 'string' && text.trim() !== '') {
-                loadedMessages.push({
-                  id: `${index}-${textIndex}-${generateId()}`,
-                  text: text,
-                  sender: sender as 'user' | 'bot',
-                  createdAt: timestamp,
-                });
+                const { cleanText, actions } = sender === 'bot' 
+                  ? extractActionTagsAndCleanText(text) 
+                  : { cleanText: text.trim(), actions: [] };
+
+                if (cleanText !== '' || actions.length > 0) {
+                  loadedMessages.push({
+                    id: `${index}-${textIndex}-${generateId()}`,
+                    text: cleanText,
+                    sender: sender as 'user' | 'bot',
+                    createdAt: timestamp,
+                    actions: actions.length > 0 ? actions : undefined,
+                  });
+                }
               }
             });
           }
-          // Se è una stringa (comportamento originale), crea un singolo messaggio
+          // Se è una stringa, crea un singolo messaggio
           else if (typeof messageContent === 'string' && messageContent.trim() !== '') {
-            loadedMessages.push({
-              id: `${index}-${generateId()}`,
-              text: messageContent,
-              sender: sender as 'user' | 'bot',
-              createdAt: timestamp,
-            });
+            const { cleanText, actions } = sender === 'bot' 
+              ? extractActionTagsAndCleanText(messageContent) 
+              : { cleanText: messageContent.trim(), actions: [] };
+
+            if (cleanText !== '' || actions.length > 0) {
+              loadedMessages.push({
+                id: `${index}-${generateId()}`,
+                text: cleanText,
+                sender: sender as 'user' | 'bot',
+                createdAt: timestamp,
+                actions: actions.length > 0 ? actions : undefined,
+              });
+            }
           }
         });
 

@@ -63,3 +63,46 @@ export function applyTheme(theme: Record<string, string> = {}): void {
   
   document.head.appendChild(style);
 }
+
+/**
+ * Estrae i tag [ACTION:nome_azione] dal testo del messaggio,
+ * ripulisce il testo rimuovendo i tag e restituisce le azioni corrispondenti
+ */
+export function extractActionTagsAndCleanText(rawText: string): { cleanText: string; actions: import('../types').ChatAction[] } {
+  if (!rawText || typeof rawText !== 'string') {
+    return { cleanText: rawText || '', actions: [] };
+  }
+
+  const actions: import('../types').ChatAction[] = [];
+  // Regex per catturare [ACTION:nome_azione] (case-insensitive e supporta spazi interni)
+  const tagRegex = /\[ACTION:\s*([a-zA-Z0-9_-]+)\s*\]/gi;
+
+  let match: RegExpExecArray | null;
+  while ((match = tagRegex.exec(rawText)) !== null) {
+    const actionName = (match[1] || '').trim().toLowerCase();
+    if (actionName) {
+      if (actionName === 'customer_auth' || actionName === 'customerauth' || actionName === 'account_auth') {
+        actions.push({
+          type: 'customer_auth',
+          label: 'Verify Account',
+          action: 'customer_auth',
+        });
+      } else {
+        actions.push({
+          type: actionName,
+          label: actionName,
+          action: actionName,
+        });
+      }
+    }
+  }
+
+  // Rimuove i tag dal testo del messaggio visibile all'utente
+  const cleanText = rawText
+    .replace(tagRegex, '')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+  return { cleanText, actions };
+}

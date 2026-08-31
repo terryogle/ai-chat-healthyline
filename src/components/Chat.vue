@@ -29,6 +29,7 @@ const activeTab = ref<'home' | 'messages' | 'catalog' | 'compare'>('home');
 const compareInitialA = ref<string>('taj');
 const compareInitialB = ref<string>('platinum');
 const showOrderAuthCard = ref(false);
+const authTriggerSource = ref<'menu' | 'rag'>('menu');
 
 const hasUserMessages = computed(() => messages.value.some(m => m.sender === 'user'));
 
@@ -100,6 +101,18 @@ function checkMessageForSpecialActions(message: ChatMessageType): void {
   }
   
   if (message?.actions && Array.isArray(message.actions)) {
+    const customerAuthAction = message.actions.find(
+      action => action && (action.type === 'customer_auth' || action.action === 'customer_auth')
+    );
+    
+    if (customerAuthAction) {
+      showOrderAuthCard.value = true;
+      authTriggerSource.value = 'rag';
+      lastProcessedMessageId.value = message.id;
+      scrollToBottom();
+      return;
+    }
+
     const privacyAction = message.actions.find(
       action => action && action.type === 'privacy'
     );
@@ -193,8 +206,16 @@ async function handleInputSubmit(value: string) {
 function handleOrderAuthSubmit(data: { mode: 'email', value: string, verificationCode?: string }) {
   showOrderAuthCard.value = false;
   activeTab.value = 'messages';
-  const text = `I'd like to check orders for ${data.value}`;
-  handleSendMessage(text);
+  if (authTriggerSource.value === 'rag') {
+    handleSendMessage(`I've verified my account (${data.value})`);
+  } else {
+    const text = `I'd like to check orders for ${data.value}`;
+    handleSendMessage(text);
+  }
+}
+
+function handleOrderAuthCancel() {
+  showOrderAuthCard.value = false;
 }
 
 async function handleReload() {
@@ -350,7 +371,7 @@ onBeforeUnmount(() => {
           <!-- Dropdown Popover -->
           <transition name="menu-pop">
             <div v-if="isMenuOpen" class="header-dropdown-menu">
-              <button class="dropdown-item" @click="isMenuOpen = false; switchTab('home'); showOrderAuthCard = true">
+              <button class="dropdown-item" @click="isMenuOpen = false; switchTab('home'); showOrderAuthCard = true; authTriggerSource = 'menu'">
                 <span class="dropdown-item-label">My Orders</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dropdown-item-icon">
                   <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
@@ -482,7 +503,7 @@ onBeforeUnmount(() => {
               </button>
 
               <!-- MY ORDERS -->
-              <button class="duo-card" @click="showOrderAuthCard = true">
+              <button class="duo-card" @click="showOrderAuthCard = true; authTriggerSource = 'menu'">
                 <div class="duo-icon-box order-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
@@ -560,7 +581,16 @@ onBeforeUnmount(() => {
           v-for="message in messages"
           :key="message.id"
           :message="message"
+          @openCustomerAuth="showOrderAuthCard = true; authTriggerSource = 'rag'; scrollToBottom()"
         />
+
+        <!-- Customer Authentication Card within Chat flow -->
+        <div v-if="showOrderAuthCard" class="chat-auth-card-inline-container">
+          <OrderAuthCard 
+            @submit="handleOrderAuthSubmit" 
+            @cancel="handleOrderAuthCancel" 
+          />
+        </div>
 
         <div v-if="!hasUserMessages" class="empty-messages-prompt">
           <div class="starter-header">
@@ -1566,5 +1596,10 @@ onBeforeUnmount(() => {
     transform: scale(2.3);
     opacity: 0;
   }
+}
+
+.chat-auth-card-inline-container {
+  margin: 12px 0 16px;
+  animation: slide-up 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 </style>

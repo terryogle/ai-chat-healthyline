@@ -7,6 +7,10 @@ const props = defineProps<{
   message: ChatMessage;
 }>();
 
+const emit = defineEmits<{
+  (e: 'openCustomerAuth'): void;
+}>();
+
 const classes = computed(() => {
   return {
     'tt-chat-message-from-user': props.message.sender === 'user',
@@ -50,6 +54,18 @@ function handleButtonClick(url: string) {
               <polyline points="15 3 21 3 21 9"></polyline>
               <line x1="10" y1="14" x2="21" y2="3"></line>
             </svg>
+          </button>
+
+          <button 
+            v-else-if="action.type === 'customer_auth'" 
+            class="tt-chat-action-button auth-action-btn" 
+            @click="emit('openCustomerAuth')"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>{{ action.label || 'Verify Account' }}</span>
           </button>
 
           <div v-else-if="action.type === 'checkbox'" class="tt-chat-action-checkbox">
