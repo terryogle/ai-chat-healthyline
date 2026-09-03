@@ -11,13 +11,131 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
       margin: 0;
-      padding: 24px;
+      padding: 0;
       background: #f8fafc;
       color: #0f172a;
+    }
+    /* Top Trust & Beta Announcement Bar */
+    .beta-announcement-bar {
+      background: linear-gradient(90deg, #0f2728 0%, #1a3b3d 50%, #112d2f 100%);
+      color: #f1f5f9;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 2px 10px rgba(15, 39, 40, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 10px 20px;
+    }
+    .beta-announcement-content {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .beta-left-cluster {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 280px;
+    }
+    .beta-pill {
+      background: rgba(13, 148, 136, 0.25);
+      border: 1px solid rgba(45, 212, 191, 0.4);
+      color: #5eead4;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .beta-announcement-message {
+      margin: 0;
+      font-size: 13.5px;
+      line-height: 1.45;
+      color: #e2e8f0;
+    }
+    .beta-announcement-message strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .beta-trust-indicators {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .beta-trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #99f6e4;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 4px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .beta-live-pulse {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #cbd5e1;
+      white-space: nowrap;
+    }
+    .beta-bar-close {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 4px;
+      margin-left: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .beta-bar-close:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #34d399;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+      animation: pulse-ring 2s infinite;
+    }
+    @keyframes pulse-ring {
+      0% {
+        box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 7px rgba(52, 211, 153, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
+      }
     }
     .container {
       max-width: 900px;
       margin: 0 auto;
+      padding: 28px 24px 24px;
     }
     h1 {
       color: #0f172a;
@@ -106,6 +224,36 @@
   </style>
 </head>
 <body>
+  <!-- Top Trust & Beta Announcement Bar -->
+  <aside class="beta-announcement-bar" id="betaAnnouncementBar" aria-label="Beta preview notification">
+    <div class="beta-announcement-content">
+      <div class="beta-left-cluster">
+        <span class="beta-pill">BETA PREVIEW</span>
+        <p class="beta-announcement-message">
+          <strong>Official Beta Preview:</strong> You are experiencing the upgraded HealthyLine AI Assistant in active public testing. All recommendations, chat responses, and order verifications are active, verified, and 100% secure.
+        </p>
+      </div>
+      <div class="beta-trust-indicators">
+        <span class="beta-trust-badge" title="Official verified integration">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+          </svg>
+          HealthyLine Verified
+        </span>
+        <span class="beta-live-pulse" title="System running active test mode">
+          <span class="pulse-dot"></span>
+          Active Preview
+        </span>
+        <button id="closeTopBetaBarBtn" class="beta-bar-close" aria-label="Close beta banner" title="Dismiss">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
   <div class="container">
     <h1>TourTools & HealthyLine AI Chat Widget</h1>
     <p class="sub">Тестовая среда для проверки функций чата и RAG Action</p>
@@ -162,6 +310,20 @@
 
     // Auto initialize on load
     startChat();
+
+    // Top Announcement Bar Close Handler
+    const topBar = document.getElementById('betaAnnouncementBar');
+    if (sessionStorage.getItem('tt-hide-top-beta-bar') === 'true' && topBar) {
+      topBar.style.display = 'none';
+    }
+    document.getElementById('closeTopBetaBarBtn')?.addEventListener('click', () => {
+      if (topBar) {
+        topBar.style.display = 'none';
+        try {
+          sessionStorage.setItem('tt-hide-top-beta-bar', 'true');
+        } catch (e) {}
+      }
+    });
 
     document.getElementById('openChatBtn')?.addEventListener('click', () => {
       const toggle = document.querySelector('.tt-chat-toggle-button');

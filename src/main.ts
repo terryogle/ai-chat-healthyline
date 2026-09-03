@@ -14,6 +14,38 @@ let currentAppInstance: ReturnType<typeof createApp> | null = null;
 let currentContainer: Element | null = null;
 
 /**
+ * Automatically injects the widget stylesheet (widget.css) if not already
+ * loaded into the host page.
+ */
+export function ensureWidgetCssLoaded(): void {
+  if (typeof document === 'undefined') return;
+
+  // Check if stylesheet is already present
+  const existingLink = document.querySelector('link[href*="widget.css"], link[href*="style.css"], #tt-chat-auto-style');
+  if (existingLink) return;
+
+  let cssUrl = 'https://chat.healthyline.com/widget.css';
+  try {
+    const script = document.currentScript as HTMLScriptElement | null;
+    if (script && script.src) {
+      cssUrl = script.src.replace(/\/(widget|tt-chat\.bundle)(\.umd|\.es)?\.js(\?.*)?$/i, '/widget.css');
+      if (!cssUrl.endsWith('/widget.css')) {
+        cssUrl = new URL('widget.css', script.src).href;
+      }
+    }
+  } catch {
+    cssUrl = 'https://chat.healthyline.com/widget.css';
+  }
+
+  const link = document.createElement('link');
+  link.id = 'tt-chat-auto-style';
+  link.rel = 'stylesheet';
+  link.type = 'text/css';
+  link.href = cssUrl;
+  document.head.appendChild(link);
+}
+
+/**
  * Crea il widget di chat
  */
 export function createChat(options: ChatOptions): {
@@ -21,6 +53,7 @@ export function createChat(options: ChatOptions): {
   _app: ReturnType<typeof createApp>;
   _container: Element;
 } {
+  ensureWidgetCssLoaded();
   console.log('Creating chat widget with options:', options);
 
   if (!options.webhookUrl) {
@@ -85,8 +118,10 @@ export function createChat(options: ChatOptions): {
 
 // Attach to window for global script usage
 if (typeof window !== 'undefined') {
+  ensureWidgetCssLoaded();
   (window as any).SimpleChatN8N = {
     createChat,
+    ensureWidgetCssLoaded,
   };
 }
 

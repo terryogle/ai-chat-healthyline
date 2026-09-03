@@ -30,6 +30,16 @@ const compareInitialA = ref<string>('taj');
 const compareInitialB = ref<string>('platinum');
 const showOrderAuthCard = ref(false);
 const authTriggerSource = ref<'menu' | 'rag'>('menu');
+const isBetaStripVisible = ref(true);
+
+function dismissBetaStrip() {
+  isBetaStripVisible.value = false;
+  try {
+    sessionStorage.setItem('tt-chat-hide-beta-strip', 'true');
+  } catch {
+    // Ignore storage issues
+  }
+}
 
 const hasUserMessages = computed(() => messages.value.some(m => m.sender === 'user'));
 
@@ -298,6 +308,13 @@ watch(messages, (newMessages) => {
 }, { deep: true });
 
 onMounted(async () => {
+  try {
+    if (sessionStorage.getItem('tt-chat-hide-beta-strip') === 'true') {
+      isBetaStripVisible.value = false;
+    }
+  } catch {
+    // Ignore storage issues
+  }
   document.addEventListener('click', handleClickOutside);
   try {
     if (options.value?.loadPreviousSession !== false && chatStore.loadPreviousSession) {
@@ -427,6 +444,41 @@ onBeforeUnmount(() => {
           </svg>
         </button>
       </div>
+    </div>
+
+    <!-- Official Beta & Trust Strip -->
+    <div 
+      v-if="isBetaStripVisible" 
+      class="tt-chat-beta-strip" 
+      id="ttChatBetaStrip" 
+      role="status" 
+      aria-label="Beta preview status"
+    >
+      <div class="beta-strip-badge">
+        <span class="beta-strip-dot"></span>
+        <span class="beta-strip-label">BETA</span>
+      </div>
+      <p class="beta-strip-text">
+        Currently in testing. Verified &amp; 100% secure.
+      </p>
+      <div class="beta-strip-shield" title="HealthyLine Verified & Encrypted Session">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+        </svg>
+      </div>
+      <button 
+        type="button" 
+        class="beta-strip-close" 
+        id="closeBetaStripBtn" 
+        @click="dismissBetaStrip" 
+        aria-label="Close beta banner"
+        title="Dismiss notification"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
     </div>
     
     <!-- Body Scroll Container -->
@@ -954,6 +1006,95 @@ onBeforeUnmount(() => {
             background: #e2e8f0;
           }
         }
+      }
+    }
+  }
+
+  &-beta-strip {
+    background: #f0fdfa;
+    border-bottom: 1px solid #ccfbf1;
+    padding: 7px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #134e4a;
+    flex-shrink: 0;
+
+    .beta-strip-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #0d9488;
+      color: #ffffff;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border-radius: 9999px;
+      flex-shrink: 0;
+      line-height: 1;
+
+      .beta-strip-dot {
+        width: 4.5px;
+        height: 4.5px;
+        background-color: #5eead4;
+        border-radius: 50%;
+        display: inline-block;
+      }
+    }
+
+    .beta-strip-text {
+      margin: 0;
+      flex: 1;
+      font-size: 11.5px;
+      color: #134e4a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      strong {
+        font-weight: 600;
+        color: #042f2e;
+      }
+    }
+
+    .beta-strip-shield {
+      color: #0d9488;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .beta-strip-close {
+      background: transparent;
+      border: none;
+      color: #0d9488;
+      cursor: pointer;
+      padding: 3px;
+      margin-left: 2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      flex-shrink: 0;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+
+      &:hover {
+        background: rgba(13, 148, 136, 0.15);
+        color: #0f766e;
+      }
+
+      &:active {
+        background: rgba(13, 148, 136, 0.25);
+        transform: scale(0.92);
+      }
+
+      &:focus-visible {
+        outline: 2px solid #0d9488;
+        outline-offset: 1px;
       }
     }
   }

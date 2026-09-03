@@ -1,13 +1,12 @@
 {
   "name": "tt-chat-n8n",
-  "version": "0.6.6",
+  "version": "1.0.0",
   "type": "module",
-  "description": "A simplified chat widget for n8n",
-  "homepage": "https://www.npmjs.com/package/tt-chat-n8n",
+  "description": "HealthyLine 24/7 AI Wellness Concierge Chat Widget",
+  "homepage": "https://chat.healthyline.com",
   "author": {
-    "name": "Nicola Tomassoni",
-    "email": "io@nicolatomassoni.it",
-    "url": "https://www.nicolatomassoni.it"
+    "name": "HealthyLine",
+    "url": "https://healthyline.com"
   },
   "contributors": [
     {
@@ -16,14 +15,18 @@
       "url": "https://www.tourtools.it"
     }
   ],
-  "main": "dist/tt-chat.umd.js",
-  "module": "dist/tt-chat.es.js",
+  "main": "dist/widget.js",
+  "module": "dist/tt-chat.bundle.es.js",
   "types": "dist/main.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/tt-chat.es.js",
-      "require": "./dist/tt-chat.umd.js",
+      "import": "./dist/tt-chat.bundle.es.js",
+      "require": "./dist/widget.js",
       "types": "./dist/main.d.ts"
+    },
+    "./widget.css": {
+      "import": "./dist/widget.css",
+      "require": "./dist/widget.css"
     },
     "./style.css": {
       "import": "./dist/style.css",
@@ -32,8 +35,9 @@
   },
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 3000",
-    "build": "vite build && vite build --mode lib",
+    "build": "vite build && vite build --mode lib && node scripts/prepare-production.js",
     "build:lib": "vite build --mode lib",
+    "rollback": "node scripts/rollback.js",
     "typecheck": "vue-tsc --noEmit",
     "lint": "vue-tsc --noEmit",
     "preview": "vite preview"

@@ -7,93 +7,98 @@ import dts from 'vite-plugin-dts';
 const includeVue = 'true';
 
 function mockWebhookPlugin() {
+  const webhookHandler = (req: any, res: any) => {
+    let body = '';
+    req.on('data', (chunk: any) => { body += chunk; });
+    req.on('end', () => {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Headers', '*');
+      if (req.method === 'OPTIONS') {
+        res.statusCode = 200;
+        return res.end();
+      }
+
+      let parsedBody: any = {};
+      try {
+        parsedBody = body ? JSON.parse(body) : {};
+      } catch (e) {}
+
+      const action = parsedBody.action;
+
+      if (action === 'requestOtp') {
+        const email = (parsedBody.email || '').trim().toLowerCase();
+        if (!email || !email.includes('@')) {
+          return res.end(JSON.stringify({
+            success: false,
+            message: "Please enter a valid email address."
+          }));
+        }
+        return res.end(JSON.stringify({
+          success: true,
+          message: `We sent a 6-digit code to ${email}.`
+        }));
+      }
+
+      if (action === 'verifyOtp') {
+        const code = (parsedBody.code || '').trim();
+        if (code.length === 6 && /^\d+$/.test(code)) {
+          return res.end(JSON.stringify({
+            success: true,
+            message: "Verified",
+            email: parsedBody.email
+          }));
+        } else {
+          return res.end(JSON.stringify({
+            success: false,
+            message: "Incorrect verification code. Please try again."
+          }));
+        }
+      }
+
+      if (action === 'getCatalog') {
+        return res.end(JSON.stringify({
+          items: [],
+          categories: [],
+          total: 0
+        }));
+      }
+
+      if (action === 'loadPreviousSession' || (req.url && req.url.includes('loadPreviousSession'))) {
+        return res.end(JSON.stringify({
+          data: [
+            {
+              id: "msg-1",
+              kwargs: {
+                content: "Welcome to HealthyLine! How can I help you today?"
+              }
+            }
+          ]
+        }));
+      }
+
+      const userText = (parsedBody.chatInput || parsedBody.message || '').trim();
+      let responseText = `Thank you for your message: "${userText}". How can I assist you with HealthyLine products or orders?`;
+      let actions: any[] = [];
+
+      if (userText && /auth|verify|account|order auth|check order/i.test(userText)) {
+        responseText = `To view and manage your orders or account details, please verify your email address:\n\n[ACTION:customer_auth]`;
+      }
+
+      res.end(JSON.stringify({
+        output: responseText,
+        actions: actions
+      }));
+    });
+  };
+
   return {
     name: 'mock-webhook-plugin',
     configureServer(server: any) {
-      server.middlewares.use('/api/webhook', (req: any, res: any) => {
-        let body = '';
-        req.on('data', (chunk: any) => { body += chunk; });
-        req.on('end', () => {
-          res.setHeader('Content-Type', 'application/json');
-          res.setHeader('Access-Control-Allow-Origin', '*');
-          res.setHeader('Access-Control-Allow-Headers', '*');
-          if (req.method === 'OPTIONS') {
-            res.statusCode = 200;
-            return res.end();
-          }
-
-          let parsedBody: any = {};
-          try {
-            parsedBody = body ? JSON.parse(body) : {};
-          } catch (e) {}
-
-          const action = parsedBody.action;
-
-          if (action === 'requestOtp') {
-            const email = (parsedBody.email || '').trim().toLowerCase();
-            if (!email || !email.includes('@')) {
-              return res.end(JSON.stringify({
-                success: false,
-                message: "Please enter a valid email address."
-              }));
-            }
-            return res.end(JSON.stringify({
-              success: true,
-              message: `We sent a 6-digit code to ${email}.`
-            }));
-          }
-
-          if (action === 'verifyOtp') {
-            const code = (parsedBody.code || '').trim();
-            if (code.length === 6 && /^\d+$/.test(code)) {
-              return res.end(JSON.stringify({
-                success: true,
-                message: "Verified",
-                email: parsedBody.email
-              }));
-            } else {
-              return res.end(JSON.stringify({
-                success: false,
-                message: "Incorrect verification code. Please try again."
-              }));
-            }
-          }
-
-          if (action === 'getCatalog') {
-            return res.end(JSON.stringify({
-              items: [],
-              categories: [],
-              total: 0
-            }));
-          }
-
-          if (action === 'loadPreviousSession' || (req.url && req.url.includes('loadPreviousSession'))) {
-            return res.end(JSON.stringify({
-              data: [
-                {
-                  id: "msg-1",
-                  kwargs: {
-                    content: "Welcome to HealthyLine! How can I help you today?"
-                  }
-                }
-              ]
-            }));
-          }
-
-          const userText = (parsedBody.chatInput || parsedBody.message || '').trim();
-          let responseText = `Thank you for your message: "${userText}". How can I assist you with HealthyLine products or orders?`;
-          let actions: any[] = [];
-
-          if (userText && /auth|verify|account|order auth|check order/i.test(userText)) {
-            responseText = `To view and manage your orders or account details, please verify your email address:\n\n[ACTION:customer_auth]`;
-          }
-
-          res.end(JSON.stringify({
-            output: responseText,
-            actions: actions
-          }));
-        });
-      });
+      server.middlewares.use('/api/webhook', webhookHandler);
+    },
+    configurePreviewServer(server: any) {
+      server.middlewares.use('/api/webhook', webhookHandler);
     }
   };
 }
@@ -107,6 +112,7 @@ export default defineConfig(({ mode }) => {
     server: {
       host: '0.0.0.0',
       port: 3000,
+      strictPort: true,
       allowedHosts: true,
     },
     plugins: [
@@ -115,7 +121,7 @@ export default defineConfig(({ mode }) => {
       mockWebhookPlugin(),
     ],
     define: {
-      'process.env.NODE_ENV': '"production"',
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
     },
     resolve: {
       alias: {
@@ -132,8 +138,10 @@ export default defineConfig(({ mode }) => {
     },
     build: isAppOnly ? {
       outDir: 'dist',
+      emptyOutDir: true,
     } : {
       outDir: 'dist',
+      emptyOutDir: false,
       assetsInlineLimit: 8192,
       lib: {
         entry: resolve(__dirname, 'src/main.ts'),
