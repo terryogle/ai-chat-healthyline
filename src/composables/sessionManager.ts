@@ -20,8 +20,13 @@ export class SessionManager {
     this.currentSessionId.value = newSessionId;
     localStorage.setItem(LOCAL_STORAGE_SESSION_KEY, newSessionId);
 
-    // Aggiunge i messaggi iniziali se presenti
-    this.messages.value = this.initialMessages.length > 0 ? [...this.initialMessages] : [];
+    // Aggiunge i messaggi iniziali o un saluto di default se non presenti
+    const defaultGreeting = "Hello! Welcome to HealthyLine 24/7 AI Wellness Concierge. How can we help you today?";
+    const messagesToUse = this.initialMessages.length > 0 
+      ? [...this.initialMessages] 
+      : [{ id: generateId(), text: defaultGreeting, sender: 'bot' as const, createdAt: new Date().toISOString() }];
+    
+    this.messages.value = messagesToUse;
 
     console.log("Nuova sessione iniziata:", newSessionId);
     return newSessionId;
@@ -104,18 +109,24 @@ export class SessionManager {
         console.log("Messaggi caricati:", loadedMessages);
         this.messages.value = loadedMessages;
         
-        // Se la cronologia è vuota ma ci sono messaggi iniziali, li aggiunge
-        if (this.messages.value.length === 0 && this.initialMessages.length > 0) {
-          console.log("Sessione vuota, aggiunto messaggi iniziali");
-          this.messages.value = [...this.initialMessages];
+        // Se la cronologia è vuota, aggiunge i messaggi iniziali o il saluto di default
+        if (this.messages.value.length === 0) {
+          console.log("Sessione vuota, aggiunto messaggi iniziali o saluto di default");
+          const defaultGreeting = "Welcome to HealthyLine! How can I help you today?";
+          this.messages.value = this.initialMessages.length > 0 
+            ? [...this.initialMessages] 
+            : [{ id: generateId(), text: defaultGreeting, sender: 'bot' as const, createdAt: new Date().toISOString() }];
         }
 
         return sessionIdFromStorage;
       }
 
-      // Sessione vuota - aggiunge messaggi iniziali se presenti
+      // Sessione vuota - aggiunge messaggi iniziali o saluto di default
       console.log("Nessun messaggio precedente trovato per la sessione:", sessionIdFromStorage);
-      this.messages.value = this.initialMessages.length > 0 ? [...this.initialMessages] : [];
+      const defaultGreeting = "Welcome to HealthyLine! How can I help you today?";
+      this.messages.value = this.initialMessages.length > 0 
+        ? [...this.initialMessages] 
+        : [{ id: generateId(), text: defaultGreeting, sender: 'bot' as const, createdAt: new Date().toISOString() }];
       return sessionIdFromStorage;
 
     } catch (error) {
