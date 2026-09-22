@@ -8447,7 +8447,9 @@ class SessionManager {
     const newSessionId = generateId();
     this.currentSessionId.value = newSessionId;
     localStorage.setItem(LOCAL_STORAGE_SESSION_KEY, newSessionId);
-    this.messages.value = this.initialMessages.length > 0 ? [...this.initialMessages] : [];
+    const defaultGreeting = "Hello! Welcome to HealthyLine 24/7 AI Wellness Concierge. How can we help you today?";
+    const messagesToUse = this.initialMessages.length > 0 ? [...this.initialMessages] : [{ id: generateId(), text: defaultGreeting, sender: "bot", createdAt: (/* @__PURE__ */ new Date()).toISOString() }];
+    this.messages.value = messagesToUse;
     console.log("Nuova sessione iniziata:", newSessionId);
     return newSessionId;
   }
@@ -8509,14 +8511,16 @@ class SessionManager {
         });
         console.log("Messaggi caricati:", loadedMessages);
         this.messages.value = loadedMessages;
-        if (this.messages.value.length === 0 && this.initialMessages.length > 0) {
-          console.log("Sessione vuota, aggiunto messaggi iniziali");
-          this.messages.value = [...this.initialMessages];
+        if (this.messages.value.length === 0) {
+          console.log("Sessione vuota, aggiunto messaggi iniziali o saluto di default");
+          const defaultGreeting2 = "Welcome to HealthyLine! How can I help you today?";
+          this.messages.value = this.initialMessages.length > 0 ? [...this.initialMessages] : [{ id: generateId(), text: defaultGreeting2, sender: "bot", createdAt: (/* @__PURE__ */ new Date()).toISOString() }];
         }
         return sessionIdFromStorage;
       }
       console.log("Nessun messaggio precedente trovato per la sessione:", sessionIdFromStorage);
-      this.messages.value = this.initialMessages.length > 0 ? [...this.initialMessages] : [];
+      const defaultGreeting = "Welcome to HealthyLine! How can I help you today?";
+      this.messages.value = this.initialMessages.length > 0 ? [...this.initialMessages] : [{ id: generateId(), text: defaultGreeting, sender: "bot", createdAt: (/* @__PURE__ */ new Date()).toISOString() }];
       return sessionIdFromStorage;
     } catch (error2) {
       console.error("Errore durante il caricamento della sessione precedente:", error2);
@@ -8663,7 +8667,9 @@ const ChatPlugin = {
       allowFileUploads: false,
       showTooltip: true,
       tooltipText: "Got questions? We're here 24/7",
-      initialMessages: [],
+      initialMessages: [
+        "Welcome to HealthyLine! How can I help you today?"
+      ],
       placeholder: "Type your message...",
       title: "HealthyLine",
       subtitle: "24/7 AI Wellness Concierge"
@@ -8672,7 +8678,7 @@ const ChatPlugin = {
       ...defaultOptions2,
       ...options
     };
-    if (mergedOptions.subtitle === "24/7 AI Wellness Concierge" || !mergedOptions.subtitle) {
+    if (mergedOptions.subtitle === "Chat with AI Assistant" || !mergedOptions.subtitle) {
       mergedOptions.subtitle = "Chat with AI Assistant";
     }
     const resolvedOptions = /* @__PURE__ */ ref({
