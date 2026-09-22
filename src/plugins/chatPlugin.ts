@@ -30,7 +30,9 @@ export const ChatPlugin: Plugin = {
       allowFileUploads: false,
       showTooltip: true,
       tooltipText: "Got questions? We're here 24/7",
-      initialMessages: [],
+      initialMessages: [
+        "Welcome to HealthyLine! How can I help you today?"
+      ],
       placeholder: 'Type your message...',
       title: 'HealthyLine',
       subtitle: '24/7 AI Wellness Concierge',
@@ -43,7 +45,7 @@ export const ChatPlugin: Plugin = {
     };
 
     // Forza il subtitle del repository se dal sito viene passato quello vecchio
-    if (mergedOptions.subtitle === "24/7 AI Wellness Concierge" || !mergedOptions.subtitle) {
+    if (mergedOptions.subtitle === "Chat with AI Assistant" || !mergedOptions.subtitle) {
       mergedOptions.subtitle = "Chat with AI Assistant";
     }
 
