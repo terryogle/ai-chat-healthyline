@@ -35,7 +35,7 @@ export const ChatPlugin: Plugin = {
       ],
       placeholder: 'Type your message...',
       title: 'HealthyLine',
-      subtitle: '24/7 AI Wellness Concierge',
+      subtitle: 'Chat with AI Assistant',
     };
 
     // Unisce le opzioni fornite con i default
@@ -44,8 +44,8 @@ export const ChatPlugin: Plugin = {
       ...options,
     };
 
-    // Forza il subtitle del repository se dal sito viene passato quello vecchio
-    if (mergedOptions.subtitle === "Chat with AI Assistant" || !mergedOptions.subtitle) {
+    // Forza la sostituzione se viene passato il vecchio sottotitolo "24/7 AI Wellness Concierge"
+    if (mergedOptions.subtitle === "24/7 AI Wellness Concierge" || !mergedOptions.subtitle) {
       mergedOptions.subtitle = "Chat with AI Assistant";
     }
 

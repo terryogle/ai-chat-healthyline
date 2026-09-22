@@ -77,7 +77,11 @@ const headerSubtitle = computed(() => {
   if (activeTab.value === 'compare') return 'Series & Technology Matrix';
   if (activeTab.value === 'catalog') return 'Best Sellers & Gemstone Mats';
   if (activeTab.value === 'messages') return 'How can we help?';
-  return options.value?.subtitle || 'Chat with AI Assistant';
+  const sub = options.value?.subtitle;
+  if (!sub || sub === '24/7 AI Wellness Concierge') {
+    return 'Chat with AI Assistant';
+  }
+  return sub;
 });
 
 function scrollToBottom() {
