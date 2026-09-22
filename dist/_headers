@@ -1,0 +1,37 @@
+# Cloudflare Pages Headers for chat.healthyline.com
+# Stable production endpoints: 5-minute cache with stale-while-revalidate for fast propagation
+/widget.js
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, HEAD, OPTIONS
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: public, max-age=300, stale-while-revalidate=3600
+
+/widget.css
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, HEAD, OPTIONS
+  Content-Type: text/css; charset=utf-8
+  Cache-Control: public, max-age=300, stale-while-revalidate=3600
+
+/tt-chat.bundle.umd.js
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, HEAD, OPTIONS
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: public, max-age=300, stale-while-revalidate=3600
+
+/style.css
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, HEAD, OPTIONS
+  Content-Type: text/css; charset=utf-8
+  Cache-Control: public, max-age=300, stale-while-revalidate=3600
+
+# Immutable versioned releases: 1-year cache
+/releases/*
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, HEAD, OPTIONS
+  Cache-Control: public, max-age=31536000, immutable
+
+# Assets
+/assets/*
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, HEAD, OPTIONS
+  Cache-Control: public, max-age=31536000, immutable
