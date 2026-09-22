@@ -1,7 +1,7 @@
 {
   "name": "HealthyLine AI Chat Widget",
   "version": "1.0.0",
-  "builtAt": "2026-09-22T16:19:12.225Z",
+  "builtAt": "2026-09-22T16:53:58.772Z",
   "endpoints": {
     "stableJs": "https://chat.healthyline.com/widget.js",
     "stableCss": "https://chat.healthyline.com/widget.css",

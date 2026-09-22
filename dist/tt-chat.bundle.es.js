@@ -8684,6 +8684,9 @@ const ChatPlugin = {
         ...options.icons
       }
     });
+    if (resolvedOptions.value.subtitle === "24/7 AI Wellness Concierge") {
+      resolvedOptions.value.subtitle = "HealthyLine Support";
+    }
     app.provide(OptionsSymbol, resolvedOptions);
     const messages = /* @__PURE__ */ ref([]);
     const currentSessionId = /* @__PURE__ */ ref(null);
