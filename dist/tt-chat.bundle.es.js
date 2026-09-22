@@ -8672,7 +8672,7 @@ const ChatPlugin = {
       ...defaultOptions2,
       ...options
     };
-    if (mergedOptions.subtitle === "24/7" || !mergedOptions.subtitle) {
+    if (mergedOptions.subtitle === "24/7 AI Wellness Concierge" || !mergedOptions.subtitle) {
       mergedOptions.subtitle = "Chat with AI Assistant";
     }
     const resolvedOptions = /* @__PURE__ */ ref({
