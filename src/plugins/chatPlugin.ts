@@ -43,7 +43,7 @@ export const ChatPlugin: Plugin = {
     };
 
     // Forza il subtitle del repository se dal sito viene passato quello vecchio
-    if (mergedOptions.subtitle === "24/7" || !mergedOptions.subtitle) {
+    if (mergedOptions.subtitle === "24/7 AI Wellness Concierge" || !mergedOptions.subtitle) {
       mergedOptions.subtitle = "Chat with AI Assistant";
     }
 
