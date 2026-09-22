@@ -1,0 +1,84 @@
+{
+  "name": "tt-chat-n8n",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "HealthyLine 24/7 AI Wellness Concierge Chat Widget",
+  "homepage": "https://chat.healthyline.com",
+  "author": {
+    "name": "HealthyLine",
+    "url": "https://healthyline.com"
+  },
+  "contributors": [
+    {
+      "name": "TourTools Team",
+      "email": "coder@tourtools.it",
+      "url": "https://www.tourtools.it"
+    }
+  ],
+  "main": "dist/widget.js",
+  "module": "dist/tt-chat.bundle.es.js",
+  "types": "dist/main.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/tt-chat.bundle.es.js",
+      "require": "./dist/widget.js",
+      "types": "./dist/main.d.ts"
+    },
+    "./widget.css": {
+      "import": "./dist/widget.css",
+      "require": "./dist/widget.css"
+    },
+    "./style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
+  },
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 3000",
+    "build": "vite build && vite build --mode lib && node scripts/prepare-production.js",
+    "build:lib": "vite build --mode lib",
+    "rollback": "node scripts/rollback.js",
+    "typecheck": "vue-tsc --noEmit",
+    "lint": "vue-tsc --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@vuepic/vue-datepicker": "^11.0.2",
+    "intl-tel-input": "^25.3.1",
+    "vue": "^3.3.0",
+    "vue-markdown-render": "^2.2.1",
+    "vue-select": "^4.0.0-beta.6"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.3.0",
+    "sass": "^1.87.0",
+    "terser": "^5.39.0",
+    "typescript": "^5.1.0",
+    "vite": "^5.4.0",
+    "vite-plugin-dts": "^3.3.0",
+    "vue-tsc": "^2.1.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "resources/screenshot.png"
+  ],
+  "keywords": [
+    "n8n",
+    "chat",
+    "chatbot",
+    "widget",
+    "vue",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nonzod/n8n-chatbot"
+  },
+  "license": "MIT",
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
