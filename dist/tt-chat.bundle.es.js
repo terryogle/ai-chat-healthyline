@@ -8447,7 +8447,7 @@ class SessionManager {
     const newSessionId = generateId();
     this.currentSessionId.value = newSessionId;
     localStorage.setItem(LOCAL_STORAGE_SESSION_KEY, newSessionId);
-    const defaultGreeting = "Hello! Welcome to HealthyLine 24/7 AI Wellness Concierge. How can we help you today?";
+    const defaultGreeting = "Welcome to HealthyLine! How can I help you today?";
     const messagesToUse = this.initialMessages.length > 0 ? [...this.initialMessages] : [{ id: generateId(), text: defaultGreeting, sender: "bot", createdAt: (/* @__PURE__ */ new Date()).toISOString() }];
     this.messages.value = messagesToUse;
     console.log("Nuova sessione iniziata:", newSessionId);
