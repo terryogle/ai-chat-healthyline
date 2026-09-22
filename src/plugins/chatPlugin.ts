@@ -17,7 +17,7 @@ export const ChatPlugin: Plugin = {
   install(app: App, options: ChatOptions) {
     // Opzioni di default
     const defaultOptions: ChatOptions = {
-      webhookUrl: '',
+      webhookUrl: 'https://app.healthyline.com/webhook/ai-chat',
       webhookConfig: {
         method: 'POST',
         headers: {},
@@ -31,15 +31,24 @@ export const ChatPlugin: Plugin = {
       showTooltip: true,
       tooltipText: "Got questions? We're here 24/7",
       initialMessages: [],
-      placeholder: 'Type a message...',
+      placeholder: 'Type your message...',
       title: 'HealthyLine',
-      subtitle: 'How can we help you?',
+      subtitle: '24/7 AI Wellness Concierge',
     };
 
     // Unisce le opzioni fornite con i default
-    const resolvedOptions = ref<ChatOptions>({
+    const mergedOptions = {
       ...defaultOptions,
       ...options,
+    };
+
+    // Forza il subtitle del repository se dal sito viene passato quello vecchio
+    if (mergedOptions.subtitle === "24/7 AI Wellness Concierge" || !mergedOptions.subtitle) {
+      mergedOptions.subtitle = "Chat with AI Assistant";
+    }
+
+    const resolvedOptions = ref<ChatOptions>({
+      ...mergedOptions,
       webhookConfig: {
         ...defaultOptions.webhookConfig,
         ...options.webhookConfig,
@@ -53,11 +62,6 @@ export const ChatPlugin: Plugin = {
         ...options.icons,
       }
     });
-
-    // Intercetta e sovrascrive il sottotitolo se viene passato quello vecchio dal codice del developer
-    if (resolvedOptions.value.subtitle === "24/7 AI Wellness Concierge") {
-      resolvedOptions.value.subtitle = "HealthyLine Support";
-    }
 
     // Fornisce le opzioni come injection
     app.provide(OptionsSymbol, resolvedOptions);

@@ -57,8 +57,7 @@ export function createChat(options: ChatOptions): {
   console.log('Creating chat widget with options:', options);
 
   if (!options.webhookUrl) {
-    console.error('[SimpleChatN8N] webhookUrl is required');
-    throw new Error('webhookUrl is required');
+    options.webhookUrl = 'https://app.healthyline.com/webhook/ai-chat';
   }
 
   // Target di montaggio
