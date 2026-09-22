@@ -55,7 +55,7 @@ export const ChatPlugin: Plugin = {
     });
 
     // Intercetta e sovrascrive il sottotitolo se viene passato quello vecchio dal codice del developer
-    if (resolvedOptions.value.subtitle === "24/7 AI Wellness Concierge") {
+    if (resolvedOptions.value.subtitle === "Chat with AI Assistant") {
       resolvedOptions.value.subtitle = "HealthyLine Support";
     }
 
