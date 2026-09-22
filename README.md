@@ -27,7 +27,7 @@ To install the HealthyLine AI Chat Widget on the website, add the following code
       window.SimpleChatN8N.createChat({
         mode: "window",
         title: "HealthyLine",
-        subtitle: "24/7 AI Wellness Concierge",
+        subtitle: "HealthyLine Support",
         placeholder: "Type your message...",
         tooltipText: "Got questions? We're here 24/7",
         webhookUrl: "https://app.healthyline.com/webhook/ai-chat",
