@@ -2,7 +2,7 @@ var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 /**
-* @vue/shared v3.5.43
+* @vue/shared v3.5.45
 * (c) 2018-present Yuxi (Evan) You and Vue contributors
 * @license MIT
 **/
@@ -59,24 +59,20 @@ const cacheStringFunction = (fn2) => {
   };
 };
 const camelizeRE = /-\w/g;
-const camelize = cacheStringFunction(
-  (str) => {
-    return str.replace(camelizeRE, (c) => c.slice(1).toUpperCase());
-  }
-);
+const camelize = /* @__PURE__ */ cacheStringFunction((str) => {
+  return str.replace(camelizeRE, (c) => c.slice(1).toUpperCase());
+});
 const hyphenateRE = /\B([A-Z])/g;
-const hyphenate = cacheStringFunction(
+const hyphenate = /* @__PURE__ */ cacheStringFunction(
   (str) => str.replace(hyphenateRE, "-$1").toLowerCase()
 );
-const capitalize = cacheStringFunction((str) => {
+const capitalize = /* @__PURE__ */ cacheStringFunction((str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 });
-const toHandlerKey = cacheStringFunction(
-  (str) => {
-    const s = str ? `on${capitalize(str)}` : ``;
-    return s;
-  }
-);
+const toHandlerKey = /* @__PURE__ */ cacheStringFunction((str) => {
+  const s = str ? `on${capitalize(str)}` : ``;
+  return s;
+});
 const hasChanged = (value, oldValue) => !Object.is(value, oldValue);
 const invokeArrayFns = (fns, ...arg) => {
   for (let i = 0; i < fns.length; i++) {
@@ -164,7 +160,7 @@ function normalizeProps(props) {
   }
   return props;
 }
-const specialBooleanAttrs = `itemscope,allowfullscreen,formnovalidate,ismap,nomodule,novalidate,readonly`;
+const specialBooleanAttrs = `itemscope,allowfullscreen,disablepictureinpicture,disableremoteplayback,formnovalidate,ismap,nomodule,novalidate,playsinline,readonly`;
 const isSpecialBooleanAttr = /* @__PURE__ */ makeMap(specialBooleanAttrs);
 function includeBooleanAttr(value) {
   return !!value || value === "";
@@ -303,7 +299,7 @@ const stringifySymbol = (v, i = "") => {
   );
 };
 /**
-* @vue/reactivity v3.5.43
+* @vue/reactivity v3.5.45
 * (c) 2018-present Yuxi (Evan) You and Vue contributors
 * @license MIT
 **/
@@ -447,7 +443,11 @@ function getCurrentScope() {
 }
 function onScopeDispose(fn2, failSilently = false) {
   if (activeEffectScope) {
-    activeEffectScope.cleanups.push(fn2);
+    if (activeEffectScope.active) {
+      activeEffectScope.cleanups.push(fn2);
+    } else {
+      fn2();
+    }
   }
 }
 let activeSub;
@@ -1045,18 +1045,40 @@ const arrayInstrumentations = {
 };
 function iterator(self2, method, wrapValue) {
   const arr = shallowReadArray(self2);
-  const iter = arr[method]();
+  const methodFn = arr[method];
+  const iter = methodFn.call(arr);
   if (arr !== self2 && !/* @__PURE__ */ isShallow(self2)) {
-    iter._next = iter.next;
-    iter.next = () => {
-      const result = iter._next();
-      if (!result.done) {
-        result.value = wrapValue(result.value);
+    if (iter[Symbol.toStringTag] === "Array Iterator") {
+      const wrapped = Object.create(Object.getPrototypeOf(iter));
+      wrapped.next = () => wrapResult(iter.next(), wrapValue);
+      if (methodFn !== arrayProto[method]) {
+        Object.defineProperties(wrapped, {
+          return: {
+            get() {
+              const fn2 = iter.return;
+              return typeof fn2 === "function" ? fn2.bind(iter) : fn2;
+            }
+          },
+          throw: {
+            get() {
+              const fn2 = iter.throw;
+              return typeof fn2 === "function" ? fn2.bind(iter) : fn2;
+            }
+          }
+        });
       }
-      return result;
-    };
+      return wrapped;
+    }
+    iter._next = iter.next;
+    iter.next = () => wrapResult(iter._next(), wrapValue);
   }
   return iter;
+}
+function wrapResult(result, wrapValue) {
+  if (!result.done) {
+    result.value = wrapValue(result.value);
+  }
+  return result;
 }
 const arrayProto = Array.prototype;
 function apply(self2, method, fn2, thisArg, wrappedRetFn, args) {
@@ -1125,7 +1147,7 @@ function noTracking(self2, method, args = []) {
   return res;
 }
 const isNonTrackableKeys = /* @__PURE__ */ makeMap(`__proto__,__v_isRef,__isVue`);
-const builtInSymbols = new Set(
+const builtInSymbols = /* @__PURE__ */ new Set(
   /* @__PURE__ */ Object.getOwnPropertyNames(Symbol).filter((key) => key !== "arguments" && key !== "caller").map((key) => Symbol[key]).filter(isSymbol)
 );
 function hasOwnProperty(key) {
@@ -1447,6 +1469,8 @@ function createInstrumentationGetter(isReadonly2, shallow) {
       return !isReadonly2;
     } else if (key === "__v_isReadonly") {
       return isReadonly2;
+    } else if (key === "__v_isShallow") {
+      return shallow;
     } else if (key === "__v_raw") {
       return target;
     }
@@ -1854,9 +1878,11 @@ function watch$1(source, cb, options = EMPTY_OBJ) {
   if (once && cb) {
     const _cb = cb;
     cb = (...args) => {
-      const res = _cb(...args);
-      watchHandle();
-      return res;
+      try {
+        return _cb(...args);
+      } finally {
+        watchHandle();
+      }
     };
   }
   let oldValue = isMultiSource ? new Array(source.length).fill(INITIAL_WATCHER_VALUE) : INITIAL_WATCHER_VALUE;
@@ -1867,12 +1893,13 @@ function watch$1(source, cb, options = EMPTY_OBJ) {
     if (cb) {
       const newValue = effect2.run();
       if (immediateFirstRun || deep || forceTrigger || (isMultiSource ? newValue.some((v, i) => hasChanged(v, oldValue[i])) : hasChanged(newValue, oldValue))) {
-        if (cleanup) {
-          cleanup();
-        }
         const currentWatcher = activeWatcher;
-        activeWatcher = effect2;
+        pauseTracking();
         try {
+          if (cleanup) {
+            cleanup();
+          }
+          activeWatcher = effect2;
           const args = [
             newValue,
             // pass undefined as the old value when it's changed for the first time
@@ -1886,6 +1913,7 @@ function watch$1(source, cb, options = EMPTY_OBJ) {
           );
         } finally {
           activeWatcher = currentWatcher;
+          resetTracking();
         }
       }
     } else {
@@ -1958,7 +1986,7 @@ function traverse(value, depth = Infinity, seen) {
   return value;
 }
 /**
-* @vue/runtime-core v3.5.43
+* @vue/runtime-core v3.5.45
 * (c) 2018-present Yuxi (Evan) You and Vue contributors
 * @license MIT
 **/
@@ -2080,7 +2108,7 @@ function callWithAsyncErrorHandling(fn2, instance, type, args) {
     const res = callWithErrorHandling(fn2, instance, type, args);
     if (res && isPromise(res)) {
       res.catch((err) => {
-        handleError(err, instance, type);
+        handleError(err, instance, type, void 0, true);
       });
     }
     return res;
@@ -2093,7 +2121,7 @@ function callWithAsyncErrorHandling(fn2, instance, type, args) {
     return values;
   }
 }
-function handleError(err, instance, type, throwInDev = true) {
+function handleError(err, instance, type, throwInDev = true, isAsyncError = false) {
   const contextVNode = instance ? instance.vnode : null;
   const { errorHandler, throwUnhandledErrorInProduction } = instance && instance.appContext.config || EMPTY_OBJ;
   if (instance) {
@@ -2102,7 +2130,9 @@ function handleError(err, instance, type, throwInDev = true) {
     const errorInfo = `https://vuejs.org/error-reference/#runtime-${type}`;
     while (cur) {
       const errorCapturedHooks = cur.ec;
-      if (errorCapturedHooks) {
+      if (errorCapturedHooks && !cur.isUnmounted && // Async failures may outlive stopped scopes whose unmount effects
+      // are deferred or discarded by Suspense.
+      (!isAsyncError || cur.scope.active)) {
         for (let i = 0; i < errorCapturedHooks.length; i++) {
           if (errorCapturedHooks[i](err, exposedInstance, errorInfo) === false) {
             return;
@@ -2191,15 +2221,15 @@ function queuePostFlushCb(cb) {
   }
   queueFlush();
 }
-function flushPreFlushCbs(instance, seen, i = flushIndex + 1) {
+function flushPreFlushCbs(instance, minUid, seen, i = flushIndex + 1) {
   for (; i < queue.length; i++) {
     const cb = queue[i];
     if (cb && cb.flags & 2) {
-      if (instance && cb.id !== instance.uid) {
+      if (instance && cb.id !== instance.uid || minUid !== void 0 && !(cb.id >= minUid)) {
         continue;
       }
       queue.splice(i, 1);
-      i--;
+      i = instance ? i - 1 : flushIndex;
       if (cb.flags & 4) {
         cb.flags &= -2;
       }
@@ -2210,12 +2240,23 @@ function flushPreFlushCbs(instance, seen, i = flushIndex + 1) {
     }
   }
 }
-function flushPostFlushCbs(seen) {
+function flushPostFlushCbs(seen, skip, minUid = 0) {
   if (pendingPostFlushCbs.length) {
-    const deduped = [...new Set(pendingPostFlushCbs)].sort(
-      (a, b) => getId(a) - getId(b)
-    );
-    pendingPostFlushCbs.length = 0;
+    let cbs = pendingPostFlushCbs;
+    let kept = 0;
+    if (skip) {
+      cbs = [];
+      for (let i = 0; i < pendingPostFlushCbs.length; i++) {
+        const cb = pendingPostFlushCbs[i];
+        if (cb.i !== void 0 ? !cb.i || cb.i.uid < minUid : skip.has(cb)) {
+          pendingPostFlushCbs[kept++] = cb;
+        } else {
+          cbs.push(cb);
+        }
+      }
+    }
+    const deduped = [...new Set(cbs)].sort((a, b) => getId(a) - getId(b));
+    pendingPostFlushCbs.length = kept;
     if (activePostFlushCbs) {
       for (let i = 0; i < deduped.length; i++) {
         activePostFlushCbs.push(deduped[i]);
@@ -2233,6 +2274,22 @@ function flushPostFlushCbs(seen) {
     }
     activePostFlushCbs = null;
     postFlushIndex = 0;
+  }
+}
+let isFlushing = false;
+function flushOnAppMount(fn2, minUid) {
+  if (isFlushing) {
+    fn2();
+    return;
+  }
+  const queued = minUid === void 0 ? void 0 : new Set(pendingPostFlushCbs);
+  fn2();
+  isFlushing = true;
+  try {
+    flushPreFlushCbs(void 0, minUid);
+    flushPostFlushCbs(void 0, queued, minUid);
+  } finally {
+    isFlushing = false;
   }
 }
 const getId = (job) => job.id == null ? job.flags & 2 ? -1 : Infinity : job.id;
@@ -2338,12 +2395,31 @@ function withDirectives(vnode, directives) {
   return vnode;
 }
 function invokeDirectiveHook(vnode, prevVNode, instance, name) {
-  const bindings = vnode.dirs;
+  let hookVNode = vnode;
+  if (name === "beforeMount") {
+    vnode._mount = vnode;
+  } else if (name === "beforeUpdate") {
+    const mount = prevVNode && prevVNode._mount;
+    if (mount) {
+      mount._latest = vnode;
+      vnode._mount = mount;
+    }
+  } else if (name === "mounted") {
+    const latest = vnode._latest;
+    vnode._mount = vnode._latest = void 0;
+    if (latest) {
+      hookVNode = latest;
+      latest._mount = void 0;
+    }
+  }
+  const bindings = hookVNode.dirs;
   const oldBindings = prevVNode && prevVNode.dirs;
   for (let i = 0; i < bindings.length; i++) {
-    const binding = bindings[i];
+    let binding = bindings[i];
     if (oldBindings) {
       binding.oldValue = oldBindings[i].value;
+    } else if (name === "mounted" && binding.oldValue !== void 0) {
+      binding = extend({}, binding, { oldValue: void 0 });
     }
     let hook = binding.dir[name];
     if (hook) {
@@ -2351,7 +2427,7 @@ function invokeDirectiveHook(vnode, prevVNode, instance, name) {
       callWithAsyncErrorHandling(hook, instance, 8, [
         vnode.el,
         binding,
-        vnode,
+        hookVNode,
         prevVNode
       ]);
       resetTracking();
@@ -2412,6 +2488,7 @@ function doWatch(source, cb, options = EMPTY_OBJ) {
   let isPre = false;
   if (flush === "post") {
     baseWatchOptions.scheduler = (job) => {
+      job.i = instance;
       queuePostRenderEffect(job, instance && instance.suspense);
     };
   } else if (flush !== "sync") {
@@ -2578,7 +2655,7 @@ const TeleportImpl = {
       const target = n2.target = n1.target;
       const targetAnchor = n2.targetAnchor = n1.targetAnchor;
       const wasDisabled = isTeleportDisabled(n1.props);
-      const currentContainer2 = wasDisabled ? container : target;
+      const currentContainer = wasDisabled ? container : target;
       const currentAnchor = wasDisabled ? mainAnchor : targetAnchor;
       if (namespace === "svg" || isTargetSVG(target)) {
         namespace = "svg";
@@ -2589,7 +2666,7 @@ const TeleportImpl = {
         patchBlockChildren(
           n1.dynamicChildren,
           dynamicChildren,
-          currentContainer2,
+          currentContainer,
           parentComponent,
           parentSuspense,
           namespace,
@@ -2600,7 +2677,7 @@ const TeleportImpl = {
         patchChildren(
           n1,
           n2,
-          currentContainer2,
+          currentContainer,
           currentAnchor,
           parentComponent,
           parentSuspense,
@@ -2689,7 +2766,11 @@ const TeleportImpl = {
 };
 function moveTeleport(vnode, container, parentAnchor, { o: { insert }, m: move }, moveType = 2) {
   if (moveType === 0) {
+    if (vnode.targetStart) {
+      insert(vnode.targetStart, container, parentAnchor);
+    }
     insert(vnode.targetAnchor, container, parentAnchor);
+    parentAnchor = vnode.targetAnchor;
   }
   const { el, anchor, shapeFlag, children, props } = vnode;
   const isReorder = moveType === 2;
@@ -2857,10 +2938,6 @@ const BaseTransitionPropsValidators = {
   onAfterAppear: TransitionHookValidator,
   onAppearCancelled: TransitionHookValidator
 };
-const recursiveGetSubtree = (instance) => {
-  const subTree = instance.subTree;
-  return subTree.component ? recursiveGetSubtree(subTree.component) : subTree;
-};
 const BaseTransitionImpl = {
   name: `BaseTransition`,
   props: BaseTransitionPropsValidators,
@@ -2886,19 +2963,17 @@ const BaseTransitionImpl = {
       if (!innerChild) {
         return emptyPlaceholder(child);
       }
-      let enterHooks = resolveTransitionHooks(
+      const enterHooks = resolveTransitionHooks(
         innerChild,
         rawProps,
         state,
-        instance,
-        // #11061, ensure enterHooks is fresh after clone
-        (hooks) => enterHooks = hooks
+        instance
       );
       if (innerChild.type !== Comment) {
         setTransitionHooks(innerChild, enterHooks);
       }
       let oldInnerChild = instance.subTree && getInnerChild$1(instance.subTree);
-      if (oldInnerChild && oldInnerChild.type !== Comment && !isSameVNodeType(oldInnerChild, innerChild) && recursiveGetSubtree(instance).type !== Comment) {
+      if (oldInnerChild && oldInnerChild.type !== Comment && !isSameVNodeType(oldInnerChild, innerChild) && getTransitionRoot(instance.subTree)) {
         let leavingHooks = resolveTransitionHooks(
           oldInnerChild,
           rawProps,
@@ -2911,7 +2986,17 @@ const BaseTransitionImpl = {
           leavingHooks.afterLeave = () => {
             state.isLeaving = false;
             if (!(instance.job.flags & 8)) {
-              instance.update();
+              if (instance.effect.flags & 2) {
+                const job = () => {
+                  if (!(instance.job.flags & 8)) {
+                    instance.update();
+                  }
+                };
+                job.i = instance;
+                queueJob(job);
+              } else {
+                instance.update();
+              }
             }
             delete leavingHooks.afterLeave;
             oldInnerChild = void 0;
@@ -2968,7 +3053,7 @@ function getLeavingNodesForType(state, vnode) {
   }
   return leavingVNodesCache;
 }
-function resolveTransitionHooks(vnode, props, state, instance, postClone) {
+function resolveTransitionHooks(vnode, props, state, instance) {
   const {
     appear,
     mode,
@@ -3024,8 +3109,15 @@ function resolveTransitionHooks(vnode, props, state, instance, postClone) {
         );
       }
       const leavingVNode = leavingVNodesCache[key];
-      if (leavingVNode && isSameVNodeType(vnode, leavingVNode) && leavingVNode.el[leaveCbKey]) {
-        leavingVNode.el[leaveCbKey]();
+      if (leavingVNode && isSameVNodeType(vnode, leavingVNode)) {
+        let leavingCb = leavingVNode.el[leaveCbKey];
+        if (!leavingCb) {
+          const leavingRoot = getTransitionRoot(leavingVNode);
+          leavingCb = leavingRoot && leavingRoot.el[leaveCbKey];
+        }
+        if (leavingCb) {
+          leavingCb();
+        }
       }
       callHook2(hook, [el]);
     },
@@ -3100,15 +3192,21 @@ function resolveTransitionHooks(vnode, props, state, instance, postClone) {
       }
     },
     clone(vnode2) {
-      const hooks2 = resolveTransitionHooks(
-        vnode2,
-        props,
-        state,
-        instance,
-        postClone
-      );
-      if (postClone) postClone(hooks2);
-      return hooks2;
+      const cloned = resolveTransitionHooks(vnode2, props, state, instance);
+      cloned.afterLeave = () => {
+        if (hooks.afterLeave) hooks.afterLeave();
+      };
+      cloned.delayLeave = (el, earlyRemove, delayedLeave) => {
+        if (hooks.delayLeave) {
+          hooks.delayLeave(el, earlyRemove, delayedLeave);
+        } else {
+          delayedLeave();
+        }
+      };
+      cloned.delayedLeave = () => {
+        if (hooks.delayedLeave) hooks.delayedLeave();
+      };
+      return cloned;
     }
   };
   return hooks;
@@ -3149,10 +3247,24 @@ function setTransitionHooks(vnode, hooks) {
       hooks
     );
   } else if (vnode.shapeFlag & 128) {
-    vnode.ssContent.transition = hooks.clone(vnode.ssContent);
-    vnode.ssFallback.transition = hooks.clone(vnode.ssFallback);
+    const suspense = vnode.suspense;
+    if (suspense) {
+      const branch = suspense.isHydrating ? suspense.pendingBranch : suspense.activeBranch;
+      if (branch) {
+        setTransitionHooks(branch, hooks.clone(branch));
+      }
+    } else {
+      vnode.ssContent.transition = hooks.clone(vnode.ssContent);
+      vnode.ssFallback.transition = hooks.clone(vnode.ssFallback);
+    }
   } else {
     vnode.transition = hooks;
+    if (vnode.type === Fragment && isArray(vnode.children)) {
+      const child = filterSingleRoot(vnode.children, false);
+      if (child) {
+        setTransitionHooks(child, hooks);
+      }
+    }
   }
 }
 function getTransitionRawChildren(children, keepComment = false, parentKey) {
@@ -3176,6 +3288,18 @@ function getTransitionRawChildren(children, keepComment = false, parentKey) {
     }
   }
   return ret;
+}
+function getTransitionRoot(vnode) {
+  if (vnode.component) {
+    return getTransitionRoot(vnode.component.subTree);
+  }
+  if (vnode.type === Fragment) {
+    const child = isArray(vnode.children) && filterSingleRoot(vnode.children, false);
+    return child ? getTransitionRoot(child) : void 0;
+  }
+  if (vnode.type !== Comment) {
+    return vnode;
+  }
 }
 // @__NO_SIDE_EFFECTS__
 function defineComponent(options, extraOptions) {
@@ -3349,9 +3473,12 @@ function injectToKeepAliveRoot(hook, type, target, keepAliveRoot) {
     true
     /* prepend */
   );
-  onUnmounted(() => {
-    remove(keepAliveRoot[type], injected);
-  }, target);
+  const removal = injectHook(
+    "um",
+    () => remove(keepAliveRoot[type], injected),
+    target
+  );
+  removal.flags = 16;
 }
 function injectHook(type, hook, target = currentInstance, prepend = false) {
   if (target) {
@@ -3459,7 +3586,9 @@ function renderList(source, renderItem, cache, index) {
       );
     }
   } else if (typeof source === "number") {
-    {
+    if (!Number.isInteger(source) || source < 0) {
+      ret = [];
+    } else {
       ret = new Array(source);
       for (let i = 0; i < source; i++) {
         ret[i] = renderItem(i + 1, i, void 0, cached);
@@ -4065,7 +4194,7 @@ function createAppContext() {
 }
 let uid$1 = 0;
 function createAppAPI(render2, hydrate) {
-  return function createApp2(rootComponent, rootProps = null) {
+  return function createApp(rootComponent, rootProps = null) {
     if (!isFunction$1(rootComponent)) {
       rootComponent = extend({}, rootComponent);
     }
@@ -4375,6 +4504,24 @@ function renderComponentRoot(instance) {
   setCurrentRenderingInstance(prev);
   return result;
 }
+function filterSingleRoot(children, recurse = true) {
+  let singleRoot;
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i];
+    if (isVNode(child)) {
+      if (child.type !== Comment || child.children === "v-if") {
+        if (singleRoot) {
+          return;
+        } else {
+          singleRoot = child;
+        }
+      }
+    } else {
+      return;
+    }
+  }
+  return singleRoot;
+}
 const getFunctionalFallthrough = (attrs) => {
   let res;
   for (const key in attrs) {
@@ -4444,7 +4591,7 @@ function hasPropsChanged(prevProps, nextProps, emitsOptions) {
   }
   for (let i = 0; i < nextKeys.length; i++) {
     const key = nextKeys[i];
-    if (hasPropValueChanged(nextProps, prevProps, key) && !isEmitListener(emitsOptions, key)) {
+    if (!hasOwn(prevProps, key) || hasPropValueChanged(nextProps, prevProps, key) && !isEmitListener(emitsOptions, key)) {
       return true;
     }
   }
@@ -5108,6 +5255,8 @@ function baseCreateRenderer(options, createHydrationFns) {
     const needCallTransitionHooks = needTransition(parentSuspense, transition);
     if (needCallTransitionHooks) {
       transition.beforeEnter(el);
+    } else if (transition && !transition.persisted) {
+      el[deferredEnterKey] = true;
     }
     hostInsert(el, container, anchor);
     if ((vnodeHook = props && props.onVnodeMounted) || needCallTransitionHooks || dirs) {
@@ -5253,15 +5402,16 @@ function baseCreateRenderer(options, createHydrationFns) {
     for (let i = 0; i < newChildren.length; i++) {
       const oldVNode = oldChildren[i];
       const newVNode = newChildren[i];
+      const oldEl = oldVNode.el || resolveAsyncComponentPlaceholder(oldVNode);
       const container = (
         // oldVNode may be an errored async setup() component inside Suspense
         // which will not have a mounted element
-        oldVNode.el && // - In the case of a Fragment, we need to provide the actual parent
+        oldEl && // - In the case of a Fragment, we need to provide the actual parent
         // of the Fragment itself so it can move its children.
         (oldVNode.type === Fragment || // - In the case of different nodes, there is going to be a replacement
         // which also requires the correct parent container
         !isSameVNodeType(oldVNode, newVNode) || // - In the case of a component, it could contain anything.
-        oldVNode.shapeFlag & (6 | 64 | 128)) ? hostParentNode(oldVNode.el) : (
+        oldVNode.shapeFlag & (6 | 64 | 128)) ? hostParentNode(oldEl) : (
           // In other cases, the parent container is not actually used so we
           // just pass the block element here to avoid a DOM parentNode call.
           fallbackContainer
@@ -5414,7 +5564,12 @@ function baseCreateRenderer(options, createHydrationFns) {
       setupComponent(instance, false, optimized);
     }
     if (instance.asyncDep) {
-      parentSuspense && parentSuspense.registerDep(instance, setupRenderEffect, optimized);
+      parentSuspense && parentSuspense.registerDep(
+        instance,
+        setupRenderEffect,
+        optimized,
+        namespace
+      );
       if (!initialVNode.el) {
         const placeholder = instance.subTree = createVNode(Comment);
         processCommentNode(null, placeholder, container, anchor);
@@ -5437,6 +5592,7 @@ function baseCreateRenderer(options, createHydrationFns) {
     if (shouldUpdateComponent(n1, n2, optimized)) {
       if (instance.asyncDep && !instance.asyncResolved) {
         n2.el = n1.el;
+        n2.placeholder = n1.placeholder;
         updateComponentPreRender(instance, n2, optimized);
         return;
       } else {
@@ -5445,6 +5601,7 @@ function baseCreateRenderer(options, createHydrationFns) {
       }
     } else {
       n2.el = n1.el;
+      n2.placeholder = n1.placeholder;
       instance.vnode = n2;
     }
   };
@@ -5500,16 +5657,23 @@ function baseCreateRenderer(options, createHydrationFns) {
       } else {
         let { next, bu, u, parent, vnode } = instance;
         {
-          const nonHydratedAsyncRoot = locateNonHydratedAsyncRoot(instance);
-          if (nonHydratedAsyncRoot) {
+          const unresolvedAsyncRoot = locateUnresolvedAsyncRoot(instance);
+          if (unresolvedAsyncRoot) {
             if (next) {
               next.el = vnode.el;
               updateComponentPreRender(instance, next, optimized);
             }
-            nonHydratedAsyncRoot.asyncDep.then(() => {
-              queuePostRenderEffect(() => {
-                if (!instance.isUnmounted) update();
-              }, parentSuspense);
+            unresolvedAsyncRoot.asyncDep.then(() => {
+              const retry = () => {
+                if (instance.job.flags & 8) return;
+                if (parentSuspense && parentSuspense.pendingBranch) {
+                  queuePostRenderEffect(retry, parentSuspense);
+                } else {
+                  update();
+                }
+              };
+              retry.flags = 16 | 32;
+              queuePostRenderEffect(retry, parentSuspense);
             });
             return;
           }
@@ -5536,8 +5700,11 @@ function baseCreateRenderer(options, createHydrationFns) {
         patch(
           prevTree,
           nextTree,
-          // parent may have changed if it's in a teleport
-          hostParentNode(prevTree.el),
+          // parent may have changed if it's in a teleport. a root that is a
+          // pending async component only has its placeholder comment
+          hostParentNode(
+            prevTree.el || resolveAsyncComponentPlaceholder(prevTree)
+          ),
           // anchor may have changed if it's in a fragment
           getNextHostNode(prevTree),
           instance,
@@ -5957,8 +6124,7 @@ function baseCreateRenderer(options, createHydrationFns) {
     if (cacheIndex != null && (!vnode.ctx || vnode.ctx === parentComponent)) {
       parentComponent.renderCache[cacheIndex] = void 0;
     }
-    if (shapeFlag & 256) {
-      parentComponent.ctx.deactivate(vnode);
+    if (shapeFlag & 256 && parentComponent.ctx.deactivate(vnode)) {
       return;
     }
     const shouldInvokeDirs = shapeFlag & 1 && dirs;
@@ -6019,10 +6185,9 @@ function baseCreateRenderer(options, createHydrationFns) {
   };
   const remove2 = (vnode) => {
     const { type, el, anchor, transition } = vnode;
-    if (type === Fragment) {
-      {
-        removeFragment(el, anchor);
-      }
+    const isFragment = type === Fragment;
+    if (isFragment && !transition) {
+      removeFragment(el, anchor);
       return;
     }
     if (type === Static) {
@@ -6032,17 +6197,25 @@ function baseCreateRenderer(options, createHydrationFns) {
       }
       return;
     }
+    const leavingNode = isFragment ? getTransitionRoot(vnode) : vnode;
     const performRemove = () => {
-      hostRemove(el);
+      if (isFragment) {
+        if (hostParentNode(el)) {
+          removeFragment(el, anchor);
+        }
+      } else {
+        hostRemove(el);
+      }
       if (transition && !transition.persisted && transition.afterLeave) {
         transition.afterLeave();
       }
     };
-    if (vnode.shapeFlag & 1 && transition && !transition.persisted) {
+    if (leavingNode && leavingNode.shapeFlag & 1 && transition && !transition.persisted) {
       const { leave, delayLeave } = transition;
-      const performLeave = () => leave(el, performRemove);
+      const leavingEl = leavingNode.el;
+      const performLeave = () => leave(leavingEl, performRemove);
       if (delayLeave) {
-        delayLeave(vnode.el, performRemove, performLeave);
+        delayLeave(leavingEl, performRemove, performLeave);
       } else {
         performLeave();
       }
@@ -6070,16 +6243,18 @@ function baseCreateRenderer(options, createHydrationFns) {
     if (job) {
       job.flags |= 8;
       unmount(subTree, instance, parentSuspense, doRemove);
-    } else if (instance.vnode.el && subTree) {
+    } else if (subTree) {
       subTree.transition = instance.vnode.transition;
       unmount(subTree, instance, parentSuspense, doRemove);
     }
     if (um) {
       queuePostRenderEffect(um, parentSuspense);
     }
-    queuePostRenderEffect(() => {
+    const markUnmounted = () => {
       instance.isUnmounted = true;
-    }, parentSuspense);
+    };
+    markUnmounted.flags = 16;
+    queuePostRenderEffect(markUnmounted, parentSuspense);
   };
   const unmountChildren = (children, parentComponent, parentSuspense, doRemove = false, optimized = false, start = 0) => {
     for (let i = start; i < children.length; i++) {
@@ -6097,32 +6272,26 @@ function baseCreateRenderer(options, createHydrationFns) {
     const teleportEnd = el && el[TeleportEndKey];
     return teleportEnd ? hostNextSibling(teleportEnd) : el;
   };
-  let isFlushing = false;
   const render2 = (vnode, container, namespace) => {
-    let instance;
-    if (vnode == null) {
-      if (container._vnode) {
-        unmount(container._vnode, null, null, true);
-        instance = container._vnode.component;
+    const minUid = vnode && container._vnode ? void 0 : vnode && vnode.component ? vnode.component.uid : getNextUid();
+    flushOnAppMount(() => {
+      if (vnode == null) {
+        if (container._vnode) {
+          unmount(container._vnode, null, null, true);
+        }
+      } else {
+        patch(
+          container._vnode || null,
+          vnode,
+          container,
+          null,
+          null,
+          null,
+          namespace
+        );
       }
-    } else {
-      patch(
-        container._vnode || null,
-        vnode,
-        container,
-        null,
-        null,
-        null,
-        namespace
-      );
-    }
-    container._vnode = vnode;
-    if (!isFlushing) {
-      isFlushing = true;
-      flushPreFlushCbs(instance);
-      flushPostFlushCbs();
-      isFlushing = false;
-    }
+      container._vnode = vnode;
+    }, minUid);
   };
   const internals = {
     p: patch,
@@ -6225,13 +6394,13 @@ function getSequence(arr) {
   }
   return result;
 }
-function locateNonHydratedAsyncRoot(instance) {
+function locateUnresolvedAsyncRoot(instance) {
   const subComponent = instance.subTree.component;
   if (subComponent) {
     if (subComponent.asyncDep && !subComponent.asyncResolved) {
       return subComponent;
     } else {
-      return locateNonHydratedAsyncRoot(subComponent);
+      return locateUnresolvedAsyncRoot(subComponent);
     }
   }
 }
@@ -6249,9 +6418,14 @@ function resolveAsyncComponentPlaceholder(anchorVnode) {
   if (instance) {
     return resolveAsyncComponentPlaceholder(instance.subTree);
   }
+  const suspense = anchorVnode.suspense;
+  if (suspense && suspense.activeBranch) {
+    return resolveAsyncComponentPlaceholder(suspense.activeBranch);
+  }
   return null;
 }
 const isSuspense = (type) => type.__isSuspense;
+const deferredEnterKey = /* @__PURE__ */ Symbol("_deferredEnter");
 function queueEffectWithSuspense(fn2, suspense) {
   if (suspense && suspense.pendingBranch) {
     if (isArray(fn2)) {
@@ -6439,7 +6613,8 @@ function _createVNode(type, props = null, children = null, patchFlag = 0, dynami
 }
 function guardReactiveProps(props) {
   if (!props) return null;
-  return /* @__PURE__ */ isProxy(props) || isInternalObject(props) ? extend({}, props) : props;
+  if (/* @__PURE__ */ isProxy(props)) return extend({}, props);
+  return isInternalObject(props) ? extend({}, props[rawAttrsKey] || props) : props;
 }
 function cloneVNode(vnode, extraProps, mergeRef = false, cloneTransition = false) {
   const { props, ref: ref3, patchFlag, children, transition } = vnode;
@@ -6610,8 +6785,11 @@ function invokeVNodeHook(hook, instance, vnode, prevVNode = null) {
     prevVNode
   ]);
 }
-const emptyAppContext = createAppContext();
+const emptyAppContext = /* @__PURE__ */ createAppContext();
 let uid = 0;
+function getNextUid() {
+  return uid;
+}
 function createComponentInstance(vnode, parent, suspense) {
   const type = vnode.type;
   const appContext = (parent ? parent.appContext : vnode.appContext) || emptyAppContext;
@@ -6787,7 +6965,8 @@ function setupStatefulComponent(instance, isSSR) {
             setInSSRSetupState(false);
           }
         }).catch((e) => {
-          handleError(e, instance, 0);
+          handleError(e, instance, 0, void 0, true);
+          instance.ssrRender = (_, push) => push("<!---->");
         });
       } else {
         instance.asyncDep = setupResult;
@@ -6827,10 +7006,11 @@ function finishComponentSetup(instance, isSSR, skipOptions) {
     }
   }
 }
+const rawAttrsKey = /* @__PURE__ */ Symbol();
 const attrsProxyHandlers = {
   get(target, key) {
     track(target, "get", "");
-    return target[key];
+    return key === rawAttrsKey ? target : target[key];
   }
 };
 function createSetupContext(instance) {
@@ -6923,9 +7103,9 @@ function h(type, propsOrChildren, children) {
     setBlockTracking(1);
   }
 }
-const version = "3.5.43";
+const version = "3.5.45";
 /**
-* @vue/runtime-dom v3.5.43
+* @vue/runtime-dom v3.5.45
 * (c) 2018-present Yuxi (Evan) You and Vue contributors
 * @license MIT
 **/
@@ -7396,7 +7576,9 @@ function patchStyle(el, prev, next) {
     }
   }
   if (vShowOriginalDisplay in el) {
-    el[vShowOriginalDisplay] = hasControlledDisplay ? style.display : "";
+    if (!isCssString || prev !== next) {
+      el[vShowOriginalDisplay] = hasControlledDisplay ? style.display : "";
+    }
     if (el[vShowHidden]) {
       style.display = "none";
     }
@@ -7856,18 +8038,18 @@ const vModelSelect = {
   },
   // set value in mounted & updated because <select> relies on its children
   // <option>s.
-  mounted(el, { value }) {
-    setSelected(el, value);
+  mounted(el, { value, modifiers: { number } }) {
+    setSelected(el, value, number);
   },
   beforeUpdate(el, { value }, vnode) {
     el._modelValue = value;
     el[assignKey] = getModelAssigner(vnode);
   },
-  updated(el, { value }) {
+  updated(el, { value, modifiers: { number } }) {
     const pending = el._pendingValue;
     el._pendingValue = void 0;
     if (!pending || pending[0] !== el.multiple || !isSameSelectValue(value, pending[1], pending[0])) {
-      setSelected(el, value);
+      setSelected(el, value, number);
     }
   }
 };
@@ -7883,7 +8065,7 @@ function isSameSelectValue(value, assignedValue, multiple) {
   }
   return false;
 }
-function setSelected(el, value) {
+function setSelected(el, value, number = false) {
   const isMultiple = el.multiple;
   const isArrayValue = isArray(value);
   if (isMultiple && !isArrayValue && !isSet(value)) {
@@ -7901,7 +8083,7 @@ function setSelected(el, value) {
           option.selected = looseIndexOf(value, optionValue) > -1;
         }
       } else {
-        option.selected = value.has(optionValue);
+        option.selected = value.has(optionValue) || number && typeof optionValue === "string" && value.has(looseToNumber(optionValue));
       }
     } else if (looseEqual(getValue(option), value)) {
       if (el.selectedIndex !== i) el.selectedIndex = i;
@@ -8016,415 +8198,6 @@ function ensureRenderer() {
 const render = (...args) => {
   ensureRenderer().render(...args);
 };
-const createApp = (...args) => {
-  const app = ensureRenderer().createApp(...args);
-  const { mount } = app;
-  app.mount = (containerOrSelector) => {
-    const container = normalizeContainer(containerOrSelector);
-    if (!container) return;
-    const component = app._component;
-    if (!isFunction$1(component) && !component.render && !component.template) {
-      component.template = container.innerHTML;
-    }
-    if (container.nodeType === 1) {
-      container.textContent = "";
-    }
-    const proxy = mount(container, false, resolveRootNamespace(container));
-    if (container instanceof Element) {
-      container.removeAttribute("v-cloak");
-      container.setAttribute("data-v-app", "");
-    }
-    return proxy;
-  };
-  return app;
-};
-function resolveRootNamespace(container) {
-  if (container instanceof SVGElement) {
-    return "svg";
-  }
-  if (typeof MathMLElement === "function" && container instanceof MathMLElement) {
-    return "mathml";
-  }
-}
-function normalizeContainer(container) {
-  if (isString$2(container)) {
-    const res = document.querySelector(container);
-    return res;
-  }
-  return container;
-}
-function generateId() {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-}
-function createMountingElement(target) {
-  let element = document.querySelector(target);
-  if (!element) {
-    element = document.createElement("div");
-    if (target.startsWith("#")) {
-      element.id = target.substring(1);
-    } else if (target.startsWith(".")) {
-      element.className = target.substring(1);
-    }
-    document.body.appendChild(element);
-  }
-  return element;
-}
-function applyTheme(theme = {}) {
-  const themeVars = {
-    "--tt-chat-primary-color": theme.primaryColor || "#044273",
-    "--tt-chat-bg": theme.backgroundColor || "#ffffff",
-    "--tt-chat-user-bg": theme.userMessageColor || "#e0f7fa",
-    "--tt-chat-bot-bg": theme.botMessageColor || "#f5f5f5",
-    "--tt-chat-user-color": theme.userTextColor || "#000000",
-    "--tt-chat-bot-color": theme.botTextColor || "#000000",
-    "--tt-chat-header-bg": theme.headerColor || "#f5f5f5",
-    "--tt-chat-header-color": theme.headerTextColor || "#333333",
-    "--tt-chat-subheader-color": theme.subHeaderTextColor || "#FEBB2E",
-    "--tt-chat-toggle-background": theme.toggleBackground || theme.primaryColor || "#044273",
-    "--tt-chat-font-family": theme.fontFamily || theme.fontFamily || '"Plus Jakarta Sans", sans-serif'
-  };
-  const style = document.createElement("style");
-  style.setAttribute("id", "tt-chat-theme");
-  const cssVariables = Object.entries(themeVars).map(([key, value]) => `${key}: ${value};`).join("\n");
-  style.textContent = `:root {
-${cssVariables}
-}`;
-  const existingStyle = document.getElementById("tt-chat-theme");
-  if (existingStyle) {
-    existingStyle.remove();
-  }
-  document.head.appendChild(style);
-}
-function extractActionTagsAndCleanText(rawText) {
-  if (!rawText || typeof rawText !== "string") {
-    return { cleanText: rawText || "", actions: [] };
-  }
-  const actions = [];
-  const tagRegex = /\[ACTION:\s*([a-zA-Z0-9_-]+)\s*\]/gi;
-  let match3;
-  while ((match3 = tagRegex.exec(rawText)) !== null) {
-    const actionName = (match3[1] || "").trim().toLowerCase();
-    if (actionName) {
-      if (actionName === "customer_auth" || actionName === "customerauth" || actionName === "account_auth") {
-        actions.push({
-          type: "customer_auth",
-          label: "Verify Account",
-          action: "customer_auth"
-        });
-      } else {
-        actions.push({
-          type: actionName,
-          label: actionName,
-          action: actionName
-        });
-      }
-    }
-  }
-  const cleanText = rawText.replace(tagRegex, "").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
-  return { cleanText, actions };
-}
-const LOCAL_STORAGE_SESSION_KEY = "tt-chat-n8n-session-id";
-function mockLocalWebhook(url, options) {
-  let parsedBody = {};
-  if (options.body) {
-    if (typeof options.body === "string") {
-      try {
-        parsedBody = JSON.parse(options.body);
-      } catch {
-      }
-    } else if (typeof FormData !== "undefined" && options.body instanceof FormData) {
-      options.body.forEach((val, key) => {
-        parsedBody[key] = val;
-      });
-    }
-  }
-  if (url.includes("?")) {
-    const searchParams = new URLSearchParams(url.split("?")[1]);
-    searchParams.forEach((val, key) => {
-      if (!parsedBody[key]) parsedBody[key] = val;
-    });
-  }
-  const action = parsedBody.action;
-  if (action === "requestOtp") {
-    const email = (parsedBody.email || "").trim().toLowerCase();
-    return {
-      success: !!(email && email.includes("@")),
-      message: email && email.includes("@") ? `We sent a 6-digit code to ${email}.` : "Please enter a valid email address."
-    };
-  }
-  if (action === "verifyOtp") {
-    const code2 = (parsedBody.code || "").trim();
-    if (code2.length === 6 && /^\d+$/.test(code2)) {
-      return {
-        success: true,
-        message: "Verified",
-        email: parsedBody.email
-      };
-    } else {
-      return {
-        success: false,
-        message: "Incorrect verification code. Please try again."
-      };
-    }
-  }
-  if (action === "getCatalog") {
-    return {
-      items: [],
-      categories: [],
-      total: 0
-    };
-  }
-  if (action === "loadPreviousSession" || url.includes("loadPreviousSession")) {
-    return {
-      data: [
-        {
-          id: "msg-1",
-          kwargs: {
-            content: "Welcome to HealthyLine! How can I help you today?"
-          }
-        }
-      ]
-    };
-  }
-  const userText = (parsedBody.chatInput || parsedBody.message || "").trim();
-  let responseText = `Thank you for your message: "${userText}". How can I assist you with HealthyLine products or orders?`;
-  if (userText && /auth|verify|account|order auth|check order/i.test(userText)) {
-    responseText = `To view and manage your orders or account details, please verify your email address:
-
-[ACTION:customer_auth]`;
-  }
-  return {
-    output: responseText,
-    actions: []
-  };
-}
-async function fetchApi(url, options = {}) {
-  console.log("Calling API:", url, options);
-  try {
-    const response = await fetch(url, {
-      mode: "cors",
-      cache: "no-cache",
-      ...options
-    });
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
-    }
-    const result = await response.json();
-    console.log("API Response:", result);
-    return result;
-  } catch (err) {
-    if (typeof window !== "undefined" && url.startsWith("http") && !url.includes(window.location.host)) {
-      console.warn(`[SimpleChatN8N] Call to external webhook ${url} failed (${err.message}). Falling back to local mock endpoint /api/webhook.`);
-      const queryString = url.includes("?") ? "?" + url.split("?")[1] : "";
-      const fallbackUrl = `/api/webhook${queryString}`;
-      try {
-        const response = await fetch(fallbackUrl, {
-          mode: "cors",
-          cache: "no-cache",
-          ...options
-        });
-        if (!response.ok) {
-          throw new Error(`Fallback API request failed with status ${response.status}`);
-        }
-        const result = await response.json();
-        console.log("Fallback API Response:", result);
-        return result;
-      } catch (fallbackErr) {
-        console.warn(`[SimpleChatN8N] Webhook mock endpoint unavailable, using client-side mock.`);
-        return mockLocalWebhook(url, options);
-      }
-    }
-    if (url.includes("/api/webhook")) {
-      console.warn(`[SimpleChatN8N] Webhook mock endpoint failed, using client-side mock.`);
-      return mockLocalWebhook(url, options);
-    }
-    throw err;
-  }
-}
-async function loadPreviousSession(sessionId, options) {
-  var _a2, _b, _c;
-  console.log("Loading previous session with ID:", sessionId);
-  const method = ((_a2 = options.webhookConfig) == null ? void 0 : _a2.method) === "POST" ? "POST" : "GET";
-  const body = {
-    action: "loadPreviousSession",
-    [options.chatSessionKey || "sessionId"]: sessionId
-  };
-  if (method === "POST") {
-    return await fetchApi(options.webhookUrl, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        ...(_b = options.webhookConfig) == null ? void 0 : _b.headers
-      },
-      body: JSON.stringify(body)
-    });
-  } else {
-    const params = new URLSearchParams();
-    Object.entries(body).forEach(([key, value]) => {
-      params.append(key, String(value));
-    });
-    return await fetchApi(
-      `${options.webhookUrl}?${params.toString()}`,
-      {
-        method,
-        headers: (_c = options.webhookConfig) == null ? void 0 : _c.headers
-      }
-    );
-  }
-}
-async function sendMessage(message2, files, sessionId, options, privacy, callback) {
-  var _a2, _b, _c, _d;
-  const method = ((_a2 = options.webhookConfig) == null ? void 0 : _a2.method) === "POST" ? "POST" : "GET";
-  const body = {
-    action: "sendMessage",
-    [options.chatSessionKey || "sessionId"]: sessionId,
-    [options.chatInputKey || "chatInput"]: message2
-  };
-  if (privacy !== void 0) {
-    body.privacy = privacy;
-    console.log("Adding privacy response to request:", privacy);
-  }
-  if (callback !== void 0 && callback !== null) {
-    body.callback = callback;
-    console.log("Adding callback to request:", callback);
-  }
-  if (files.length > 0) {
-    const formData = new FormData();
-    Object.entries(body).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-    files.forEach((file) => {
-      formData.append("files", file);
-    });
-    return await fetchApi(options.webhookUrl, {
-      method: "POST",
-      headers: (_b = options.webhookConfig) == null ? void 0 : _b.headers,
-      body: formData
-    });
-  }
-  if (method === "POST") {
-    return await fetchApi(options.webhookUrl, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        ...(_c = options.webhookConfig) == null ? void 0 : _c.headers
-      },
-      body: JSON.stringify(body)
-    });
-  } else {
-    const params = new URLSearchParams();
-    Object.entries(body).forEach(([key, value]) => {
-      params.append(key, String(value));
-    });
-    return await fetchApi(
-      `${options.webhookUrl}?${params.toString()}`,
-      {
-        method,
-        headers: (_d = options.webhookConfig) == null ? void 0 : _d.headers
-      }
-    );
-  }
-}
-async function getCatalog(options, filters) {
-  var _a2, _b, _c;
-  const method = ((_a2 = options.webhookConfig) == null ? void 0 : _a2.method) === "POST" ? "POST" : "GET";
-  const body = {
-    action: "getCatalog"
-  };
-  if (method === "POST") {
-    return await fetchApi(options.webhookUrl, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        ...(_b = options.webhookConfig) == null ? void 0 : _b.headers
-      },
-      body: JSON.stringify(body)
-    });
-  } else {
-    const params = new URLSearchParams();
-    Object.entries(body).forEach(([key, value]) => {
-      params.append(key, String(value));
-    });
-    return await fetchApi(
-      `${options.webhookUrl}?${params.toString()}`,
-      {
-        method,
-        headers: (_c = options.webhookConfig) == null ? void 0 : _c.headers
-      }
-    );
-  }
-}
-async function requestOtp(email, sessionId, options) {
-  var _a2, _b, _c;
-  const method = ((_a2 = options.webhookConfig) == null ? void 0 : _a2.method) === "POST" ? "POST" : "GET";
-  const body = {
-    action: "requestOtp",
-    email: email.trim().toLowerCase(),
-    [options.chatSessionKey || "sessionId"]: sessionId
-  };
-  if (method === "POST") {
-    return await fetchApi(options.webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(_b = options.webhookConfig) == null ? void 0 : _b.headers
-      },
-      body: JSON.stringify(body)
-    });
-  } else {
-    const params = new URLSearchParams();
-    Object.entries(body).forEach(([key, value]) => {
-      params.append(key, String(value));
-    });
-    return await fetchApi(
-      `${options.webhookUrl}?${params.toString()}`,
-      {
-        method,
-        headers: (_c = options.webhookConfig) == null ? void 0 : _c.headers
-      }
-    );
-  }
-}
-async function verifyOtp(email, code2, sessionId, options) {
-  var _a2, _b, _c;
-  const method = ((_a2 = options.webhookConfig) == null ? void 0 : _a2.method) === "POST" ? "POST" : "GET";
-  const body = {
-    action: "verifyOtp",
-    email: email.trim().toLowerCase(),
-    code: code2.trim(),
-    [options.chatSessionKey || "sessionId"]: sessionId
-  };
-  if (method === "POST") {
-    return await fetchApi(options.webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(_b = options.webhookConfig) == null ? void 0 : _b.headers
-      },
-      body: JSON.stringify(body)
-    });
-  } else {
-    const params = new URLSearchParams();
-    Object.entries(body).forEach(([key, value]) => {
-      params.append(key, String(value));
-    });
-    return await fetchApi(
-      `${options.webhookUrl}?${params.toString()}`,
-      {
-        method,
-        headers: (_c = options.webhookConfig) == null ? void 0 : _c.headers
-      }
-    );
-  }
-}
-const ChatSymbol = Symbol("Chat");
-function useChat() {
-  const chat = inject(ChatSymbol);
-  if (!chat) {
-    throw new Error("useChat() must be used within a chat provider");
-  }
-  return chat;
-}
 const OptionsSymbol = Symbol("Options");
 function useOptions() {
   const options = inject(OptionsSymbol);
@@ -8433,335 +8206,47 @@ function useOptions() {
   }
   return options;
 }
-class SessionManager {
-  constructor(currentSessionId, messages, options, initialMessages) {
-    this.currentSessionId = currentSessionId;
-    this.messages = messages;
-    this.options = options;
-    this.initialMessages = initialMessages;
-  }
-  /**
-   * Inizializza una nuova sessione
-   */
-  async startNewSession() {
-    const newSessionId = generateId();
-    this.currentSessionId.value = newSessionId;
-    localStorage.setItem(LOCAL_STORAGE_SESSION_KEY, newSessionId);
-    const defaultGreeting = "Welcome to HealthyLine! How can I help you today?";
-    const messagesToUse = this.initialMessages.length > 0 ? [...this.initialMessages] : [{ id: generateId(), text: defaultGreeting, sender: "bot", createdAt: (/* @__PURE__ */ new Date()).toISOString() }];
-    this.messages.value = messagesToUse;
-    console.log("Nuova sessione iniziata:", newSessionId);
-    return newSessionId;
-  }
-  /**
-   * Carica la sessione precedente o ne inizia una nuova
-   */
-  async loadPreviousSession() {
-    var _a2;
-    if (!this.options.loadPreviousSession) {
-      return await this.startNewSession();
-    }
-    const sessionIdFromStorage = localStorage.getItem(LOCAL_STORAGE_SESSION_KEY);
-    if (!sessionIdFromStorage) {
-      console.log("Nessun ID di sessione in localStorage. Inizio una nuova sessione.");
-      return await this.startNewSession();
-    }
-    console.log("Trovato sessionId in localStorage:", sessionIdFromStorage);
-    this.currentSessionId.value = sessionIdFromStorage;
-    try {
-      const previousMessagesResponse = await loadPreviousSession(
-        sessionIdFromStorage,
-        this.options
-      );
-      console.log("Risposta caricamento sessione:", previousMessagesResponse);
-      if (((_a2 = previousMessagesResponse == null ? void 0 : previousMessagesResponse.data) == null ? void 0 : _a2.length) > 0) {
-        const timestamp = (/* @__PURE__ */ new Date()).toISOString();
-        const loadedMessages = [];
-        previousMessagesResponse.data.forEach((message2, index) => {
-          var _a3;
-          const messageContent = ((_a3 = message2.kwargs) == null ? void 0 : _a3.content) || "Messaggio vuoto";
-          const sender = Array.isArray(message2.id) ? message2.id.some((id) => String(id).includes("HumanMessage")) ? "user" : "bot" : String(message2.id).includes("HumanMessage") ? "user" : "bot";
-          if (Array.isArray(messageContent)) {
-            messageContent.forEach((text2, textIndex) => {
-              if (typeof text2 === "string" && text2.trim() !== "") {
-                const { cleanText, actions } = sender === "bot" ? extractActionTagsAndCleanText(text2) : { cleanText: text2.trim(), actions: [] };
-                if (cleanText !== "" || actions.length > 0) {
-                  loadedMessages.push({
-                    id: `${index}-${textIndex}-${generateId()}`,
-                    text: cleanText,
-                    sender,
-                    createdAt: timestamp,
-                    actions: actions.length > 0 ? actions : void 0
-                  });
-                }
-              }
-            });
-          } else if (typeof messageContent === "string" && messageContent.trim() !== "") {
-            const { cleanText, actions } = sender === "bot" ? extractActionTagsAndCleanText(messageContent) : { cleanText: messageContent.trim(), actions: [] };
-            if (cleanText !== "" || actions.length > 0) {
-              loadedMessages.push({
-                id: `${index}-${generateId()}`,
-                text: cleanText,
-                sender,
-                createdAt: timestamp,
-                actions: actions.length > 0 ? actions : void 0
-              });
-            }
-          }
-        });
-        console.log("Messaggi caricati:", loadedMessages);
-        this.messages.value = loadedMessages;
-        if (this.messages.value.length === 0) {
-          console.log("Sessione vuota, aggiunto messaggi iniziali o saluto di default");
-          const defaultGreeting2 = "Welcome to HealthyLine! How can I help you today?";
-          this.messages.value = this.initialMessages.length > 0 ? [...this.initialMessages] : [{ id: generateId(), text: defaultGreeting2, sender: "bot", createdAt: (/* @__PURE__ */ new Date()).toISOString() }];
-        }
-        return sessionIdFromStorage;
-      }
-      console.log("Nessun messaggio precedente trovato per la sessione:", sessionIdFromStorage);
-      const defaultGreeting = "Welcome to HealthyLine! How can I help you today?";
-      this.messages.value = this.initialMessages.length > 0 ? [...this.initialMessages] : [{ id: generateId(), text: defaultGreeting, sender: "bot", createdAt: (/* @__PURE__ */ new Date()).toISOString() }];
-      return sessionIdFromStorage;
-    } catch (error2) {
-      console.error("Errore durante il caricamento della sessione precedente:", error2);
-      return await this.startNewSession();
-    }
-  }
-  /**
-   * Assicura che esista un ID di sessione valido
-   */
-  async ensureSessionId() {
-    if (!this.currentSessionId.value) {
-      const sessionId = this.options.loadPreviousSession ? await this.loadPreviousSession() : await this.startNewSession();
-      if (!sessionId) {
-        throw new Error("Impossibile stabilire un ID di sessione");
-      }
-      return sessionId;
-    }
-    return this.currentSessionId.value;
-  }
-}
-class MessageProcessor {
-  constructor(messages, pendingCallbackValue) {
-    this.messages = messages;
-    this.pendingCallbackValue = pendingCallbackValue;
-  }
-  /**
-   * Aggiunge un messaggio di errore alla chat
-   */
-  addErrorMessage(text2) {
-    this.messages.value.push({
-      id: generateId(),
-      text: text2,
-      sender: "bot",
-      createdAt: (/* @__PURE__ */ new Date()).toISOString()
-    });
-  }
-  /**
-   * Aggiunge un messaggio utente alla chat
-   */
-  addUserMessage(text2, files = []) {
-    if (text2.trim() || files.length > 0) {
-      const sentMessage = {
-        id: generateId(),
-        text: text2.trim(),
-        sender: "user",
-        files,
-        createdAt: (/* @__PURE__ */ new Date()).toISOString()
-      };
-      this.messages.value.push(sentMessage);
-    }
-  }
-  /**
-   * Estrae i testi di risposta dall'oggetto response
-   */
-  extractResponseTexts(response) {
-    if (Array.isArray(response.output)) {
-      return response.output.filter((msg) => typeof msg === "string" && msg.trim() !== "");
-    }
-    if (typeof response.output === "string" && response.output.trim() !== "") {
-      return [response.output];
-    }
-    const fallbackText = response.text ?? "";
-    if (fallbackText.trim() !== "") {
-      return [fallbackText];
-    }
-    if (Object.keys(response).length > 0 && (!response.actions || response.actions.length === 0)) {
-      try {
-        return [JSON.stringify(response, null, 2)];
-      } catch (e) {
-        return [];
-      }
-    }
-    return [];
-  }
-  /**
-   * Processa le azioni dalla risposta del server
-   */
-  processActions(actions) {
-    const callbackAction = actions.find(
-      (action) => action.type === "callback" && typeof action.value === "string" && action.value.trim() !== ""
-    );
-    if (callbackAction == null ? void 0 : callbackAction.value) {
-      console.log(`Azione callback ricevuta. Memorizzo il valore: ${callbackAction.value} per il prossimo messaggio utente.`);
-      this.pendingCallbackValue.value = callbackAction.value;
-    }
-  }
-  /**
-   * Crea e aggiunge i messaggi di risposta del bot
-   */
-  addBotMessages(responseTexts, actions) {
-    const serverActions = actions || [];
-    let hasCreatedMessage = false;
-    responseTexts.forEach((rawText, index) => {
-      const { cleanText, actions: tagActions } = extractActionTagsAndCleanText(rawText);
-      const combinedActions = [...tagActions];
-      if (index === 0 && serverActions.length > 0) {
-        serverActions.forEach((sa2) => {
-          if (!combinedActions.some((a) => a.type === sa2.type && a.action === sa2.action)) {
-            combinedActions.push(sa2);
-          }
-        });
-      }
-      if (cleanText.length > 0 || combinedActions.length > 0 && !hasCreatedMessage) {
-        const receivedMessage = {
-          id: generateId(),
-          text: cleanText,
-          sender: "bot",
-          createdAt: (/* @__PURE__ */ new Date()).toISOString()
-        };
-        if (combinedActions.length > 0) {
-          receivedMessage.actions = combinedActions;
-          this.processActions(combinedActions);
-        }
-        this.messages.value.push(receivedMessage);
-        hasCreatedMessage = true;
-      }
-    });
-    if (!hasCreatedMessage && serverActions.length > 0) {
-      const actionsMessage = {
-        id: generateId(),
-        text: "",
-        sender: "bot",
-        createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-        actions: serverActions
-      };
-      this.processActions(serverActions);
-      this.messages.value.push(actionsMessage);
-    }
-  }
-}
-const ChatPlugin = {
-  install(app, options) {
-    const defaultOptions2 = {
-      webhookUrl: "https://app.healthyline.com/webhook/ai-chat",
-      webhookConfig: {
-        method: "POST",
-        headers: {}
-      },
-      mode: "window",
-      loadPreviousSession: true,
-      chatInputKey: "chatInput",
-      chatSessionKey: "sessionId",
-      theme: {},
-      allowFileUploads: false,
-      showTooltip: true,
-      tooltipText: "Got questions? We're here 24/7",
-      initialMessages: [
-        "Welcome to HealthyLine! How can I help you today?"
-      ],
-      placeholder: "Type your message...",
-      title: "HealthyLine",
-      subtitle: "Chat with AI Assistant"
+const defaultOpenChatIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='35px'%20height='30px'%20viewBox='0%200%2035%2030'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3echat%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%3e%3cg%20id='ChatBOT-chiuso'%20transform='translate(-1542,%20-1022)'%3e%3cg%20id='chat'%20transform='translate(1542,%201022)'%3e%3cpath%20d='M3.75,0%20C1.67925,0%200,1.67925%200,3.75%20L0,21.75%20L6.82470675,17.25%20L20.25,17.25%20C22.32075,17.25%2024,15.57075%2024,13.5%20L24,0%20L3.75,0%20Z'%20id='Shape'%20fill='%23FFFFFF'%20fill-rule='nonzero'%3e%3c/path%3e%3cpath%20d='M26.25,7.5%20L26.25,13.5%20C26.25,16.8075%2023.5575,19.5%2020.25,19.5%20L10.5,19.5%20L10.5,21.75%20C10.5,23.82%2012.18,25.5%2014.25,25.5%20L27.6752932,25.5%20L34.5,30%20L34.5,11.25%20C34.5,9.18%2032.82,7.5%2030.75,7.5%20L26.25,7.5%20Z'%20id='Path'%20fill='%23F3B83B'%3e%3c/path%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
+const defaultCloseChatIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='30px'%20height='30px'%20viewBox='0%200%2030%2030'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3ePath%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%3e%3cg%20id='ChatBOT'%20transform='translate(-1544,%20-1019)'%20fill='%23FFFFFF'%20fill-rule='nonzero'%3e%3cg%20id='Group-5-Copy'%20transform='translate(1192,%20680)'%3e%3cpolygon%20id='Path'%20transform='translate(367.0321,%20354)%20rotate(-315)%20translate(-367.0321,%20-354)'%20points='369.051282%20364%20357%20364%20357%20355.987179%20369.051282%20355.987179%20369.051282%20344%20377.064103%20344%20377.064103%20355.987179%20377.064103%20364'%3e%3c/polygon%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
+const defaultSendIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='24px'%20height='24px'%20viewBox='0%200%2024%2024'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3einvia%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%3e%3cg%20id='ChatBOT-aperto'%20transform='translate(-1545,%20-946)'%20fill='%23FF0000'%20fill-rule='nonzero'%3e%3cg%20id='Group-5'%20transform='translate(1192,%20425)'%3e%3cpath%20d='M376,521%20C375.904026,521.000658%20375.808647,521.01513%20375.716797,521.042969%20C375.68976,521.050307%20375.663044,521.058778%20375.636719,521.068359%20L353.650391,528.060547%20L353.650391,528.064453%20C353.259759,528.21022%20353.000562,528.583058%20353,529%20C353.000741,529.349225%20353.183611,529.672765%20353.482422,529.853516%20L360.164062,535.154297%20L373.373047,524.626953%20L362.845703,537.835938%20L368.142578,544.513672%20C368.323084,544.815172%20368.648596,545%20369,545%20C369.416943,544.999438%20369.78978,544.740241%20369.935547,544.349609%20L369.939453,544.349609%20L376.9375,522.34375%20C376.944651,522.32378%20376.951164,522.303587%20376.957031,522.283203%20C376.98487,522.191353%20376.999342,522.095974%20377,522%20C377,521.447715%20376.552285,521%20376,521%20Z'%20id='invia'%3e%3c/path%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
+const defaultHeaderLogoIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20standalone='no'?%3e%3c!DOCTYPE%20svg%20PUBLIC%20'-//W3C//DTD%20SVG%2020010904//EN'%20'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'%3e%3csvg%20version='1.0'%20xmlns='http://www.w3.org/2000/svg'%20width='564.000000pt'%20height='551.000000pt'%20viewBox='0%200%20564.000000%20551.000000'%20preserveAspectRatio='xMidYMid%20meet'%3e%3cg%20transform='translate(0.000000,551.000000)%20scale(0.100000,-0.100000)'%20fill='%23000000'%20stroke='none'%3e%3cpath%20d='M650%205026%20c-139%20-39%20-182%20-114%20-128%20-225%2097%20-201%20591%20-463%20990%20-526%20252%20-39%20434%20-4%20474%2092%2047%20112%20-120%20295%20-410%20449%20-305%20162%20-741%20261%20-926%20210z'/%3e%3cpath%20d='M4715%205028%20c-349%20-66%20-633%20-181%20-852%20-345%20-134%20-101%20-203%20-195%20-203%20-279%200%20-40%205%20-51%2033%20-78%2046%20-44%2094%20-57%20223%20-63%20222%20-11%20472%2050%20753%20183%20163%2078%20284%20157%20371%20244%20201%20198%20119%20352%20-185%20349%20-49%20-1%20-112%20-6%20-140%20-11z'/%3e%3cpath%20d='M870%203975%20c-151%20-22%20-260%20-76%20-299%20-146%20-26%20-45%20-26%20-72%20-2%20-124%2051%20-114%20262%20-232%20526%20-294%20146%20-35%20236%20-43%20426%20-39%20166%204%20192%207%20264%2031%20106%2035%20169%2076%20195%20126%2027%2054%2025%2076%20-10%20139%20-46%2080%20-160%20158%20-313%20216%20-241%2091%20-550%20127%20-787%2091z'/%3e%3cpath%20d='M4365%203975%20c-306%20-40%20-588%20-163%20-676%20-294%20-37%20-57%20-40%20-122%20-6%20-172%2029%20-44%20126%20-93%20236%20-120%2075%20-19%20105%20-21%20290%20-17%20176%204%20223%209%20321%2031%20258%2059%20450%20155%20532%20267%2026%2036%2032%2053%2033%2098%200%2053%20-1%2055%20-51%20101%20-113%20104%20-375%20145%20-679%20106z'/%3e%3cpath%20d='M2130%203023%20c-36%20-1%20-182%20-7%20-325%20-13%20-348%20-14%20-678%20-46%20-884%20-85%20-156%20-30%20-253%20-59%20-308%20-93%20-190%20-119%2072%20-232%20677%20-292%20769%20-77%202243%20-79%203030%20-5%20312%2030%20607%2087%20702%20136%2038%2019%2078%2061%2078%2082%200%2071%20-114%20124%20-365%20171%20-393%2074%20-1014%20107%20-1950%20104%20-324%20-1%20-619%20-3%20-655%20-5z'/%3e%3cpath%20d='M1300%202140%20c-162%20-16%20-391%20-79%20-515%20-142%20-91%20-47%20-172%20-114%20-205%20-170%20-16%20-29%20-30%20-63%20-30%20-76%20-1%20-152%20276%20-248%20637%20-221%20143%2011%20161%2013%20289%2044%20194%2047%20341%20116%20435%20203%2072%2067%2098%20124%2080%20181%20-21%2070%20-118%20134%20-255%20166%20-75%2018%20-321%2027%20-436%2015z'/%3e%3cpath%20d='M4009%202140%20c-134%20-13%20-270%20-68%20-323%20-131%20-20%20-24%20-26%20-41%20-26%20-80%200%20-64%2016%20-95%2083%20-156%20120%20-109%20372%20-204%20624%20-234%20116%20-14%20319%20-15%20414%20-1%20162%2024%20287%2093%20310%20173%2072%20239%20-538%20481%20-1082%20429z'/%3e%3cpath%20d='M1610%201254%20c-14%20-2%20-67%20-11%20-119%20-20%20-172%20-28%20-346%20-86%20-537%20-179%20-398%20-196%20-570%20-444%20-372%20-539%2086%20-41%20183%20-51%20315%20-32%20239%2033%20446%2097%20657%20203%20231%20116%20391%20255%20432%20376%2013%2040%2013%2049%201%2080%20-17%2040%20-66%2079%20-122%2096%20-42%2013%20-212%2023%20-255%2015z'/%3e%3cpath%20d='M3835%201251%20c-208%20-45%20-233%20-171%20-69%20-336%20214%20-214%20668%20-404%201049%20-440%20121%20-11%20273%2029%20315%2083%2026%2032%2026%2094%200%20150%20-74%20163%20-422%20379%20-780%20484%20-171%2050%20-422%2079%20-515%2059z'/%3e%3c/g%3e%3c/svg%3e";
+const _hoisted_1$d = ["src", "alt"];
+const _sfc_main$d = /* @__PURE__ */ defineComponent({
+  __name: "IconLoader",
+  props: {
+    name: {},
+    alt: {},
+    className: {}
+  },
+  setup(__props) {
+    const options = useOptions();
+    const props = __props;
+    const defaultIcons = {
+      openChat: defaultOpenChatIcon,
+      closeChat: defaultCloseChatIcon,
+      send: defaultSendIcon,
+      headerLogo: defaultHeaderLogoIcon
     };
-    const mergedOptions = {
-      ...defaultOptions2,
-      ...options
-    };
-    if (mergedOptions.subtitle === "24/7 AI Wellness Concierge" || !mergedOptions.subtitle) {
-      mergedOptions.subtitle = "Chat with AI Assistant";
-    }
-    const resolvedOptions = /* @__PURE__ */ ref({
-      ...mergedOptions,
-      webhookConfig: {
-        ...defaultOptions2.webhookConfig,
-        ...options.webhookConfig
-      },
-      theme: {
-        ...defaultOptions2.theme,
-        ...options.theme
-      },
-      icons: {
-        ...defaultOptions2.icons,
-        ...options.icons
-      }
+    const iconSrc = computed(() => {
+      var _a2, _b;
+      return ((_b = (_a2 = options.value) == null ? void 0 : _a2.icons) == null ? void 0 : _b[props.name]) || defaultIcons[props.name];
     });
-    app.provide(OptionsSymbol, resolvedOptions);
-    const messages = /* @__PURE__ */ ref([]);
-    const currentSessionId = /* @__PURE__ */ ref(null);
-    const waitingForResponse = /* @__PURE__ */ ref(false);
-    const pendingCallbackValue = /* @__PURE__ */ ref(null);
-    const initialMessages = computed(
-      () => (resolvedOptions.value.initialMessages || []).map((text2) => ({
-        id: generateId(),
-        text: text2,
-        sender: "bot",
-        createdAt: (/* @__PURE__ */ new Date()).toISOString()
-      }))
-    );
-    const sessionManager = new SessionManager(
-      currentSessionId,
-      messages,
-      resolvedOptions.value,
-      initialMessages.value
-    );
-    const messageProcessor = new MessageProcessor(
-      messages,
-      pendingCallbackValue
-    );
-    async function sendMessageHandler(text2, files = [], privacy) {
-      const userMessageText = text2.trim();
-      const callbackToSend = pendingCallbackValue.value;
-      if (!userMessageText && !files.length && privacy === void 0 && !callbackToSend) {
-        console.log("sendMessageHandler: Nessun contenuto da inviare.");
-        return;
-      }
-      try {
-        const sessionId = await sessionManager.ensureSessionId();
-        messageProcessor.addUserMessage(userMessageText, files);
-        waitingForResponse.value = true;
-        const response = await sendMessage(
-          userMessageText,
-          files,
-          sessionId,
-          resolvedOptions.value,
-          privacy,
-          callbackToSend
-        );
-        if (callbackToSend) {
-          pendingCallbackValue.value = null;
-        }
-        const responseTexts = messageProcessor.extractResponseTexts(response);
-        messageProcessor.addBotMessages(responseTexts, response.actions);
-      } catch (error2) {
-        console.error("Invio messaggio fallito:", error2);
-        messageProcessor.addErrorMessage("Sorry, something went wrong while processing your request. Please try again.");
-      } finally {
-        waitingForResponse.value = false;
-      }
-    }
-    const chatStore = {
-      messages,
-      currentSessionId,
-      waitingForResponse,
-      pendingCallbackValue,
-      loadPreviousSession: () => sessionManager.loadPreviousSession(),
-      startNewSession: () => sessionManager.startNewSession(),
-      sendMessage: sendMessageHandler
+    const defaultAltTexts = {
+      openChat: "Apri chat",
+      closeChat: "Chiudi chat",
+      send: "Invia messaggio",
+      headerLogo: "Logo"
     };
-    app.provide(ChatSymbol, chatStore);
+    const altText = computed(() => props.alt || defaultAltTexts[props.name]);
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("img", {
+        src: iconSrc.value,
+        alt: altText.value,
+        class: normalizeClass(__props.className)
+      }, null, 10, _hoisted_1$d);
+    };
   }
-};
+});
 const decodeCache = {};
 function getDecodeCache(exclude) {
   let cache = decodeCache[exclude];
@@ -11561,95 +11046,120 @@ function list(state, startLine, endLine, silent) {
   }
   return true;
 }
+const MAX_LABEL_LENGTH = 999;
+function countCodePoints(str) {
+  let length = str.length;
+  for (let i = 0; i < str.length - 1; i++) {
+    const high = str.charCodeAt(i);
+    if (high < 55296 || high > 56319) {
+      continue;
+    }
+    const low = str.charCodeAt(i + 1);
+    if (low >= 56320 && low <= 57343) {
+      length--;
+      i++;
+    }
+  }
+  return length;
+}
+function lineEnd(state, line) {
+  return Math.min(state.eMarks[line] + 1, state.src.length);
+}
+function getNextLinePos(state, nextLine) {
+  const endLine = state.lineMax;
+  if (nextLine >= endLine || state.isEmpty(nextLine)) {
+    return -1;
+  }
+  let isContinuation = false;
+  if (state.sCount[nextLine] - state.blkIndent > 3) {
+    isContinuation = true;
+  }
+  if (state.sCount[nextLine] < 0) {
+    isContinuation = true;
+  }
+  if (!isContinuation) {
+    const terminatorRules = state.md.block.ruler.getRules("reference");
+    const oldParentType = state.parentType;
+    state.parentType = "reference";
+    let terminate = false;
+    for (let i = 0, l = terminatorRules.length; i < l; i++) {
+      if (terminatorRules[i](state, nextLine, endLine, true)) {
+        terminate = true;
+        break;
+      }
+    }
+    state.parentType = oldParentType;
+    if (terminate) {
+      return -1;
+    }
+  }
+  return state.bMarks[nextLine] + state.tShift[nextLine];
+}
 function reference(state, startLine, _endLine, silent) {
+  const src = state.src;
   let pos = state.bMarks[startLine] + state.tShift[startLine];
-  let max = state.eMarks[startLine];
   let nextLine = startLine + 1;
   if (state.sCount[startLine] - state.blkIndent >= 4) {
     return false;
   }
-  if (state.src.charCodeAt(pos) !== 91) {
+  if (src.charCodeAt(pos) !== 91) {
     return false;
   }
-  function getNextLine(nextLine2) {
-    const endLine = state.lineMax;
-    if (nextLine2 >= endLine || state.isEmpty(nextLine2)) {
-      return null;
-    }
-    let isContinuation = false;
-    if (state.sCount[nextLine2] - state.blkIndent > 3) {
-      isContinuation = true;
-    }
-    if (state.sCount[nextLine2] < 0) {
-      isContinuation = true;
-    }
-    if (!isContinuation) {
-      const terminatorRules = state.md.block.ruler.getRules("reference");
-      const oldParentType = state.parentType;
-      state.parentType = "reference";
-      let terminate = false;
-      for (let i = 0, l = terminatorRules.length; i < l; i++) {
-        if (terminatorRules[i](state, nextLine2, endLine, true)) {
-          terminate = true;
-          break;
-        }
-      }
-      state.parentType = oldParentType;
-      if (terminate) {
-        return null;
-      }
-    }
-    const pos2 = state.bMarks[nextLine2] + state.tShift[nextLine2];
-    const max2 = state.eMarks[nextLine2];
-    return state.src.slice(pos2, max2 + 1);
-  }
-  let str = state.src.slice(pos, max + 1);
-  max = str.length;
+  let max = lineEnd(state, startLine);
+  let rawLabel = "";
   let labelEnd = -1;
-  for (pos = 1; pos < max; pos++) {
-    const ch = str.charCodeAt(pos);
+  let segmentStart = ++pos;
+  while (pos < max) {
+    if (rawLabel.length + pos - segmentStart > MAX_LABEL_LENGTH * 2) {
+      return false;
+    }
+    let ch = src.charCodeAt(pos);
     if (ch === 91) {
       return false;
-    } else if (ch === 93) {
+    }
+    if (ch === 93) {
       labelEnd = pos;
       break;
-    } else if (ch === 10) {
-      const lineContent = getNextLine(nextLine);
-      if (lineContent !== null) {
-        str += lineContent;
-        max = str.length;
-        nextLine++;
-      }
-    } else if (ch === 92) {
-      pos++;
-      if (pos < max && str.charCodeAt(pos) === 10) {
-        const lineContent = getNextLine(nextLine);
-        if (lineContent !== null) {
-          str += lineContent;
-          max = str.length;
-          nextLine++;
-        }
-      }
     }
+    if (ch === 92) {
+      ch = src.charCodeAt(++pos);
+    }
+    if (ch === 10 && pos < max) {
+      const nextPos = getNextLinePos(state, nextLine);
+      if (nextPos < 0) {
+        return false;
+      }
+      rawLabel += src.slice(segmentStart, max);
+      pos = segmentStart = nextPos;
+      max = lineEnd(state, nextLine++);
+      continue;
+    }
+    pos++;
   }
-  if (labelEnd < 0 || str.charCodeAt(labelEnd + 1) !== 58) {
+  if (labelEnd < 0 || src.charCodeAt(labelEnd + 1) !== 58) {
     return false;
   }
-  for (pos = labelEnd + 2; pos < max; pos++) {
-    const ch = str.charCodeAt(pos);
+  rawLabel += src.slice(segmentStart, labelEnd);
+  if (rawLabel.length > MAX_LABEL_LENGTH && countCodePoints(rawLabel) > MAX_LABEL_LENGTH) {
+    return false;
+  }
+  pos = labelEnd + 2;
+  while (pos < max) {
+    const ch = src.charCodeAt(pos);
     if (ch === 10) {
-      const lineContent = getNextLine(nextLine);
-      if (lineContent !== null) {
-        str += lineContent;
-        max = str.length;
-        nextLine++;
+      const nextPos = getNextLinePos(state, nextLine);
+      if (nextPos < 0) {
+        break;
       }
-    } else if (isSpace(ch)) ;
-    else {
+      pos = nextPos;
+      max = lineEnd(state, nextLine++);
+    } else if (isSpace(ch)) {
+      pos++;
+    } else {
       break;
     }
   }
-  const destRes = state.md.helpers.parseLinkDestination(str, pos, max);
+  const destRes = state.md.helpers.parseLinkDestination(src, pos, max);
   if (!destRes.ok) {
     return false;
   }
@@ -11659,55 +11169,57 @@ function reference(state, startLine, _endLine, silent) {
   }
   pos = destRes.pos;
   const destEndPos = pos;
+  const destEndMax = max;
   const destEndLineNo = nextLine;
-  const start = pos;
-  for (; pos < max; pos++) {
-    const ch = str.charCodeAt(pos);
+  while (pos < max) {
+    const ch = src.charCodeAt(pos);
     if (ch === 10) {
-      const lineContent = getNextLine(nextLine);
-      if (lineContent !== null) {
-        str += lineContent;
-        max = str.length;
-        nextLine++;
+      const nextPos = getNextLinePos(state, nextLine);
+      if (nextPos < 0) {
+        break;
       }
-    } else if (isSpace(ch)) ;
-    else {
+      pos = nextPos;
+      max = lineEnd(state, nextLine++);
+    } else if (isSpace(ch)) {
+      pos++;
+    } else {
       break;
     }
   }
-  let titleRes = state.md.helpers.parseLinkTitle(str, pos, max);
+  const titleStart = pos;
+  let titleRes = state.md.helpers.parseLinkTitle(src, pos, max);
   while (titleRes.can_continue) {
-    const lineContent = getNextLine(nextLine);
-    if (lineContent === null) break;
-    str += lineContent;
-    pos = max;
-    max = str.length;
-    nextLine++;
-    titleRes = state.md.helpers.parseLinkTitle(str, pos, max, titleRes);
+    const nextPos = getNextLinePos(state, nextLine);
+    if (nextPos < 0) break;
+    pos = nextPos;
+    max = lineEnd(state, nextLine++);
+    titleRes = state.md.helpers.parseLinkTitle(src, pos, max, titleRes);
   }
   let title;
-  if (pos < max && start !== pos && titleRes.ok) {
+  if (titleStart !== destEndPos && titleRes.ok) {
     title = titleRes.str;
     pos = titleRes.pos;
   } else {
     title = "";
     pos = destEndPos;
+    max = destEndMax;
     nextLine = destEndLineNo;
   }
   while (pos < max) {
-    const ch = str.charCodeAt(pos);
+    const ch = src.charCodeAt(pos);
     if (!isSpace(ch)) {
       break;
     }
     pos++;
   }
-  if (pos < max && str.charCodeAt(pos) !== 10) {
+  if (pos < max && src.charCodeAt(pos) !== 10) {
     if (title) {
       title = "";
       pos = destEndPos;
+      max = destEndMax;
       nextLine = destEndLineNo;
       while (pos < max) {
-        const ch = str.charCodeAt(pos);
+        const ch = src.charCodeAt(pos);
         if (!isSpace(ch)) {
           break;
         }
@@ -11715,10 +11227,10 @@ function reference(state, startLine, _endLine, silent) {
       }
     }
   }
-  if (pos < max && str.charCodeAt(pos) !== 10) {
+  if (pos < max && src.charCodeAt(pos) !== 10) {
     return false;
   }
-  const label = normalizeReference(str.slice(1, labelEnd));
+  const label = normalizeReference(rawLabel);
   if (!label) {
     return false;
   }
@@ -11806,11 +11318,6 @@ const attr_value = "(?:" + unquoted + "|" + single_quoted + "|" + double_quoted 
 const attribute = "(?:\\s+" + attr_name + "(?:\\s*=\\s*" + attr_value + ")?)";
 const open_tag = "<[A-Za-z][A-Za-z0-9\\-]*" + attribute + "*\\s*\\/?>";
 const close_tag = "<\\/[A-Za-z][A-Za-z0-9\\-]*\\s*>";
-const comment = "<!---?>|<!--(?:[^-]|-[^-]|--[^>])*-->";
-const processing = "<[?][\\s\\S]*?[?]>";
-const declaration = "<![A-Za-z][^>]*>";
-const cdata = "<!\\[CDATA\\[[\\s\\S]*?\\]\\]>";
-const HTML_TAG_RE = new RegExp("^(?:" + open_tag + "|" + close_tag + "|" + comment + "|" + processing + "|" + declaration + "|" + cdata + ")");
 const HTML_OPEN_CLOSE_TAG_RE = new RegExp("^(?:" + open_tag + "|" + close_tag + ")");
 const HTML_SEQUENCES = [
   [/^<(script|pre|style|textarea)(?=(\s|>|$))/i, /<\/(script|pre|style|textarea)>/i, true],
@@ -12094,6 +11601,7 @@ function StateInline(src, md, env, outTokens) {
   this._prev_delimiters = [];
   this.backticks = {};
   this.backticksScanned = false;
+  this.skipHtmlSpecial = false;
   this.linkLevel = 0;
 }
 StateInline.prototype.pushPending = function() {
@@ -12856,6 +12364,41 @@ function isLetter(ch) {
   const lc = ch | 32;
   return lc >= 97 && lc <= 122;
 }
+function scanSpecial(state, pos) {
+  const src = state.src;
+  let start;
+  let terminator;
+  if (src.startsWith("<!--", pos)) {
+    if (src.startsWith(">", pos + 4)) {
+      return pos + 5;
+    }
+    if (src.startsWith("->", pos + 4)) {
+      return pos + 6;
+    }
+    start = pos + 4;
+    terminator = "-->";
+  } else if (src.startsWith("<![CDATA[", pos)) {
+    start = pos + 9;
+    terminator = "]]>";
+  } else if (src.charCodeAt(pos + 1) === 63) {
+    start = pos + 2;
+    terminator = "?>";
+  } else if (isLetter(src.charCodeAt(pos + 2))) {
+    start = pos + 3;
+    terminator = ">";
+  } else {
+    return -1;
+  }
+  if (state.skipHtmlSpecial) {
+    return -1;
+  }
+  const end = src.indexOf(terminator, start);
+  if (end < 0) {
+    state.skipHtmlSpecial = true;
+    return -1;
+  }
+  return end + terminator.length;
+}
 function html_inline(state, silent) {
   if (!state.md.options.html) {
     return false;
@@ -12865,21 +12408,26 @@ function html_inline(state, silent) {
   if (state.src.charCodeAt(pos) !== 60 || pos + 2 >= max) {
     return false;
   }
+  let end;
   const ch = state.src.charCodeAt(pos + 1);
-  if (ch !== 33 && ch !== 63 && ch !== 47 && !isLetter(ch)) {
+  if (ch === 33 || ch === 63) {
+    end = scanSpecial(state, pos);
+  } else if (ch === 47 || isLetter(ch)) {
+    const match3 = state.src.slice(pos).match(HTML_OPEN_CLOSE_TAG_RE);
+    end = match3 ? pos + match3[0].length : -1;
+  } else {
     return false;
   }
-  const match3 = state.src.slice(pos).match(HTML_TAG_RE);
-  if (!match3) {
+  if (end < 0) {
     return false;
   }
   if (!silent) {
     const token = state.push("html_inline", "", 0);
-    token.content = match3[0];
+    token.content = state.src.slice(pos, end);
     if (isLinkOpen(token.content)) state.linkLevel++;
     if (isLinkClose(token.content)) state.linkLevel--;
   }
-  state.pos += match3[0].length;
+  state.pos = end;
   return true;
 }
 const DIGITAL_RE = /^&#((?:x[a-f0-9]{1,6}|[0-9]{1,7}));/i;
@@ -14096,7 +13644,7 @@ const VueMarkdown = /* @__PURE__ */ defineComponent((props) => {
 }, {
   props: ["source", "options", "plugins"]
 });
-const _hoisted_1$e = {
+const _hoisted_1$c = {
   key: 0,
   class: "bot-avatar-badge"
 };
@@ -14118,7 +13666,7 @@ const _hoisted_10$4 = {
   key: 1,
   class: "tt-chat-message-files"
 };
-const _sfc_main$e = /* @__PURE__ */ defineComponent({
+const _sfc_main$c = /* @__PURE__ */ defineComponent({
   __name: "ChatMessage",
   props: {
     message: {}
@@ -14145,7 +13693,7 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["tt-chat-message", classes.value])
       }, [
-        __props.message.sender === "bot" ? (openBlock(), createElementBlock("div", _hoisted_1$e, [..._cache[1] || (_cache[1] = [
+        __props.message.sender === "bot" ? (openBlock(), createElementBlock("div", _hoisted_1$c, [..._cache[1] || (_cache[1] = [
           createBaseVNode("span", { class: "sparkle" }, "✦", -1)
         ])])) : createCommentVNode("", true),
         createBaseVNode("div", _hoisted_2$c, [
@@ -14257,6 +13805,215 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
     };
   }
 });
+function mockLocalWebhook(url, options) {
+  let parsedBody = {};
+  if (options.body) {
+    if (typeof options.body === "string") {
+      try {
+        parsedBody = JSON.parse(options.body);
+      } catch {
+      }
+    } else if (typeof FormData !== "undefined" && options.body instanceof FormData) {
+      options.body.forEach((val, key) => {
+        parsedBody[key] = val;
+      });
+    }
+  }
+  if (url.includes("?")) {
+    const searchParams = new URLSearchParams(url.split("?")[1]);
+    searchParams.forEach((val, key) => {
+      if (!parsedBody[key]) parsedBody[key] = val;
+    });
+  }
+  const action = parsedBody.action;
+  if (action === "requestOtp") {
+    const email = (parsedBody.email || "").trim().toLowerCase();
+    return {
+      success: !!(email && email.includes("@")),
+      message: email && email.includes("@") ? `We sent a 6-digit code to ${email}.` : "Please enter a valid email address."
+    };
+  }
+  if (action === "verifyOtp") {
+    const code2 = (parsedBody.code || "").trim();
+    if (code2.length === 6 && /^\d+$/.test(code2)) {
+      return {
+        success: true,
+        message: "Verified",
+        email: parsedBody.email
+      };
+    } else {
+      return {
+        success: false,
+        message: "Incorrect verification code. Please try again."
+      };
+    }
+  }
+  if (action === "getCatalog") {
+    return {
+      items: [],
+      categories: [],
+      total: 0
+    };
+  }
+  if (action === "loadPreviousSession" || url.includes("loadPreviousSession")) {
+    return {
+      data: [
+        {
+          id: "msg-1",
+          kwargs: {
+            content: "Welcome to HealthyLine! How can I help you today?"
+          }
+        }
+      ]
+    };
+  }
+  const userText = (parsedBody.chatInput || parsedBody.message || "").trim();
+  let responseText = `Thank you for your message: "${userText}". How can I assist you with HealthyLine products or orders?`;
+  if (userText && /auth|verify|account|order auth|check order/i.test(userText)) {
+    responseText = `To view and manage your orders or account details, please verify your email address:
+
+[ACTION:customer_auth]`;
+  }
+  return {
+    output: responseText,
+    actions: []
+  };
+}
+async function fetchApi(url, options = {}) {
+  console.log("Calling API:", url, options);
+  try {
+    const response = await fetch(url, {
+      mode: "cors",
+      cache: "no-cache",
+      ...options
+    });
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+    const result = await response.json();
+    console.log("API Response:", result);
+    return result;
+  } catch (err) {
+    if (typeof window !== "undefined" && url.startsWith("http") && !url.includes(window.location.host)) {
+      console.warn(`[SimpleChatN8N] Call to external webhook ${url} failed (${err.message}). Falling back to local mock endpoint /api/webhook.`);
+      const queryString = url.includes("?") ? "?" + url.split("?")[1] : "";
+      const fallbackUrl = `/api/webhook${queryString}`;
+      try {
+        const response = await fetch(fallbackUrl, {
+          mode: "cors",
+          cache: "no-cache",
+          ...options
+        });
+        if (!response.ok) {
+          throw new Error(`Fallback API request failed with status ${response.status}`);
+        }
+        const result = await response.json();
+        console.log("Fallback API Response:", result);
+        return result;
+      } catch (fallbackErr) {
+        console.warn(`[SimpleChatN8N] Webhook mock endpoint unavailable, using client-side mock.`);
+        return mockLocalWebhook(url, options);
+      }
+    }
+    if (url.includes("/api/webhook")) {
+      console.warn(`[SimpleChatN8N] Webhook mock endpoint failed, using client-side mock.`);
+      return mockLocalWebhook(url, options);
+    }
+    throw err;
+  }
+}
+async function getCatalog(options, filters) {
+  var _a2, _b, _c;
+  const method = ((_a2 = options.webhookConfig) == null ? void 0 : _a2.method) === "POST" ? "POST" : "GET";
+  const body = {
+    action: "getCatalog"
+  };
+  if (method === "POST") {
+    return await fetchApi(options.webhookUrl, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...(_b = options.webhookConfig) == null ? void 0 : _b.headers
+      },
+      body: JSON.stringify(body)
+    });
+  } else {
+    const params = new URLSearchParams();
+    Object.entries(body).forEach(([key, value]) => {
+      params.append(key, String(value));
+    });
+    return await fetchApi(
+      `${options.webhookUrl}?${params.toString()}`,
+      {
+        method,
+        headers: (_c = options.webhookConfig) == null ? void 0 : _c.headers
+      }
+    );
+  }
+}
+async function requestOtp(email, sessionId, options) {
+  var _a2, _b, _c;
+  const method = ((_a2 = options.webhookConfig) == null ? void 0 : _a2.method) === "POST" ? "POST" : "GET";
+  const body = {
+    action: "requestOtp",
+    email: email.trim().toLowerCase(),
+    [options.chatSessionKey || "sessionId"]: sessionId
+  };
+  if (method === "POST") {
+    return await fetchApi(options.webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(_b = options.webhookConfig) == null ? void 0 : _b.headers
+      },
+      body: JSON.stringify(body)
+    });
+  } else {
+    const params = new URLSearchParams();
+    Object.entries(body).forEach(([key, value]) => {
+      params.append(key, String(value));
+    });
+    return await fetchApi(
+      `${options.webhookUrl}?${params.toString()}`,
+      {
+        method,
+        headers: (_c = options.webhookConfig) == null ? void 0 : _c.headers
+      }
+    );
+  }
+}
+async function verifyOtp(email, code2, sessionId, options) {
+  var _a2, _b, _c;
+  const method = ((_a2 = options.webhookConfig) == null ? void 0 : _a2.method) === "POST" ? "POST" : "GET";
+  const body = {
+    action: "verifyOtp",
+    email: email.trim().toLowerCase(),
+    code: code2.trim(),
+    [options.chatSessionKey || "sessionId"]: sessionId
+  };
+  if (method === "POST") {
+    return await fetchApi(options.webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(_b = options.webhookConfig) == null ? void 0 : _b.headers
+      },
+      body: JSON.stringify(body)
+    });
+  } else {
+    const params = new URLSearchParams();
+    Object.entries(body).forEach(([key, value]) => {
+      params.append(key, String(value));
+    });
+    return await fetchApi(
+      `${options.webhookUrl}?${params.toString()}`,
+      {
+        method,
+        headers: (_c = options.webhookConfig) == null ? void 0 : _c.headers
+      }
+    );
+  }
+}
 const PRODUCT_SERIES_LIST = [
   "All",
   "Jet Series",
@@ -14312,7 +14069,7 @@ const CATALOG_PRODUCTS = [
     link: "https://healthyline.com/products/rainbow-chakra-pemf-farinfrared-red-light-mat?variant=45749464137780"
   }
 ];
-const _hoisted_1$d = { class: "product-catalog" };
+const _hoisted_1$b = { class: "product-catalog" };
 const _hoisted_2$b = { class: "catalog-grid" };
 const _hoisted_3$a = {
   key: 0,
@@ -14332,7 +14089,7 @@ const _hoisted_11$3 = ["onClick"];
 const _hoisted_12$3 = { class: "product-actions" };
 const _hoisted_13$3 = ["onClick"];
 const _hoisted_14$3 = ["onClick"];
-const _sfc_main$d = /* @__PURE__ */ defineComponent({
+const _sfc_main$b = /* @__PURE__ */ defineComponent({
   __name: "ProductCatalog",
   emits: ["askQuestion", "compareSeries"],
   setup(__props, { emit: __emit }) {
@@ -14395,7 +14152,7 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
       }
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$d, [
+      return openBlock(), createElementBlock("div", _hoisted_1$b, [
         _cache[6] || (_cache[6] = createStaticVNode('<div class="catalog-header" data-v-3b64ce66><div class="catalog-title-group" data-v-3b64ce66><div class="title-with-badge" data-v-3b64ce66><div class="title-icon-star" data-v-3b64ce66><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" data-v-3b64ce66><path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z" data-v-3b64ce66></path></svg></div><div data-v-3b64ce66><h3 data-v-3b64ce66>Best Sellers</h3><p class="catalog-header-sub" data-v-3b64ce66>Featured HealthyLine Therapy Mats</p></div></div></div></div>', 1)),
         createBaseVNode("div", _hoisted_2$b, [
           isLoading.value ? (openBlock(), createElementBlock("div", _hoisted_3$a, [..._cache[1] || (_cache[1] = [
@@ -14511,7 +14268,7 @@ const _export_sfc = (sfc, props) => {
   }
   return target;
 };
-const ProductCatalog = /* @__PURE__ */ _export_sfc(_sfc_main$d, [["__scopeId", "data-v-3b64ce66"]]);
+const ProductCatalog = /* @__PURE__ */ _export_sfc(_sfc_main$b, [["__scopeId", "data-v-3b64ce66"]]);
 const SPEC_DEFINITIONS = [
   {
     key: "farInfrared",
@@ -14745,7 +14502,7 @@ const HEALTHYLINE_SERIES = [
     highlights: ["Soft & Flexible Joint Wrapping", "Ultra Lightweight & Portable", "Jade & Tourmaline Discs", "Pure Far Infrared Therapy"]
   }
 ];
-const _hoisted_1$c = { class: "sticky-models-panel" };
+const _hoisted_1$a = { class: "sticky-models-panel" };
 const _hoisted_2$a = { class: "models-header-grid" };
 const _hoisted_3$9 = { class: "model-picker-card" };
 const _hoisted_4$7 = { class: "model-image-preview" };
@@ -14808,7 +14565,7 @@ const _hoisted_36$1 = { class: "info-card-header" };
 const _hoisted_37$1 = { class: "info-title-group" };
 const _hoisted_38$1 = { class: "info-card-body" };
 const _hoisted_39$1 = { class: "info-card-footer" };
-const _sfc_main$c = /* @__PURE__ */ defineComponent({
+const _sfc_main$a = /* @__PURE__ */ defineComponent({
   __name: "SeriesComparison",
   props: {
     initialSeriesIdA: {},
@@ -14874,7 +14631,7 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
           class: normalizeClass(["sticky-comparison-bar", { "is-scrolled": isScrolled.value }])
         }, [
           _cache[8] || (_cache[8] = createStaticVNode('<div class="comparison-header"><div class="comparison-title-row"><div class="title-with-icon"><div class="compare-icon-badge"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"></path><path d="M4 20L21 3"></path><path d="M21 16v5h-5"></path><path d="M15 15l6 6"></path><path d="M4 4l5 5"></path></svg></div><div><h3 class="compare-title">Compare HealthyLine Series</h3></div></div></div></div>', 1)),
-          createBaseVNode("div", _hoisted_1$c, [
+          createBaseVNode("div", _hoisted_1$a, [
             createBaseVNode("div", _hoisted_2$a, [
               createBaseVNode("div", _hoisted_3$9, [
                 createBaseVNode("div", _hoisted_4$7, [
@@ -15259,7 +15016,15 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$b = ["disabled"];
+const ChatSymbol = Symbol("Chat");
+function useChat() {
+  const chat = inject(ChatSymbol);
+  if (!chat) {
+    throw new Error("useChat() must be used within a chat provider");
+  }
+  return chat;
+}
+const _hoisted_1$9 = ["disabled"];
 const _hoisted_2$9 = ["src"];
 const _hoisted_3$8 = {
   key: 1,
@@ -15273,7 +15038,7 @@ const _hoisted_3$8 = {
   "stroke-linecap": "round",
   "stroke-linejoin": "round"
 };
-const _sfc_main$b = /* @__PURE__ */ defineComponent({
+const _sfc_main$9 = /* @__PURE__ */ defineComponent({
   __name: "ButtonSend",
   props: {
     disabled: { type: Boolean }
@@ -15306,11 +15071,11 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
           }, null, -1),
           createBaseVNode("polygon", { points: "22 2 15 22 11 13 2 9 22 2" }, null, -1)
         ])]))
-      ], 8, _hoisted_1$b);
+      ], 8, _hoisted_1$9);
     };
   }
 });
-const _hoisted_1$a = { class: "tt-chat-input-wrapper" };
+const _hoisted_1$8 = { class: "tt-chat-input-wrapper" };
 const _hoisted_2$8 = {
   key: 0,
   class: "tt-chat-files-preview"
@@ -15325,7 +15090,7 @@ const _hoisted_7$3 = {
   class: "tt-chat-file-button",
   title: "Attach file"
 };
-const _sfc_main$a = /* @__PURE__ */ defineComponent({
+const _sfc_main$8 = /* @__PURE__ */ defineComponent({
   __name: "ChatInput",
   emits: ["send"],
   setup(__props, { emit: __emit }) {
@@ -15377,7 +15142,7 @@ const _sfc_main$a = /* @__PURE__ */ defineComponent({
       textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$a, [
+      return openBlock(), createElementBlock("div", _hoisted_1$8, [
         files.value && files.value.length > 0 ? (openBlock(), createElementBlock("div", _hoisted_2$8, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(Array.from(files.value), (file, index) => {
             return openBlock(), createElementBlock("div", {
@@ -15436,7 +15201,7 @@ const _sfc_main$a = /* @__PURE__ */ defineComponent({
                 createBaseVNode("path", { d: "M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" })
               ], -1)
             ])])) : createCommentVNode("", true),
-            createVNode(_sfc_main$b, {
+            createVNode(_sfc_main$9, {
               onClick: onSubmit,
               disabled: isSubmitDisabled.value
             }, null, 8, ["disabled"])
@@ -15446,14 +15211,14 @@ const _sfc_main$a = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$9 = { class: "tt-chat-privacy" };
+const _hoisted_1$7 = { class: "tt-chat-privacy" };
 const _hoisted_2$7 = { class: "tt-chat-privacy-message" };
 const _hoisted_3$6 = ["href"];
 const _hoisted_4$5 = { class: "tt-chat-privacy-options" };
 const _hoisted_5$3 = { class: "tt-chat-privacy-option" };
 const _hoisted_6$2 = { class: "tt-chat-privacy-option" };
 const _hoisted_7$2 = ["disabled"];
-const _sfc_main$9 = /* @__PURE__ */ defineComponent({
+const _sfc_main$7 = /* @__PURE__ */ defineComponent({
   __name: "ConfirmPrivacy",
   props: {
     privacyUrl: {}
@@ -15466,7 +15231,7 @@ const _sfc_main$9 = /* @__PURE__ */ defineComponent({
       emit2("confirm", selectedOption.value === "accept");
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$9, [
+      return openBlock(), createElementBlock("div", _hoisted_1$7, [
         createBaseVNode("div", _hoisted_2$7, [
           _cache[2] || (_cache[2] = createTextVNode(" Per contattarla è necessario accettare l'utilizzo dei dati secondo la nostra ", -1)),
           __props.privacyUrl ? (openBlock(), createElementBlock("a", {
@@ -16280,10 +16045,10 @@ function ve(e, t, s, n, l, i) {
   ], 10, he);
 }
 const Ce = /* @__PURE__ */ S(de, [["render", ve]]);
-const _hoisted_1$8 = { class: "tt-chat-province" };
+const _hoisted_1$6 = { class: "tt-chat-province" };
 const _hoisted_2$6 = { class: "tt-chat-province-select" };
 const _hoisted_3$5 = ["disabled"];
-const _sfc_main$8 = /* @__PURE__ */ defineComponent({
+const _sfc_main$6 = /* @__PURE__ */ defineComponent({
   __name: "SelectProvince",
   emits: ["select"],
   setup(__props, { emit: __emit }) {
@@ -16407,7 +16172,7 @@ const _sfc_main$8 = /* @__PURE__ */ defineComponent({
       }
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$8, [
+      return openBlock(), createElementBlock("div", _hoisted_1$6, [
         _cache[1] || (_cache[1] = createBaseVNode("div", { class: "tt-chat-province-message" }, " Seleziona la tua provincia: ", -1)),
         createBaseVNode("div", _hoisted_2$6, [
           createVNode(unref(Ce), {
@@ -24969,11 +24734,11 @@ const co = ({
 Object.entries(So).forEach(([e, t]) => {
   e !== "default" && (qn[e] = t);
 });
-const _hoisted_1$7 = { class: "tt-chat-datepicker" };
+const _hoisted_1$5 = { class: "tt-chat-datepicker" };
 const _hoisted_2$5 = { class: "tt-chat-datepicker-message" };
 const _hoisted_3$4 = { class: "tt-chat-datepicker-input" };
 const _hoisted_4$4 = ["disabled"];
-const _sfc_main$7 = /* @__PURE__ */ defineComponent({
+const _sfc_main$5 = /* @__PURE__ */ defineComponent({
   __name: "Datepicker",
   props: {
     label: {}
@@ -24989,7 +24754,7 @@ const _sfc_main$7 = /* @__PURE__ */ defineComponent({
       }
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$7, [
+      return openBlock(), createElementBlock("div", _hoisted_1$5, [
         createBaseVNode("div", _hoisted_2$5, toDisplayString(__props.label || "Seleziona una data:"), 1),
         createBaseVNode("div", _hoisted_3$4, [
           createVNode(unref(qn), {
@@ -35361,12 +35126,12 @@ var intlTelInputWithUtils = { exports: {} };
 })(intlTelInputWithUtils);
 var intlTelInputWithUtilsExports = intlTelInputWithUtils.exports;
 const intlTelInput = /* @__PURE__ */ getDefaultExportFromCjs(intlTelInputWithUtilsExports);
-const _hoisted_1$6 = { class: "tt-chat-input-component" };
+const _hoisted_1$4 = { class: "tt-chat-input-component" };
 const _hoisted_2$4 = { class: "tt-chat-input-component-message" };
 const _hoisted_3$3 = { class: "tt-chat-input-component-field" };
 const _hoisted_4$3 = ["type", "placeholder"];
 const _hoisted_5$2 = ["disabled"];
-const _sfc_main$6 = /* @__PURE__ */ defineComponent({
+const _sfc_main$4 = /* @__PURE__ */ defineComponent({
   __name: "SpecialInput",
   props: {
     inputType: {},
@@ -35462,7 +35227,7 @@ const _sfc_main$6 = /* @__PURE__ */ defineComponent({
       }
     });
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$6, [
+      return openBlock(), createElementBlock("div", _hoisted_1$4, [
         createBaseVNode("div", _hoisted_2$4, toDisplayString(__props.label || "Inserisci le informazioni richieste:"), 1),
         createBaseVNode("div", _hoisted_3$3, [
           htmlInputType.value === "tel" ? withDirectives((openBlock(), createElementBlock("input", {
@@ -35495,7 +35260,7 @@ const _sfc_main$6 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$5 = { class: "order-auth-card" };
+const _hoisted_1$3 = { class: "order-auth-card" };
 const _hoisted_2$3 = { class: "card-header" };
 const _hoisted_3$2 = {
   key: 0,
@@ -35533,7 +35298,7 @@ const _hoisted_17$1 = {
   key: 1,
   class: "resend-timer"
 };
-const _sfc_main$5 = /* @__PURE__ */ defineComponent({
+const _sfc_main$3 = /* @__PURE__ */ defineComponent({
   __name: "OrderAuthCard",
   emits: ["submit", "cancel"],
   setup(__props, { emit: __emit }) {
@@ -35712,7 +35477,7 @@ const _sfc_main$5 = /* @__PURE__ */ defineComponent({
       }
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$5, [
+      return openBlock(), createElementBlock("div", _hoisted_1$3, [
         createBaseVNode("div", _hoisted_2$3, [
           createBaseVNode("button", {
             class: "back-link",
@@ -35939,8 +35704,8 @@ const _sfc_main$5 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const OrderAuthCard = /* @__PURE__ */ _export_sfc(_sfc_main$5, [["__scopeId", "data-v-8b39d8ee"]]);
-const _hoisted_1$4 = { class: "tt-chat" };
+const OrderAuthCard = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["__scopeId", "data-v-8b39d8ee"]]);
+const _hoisted_1$2 = { class: "tt-chat" };
 const _hoisted_2$2 = { class: "tt-chat-header" };
 const _hoisted_3$1 = { class: "header-brand-box" };
 const _hoisted_4$1 = { class: "header-info" };
@@ -36030,7 +35795,7 @@ const _hoisted_39 = {
   key: 4,
   class: "tt-chat-input-container"
 };
-const _sfc_main$4 = /* @__PURE__ */ defineComponent({
+const _sfc_main$2 = /* @__PURE__ */ defineComponent({
   __name: "Chat",
   emits: ["close"],
   setup(__props, { emit: __emit }) {
@@ -36040,7 +35805,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     const isMenuOpen = /* @__PURE__ */ ref(false);
     const chatStore = useChat();
     const options = useOptions();
-    const { messages, currentSessionId, waitingForResponse, sendMessage: sendMessage2, startNewSession } = chatStore;
+    const { messages, currentSessionId, waitingForResponse, sendMessage, startNewSession } = chatStore;
     const activeTab = /* @__PURE__ */ ref("home");
     const unreadMessagesCount = computed(() => messages.value.length);
     const compareInitialA = /* @__PURE__ */ ref("jet");
@@ -36121,7 +35886,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
         }
       }
       try {
-        await sendMessage2(text2, files);
+        await sendMessage(text2, files);
       } catch (error2) {
         console.error("sendMessage():", error2);
       }
@@ -36188,7 +35953,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
         }
       }
       try {
-        await sendMessage2("", [], privacyAccepted);
+        await sendMessage("", [], privacyAccepted);
         showPrivacyForm.value = false;
         currentPrivacyAction.value = null;
       } catch (error2) {
@@ -36204,7 +35969,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
         }
       }
       try {
-        await sendMessage2(province, []);
+        await sendMessage(province, []);
         showProvinceForm.value = false;
         currentProvinceAction.value = null;
       } catch (error2) {
@@ -36220,7 +35985,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
         }
       }
       try {
-        await sendMessage2(date, []);
+        await sendMessage(date, []);
         showDatePicker.value = false;
         currentDatePickerAction.value = null;
       } catch (error2) {
@@ -36236,7 +36001,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
         }
       }
       try {
-        await sendMessage2(value, []);
+        await sendMessage(value, []);
         showInputComponent.value = false;
         currentInputAction.value = null;
       } catch (error2) {
@@ -36375,7 +36140,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     });
     return (_ctx, _cache) => {
       var _a2, _b, _c, _d;
-      return openBlock(), createElementBlock("div", _hoisted_1$4, [
+      return openBlock(), createElementBlock("div", _hoisted_1$2, [
         _cache[49] || (_cache[49] = createBaseVNode("div", {
           class: "tt-chat-top-bar",
           id: "ttChatTopBar"
@@ -36893,7 +36658,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
               onCompareSeries: handleOpenCompare
             })
           ])) : activeTab.value === "compare" && showCompare.value ? (openBlock(), createElementBlock("div", _hoisted_22, [
-            createVNode(_sfc_main$c, {
+            createVNode(_sfc_main$a, {
               initialSeriesIdA: compareInitialA.value,
               initialSeriesIdB: compareInitialB.value,
               onAskQuestion: handleSendMessage,
@@ -36901,7 +36666,7 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
             }, null, 8, ["initialSeriesIdA", "initialSeriesIdB"])
           ])) : (openBlock(), createElementBlock("div", _hoisted_23, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(unref(messages), (message2) => {
-              return openBlock(), createBlock(_sfc_main$e, {
+              return openBlock(), createBlock(_sfc_main$c, {
                 key: message2.id,
                 message: message2,
                 onOpenCustomerAuth: _cache[19] || (_cache[19] = ($event) => {
@@ -36928,25 +36693,25 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
         activeTab.value === "messages" ? (openBlock(), createElementBlock("div", _hoisted_33, [
           createBaseVNode("div", _hoisted_34, [
             showPrivacyForm.value ? (openBlock(), createElementBlock("div", _hoisted_35, [
-              createVNode(_sfc_main$9, {
+              createVNode(_sfc_main$7, {
                 privacyUrl: (_a2 = currentPrivacyAction.value) == null ? void 0 : _a2.action,
                 onConfirm: handlePrivacyConfirm
               }, null, 8, ["privacyUrl"])
             ])) : showProvinceForm.value ? (openBlock(), createElementBlock("div", _hoisted_36, [
-              createVNode(_sfc_main$8, { onSelect: handleProvinceSelect })
+              createVNode(_sfc_main$6, { onSelect: handleProvinceSelect })
             ])) : showDatePicker.value ? (openBlock(), createElementBlock("div", _hoisted_37, [
-              createVNode(_sfc_main$7, {
+              createVNode(_sfc_main$5, {
                 label: (_b = currentDatePickerAction.value) == null ? void 0 : _b.label,
                 onSelect: handleDateSelect
               }, null, 8, ["label"])
             ])) : showInputComponent.value ? (openBlock(), createElementBlock("div", _hoisted_38, [
-              createVNode(_sfc_main$6, {
+              createVNode(_sfc_main$4, {
                 inputType: ((_c = currentInputAction.value) == null ? void 0 : _c.type) || "input_type_text",
                 label: (_d = currentInputAction.value) == null ? void 0 : _d.label,
                 onSubmit: handleInputSubmit
               }, null, 8, ["inputType", "label"])
             ])) : (openBlock(), createElementBlock("div", _hoisted_39, [
-              createVNode(_sfc_main$a, { onSend: handleSendMessage })
+              createVNode(_sfc_main$8, { onSend: handleSendMessage })
             ]))
           ])
         ])) : createCommentVNode("", true)
@@ -36954,52 +36719,11 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const defaultOpenChatIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='35px'%20height='30px'%20viewBox='0%200%2035%2030'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3echat%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%3e%3cg%20id='ChatBOT-chiuso'%20transform='translate(-1542,%20-1022)'%3e%3cg%20id='chat'%20transform='translate(1542,%201022)'%3e%3cpath%20d='M3.75,0%20C1.67925,0%200,1.67925%200,3.75%20L0,21.75%20L6.82470675,17.25%20L20.25,17.25%20C22.32075,17.25%2024,15.57075%2024,13.5%20L24,0%20L3.75,0%20Z'%20id='Shape'%20fill='%23FFFFFF'%20fill-rule='nonzero'%3e%3c/path%3e%3cpath%20d='M26.25,7.5%20L26.25,13.5%20C26.25,16.8075%2023.5575,19.5%2020.25,19.5%20L10.5,19.5%20L10.5,21.75%20C10.5,23.82%2012.18,25.5%2014.25,25.5%20L27.6752932,25.5%20L34.5,30%20L34.5,11.25%20C34.5,9.18%2032.82,7.5%2030.75,7.5%20L26.25,7.5%20Z'%20id='Path'%20fill='%23F3B83B'%3e%3c/path%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
-const defaultCloseChatIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='30px'%20height='30px'%20viewBox='0%200%2030%2030'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3ePath%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%3e%3cg%20id='ChatBOT'%20transform='translate(-1544,%20-1019)'%20fill='%23FFFFFF'%20fill-rule='nonzero'%3e%3cg%20id='Group-5-Copy'%20transform='translate(1192,%20680)'%3e%3cpolygon%20id='Path'%20transform='translate(367.0321,%20354)%20rotate(-315)%20translate(-367.0321,%20-354)'%20points='369.051282%20364%20357%20364%20357%20355.987179%20369.051282%20355.987179%20369.051282%20344%20377.064103%20344%20377.064103%20355.987179%20377.064103%20364'%3e%3c/polygon%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
-const defaultSendIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='24px'%20height='24px'%20viewBox='0%200%2024%2024'%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3ctitle%3einvia%3c/title%3e%3cg%20id='Page-1'%20stroke='none'%20stroke-width='1'%20fill='none'%20fill-rule='evenodd'%3e%3cg%20id='ChatBOT-aperto'%20transform='translate(-1545,%20-946)'%20fill='%23FF0000'%20fill-rule='nonzero'%3e%3cg%20id='Group-5'%20transform='translate(1192,%20425)'%3e%3cpath%20d='M376,521%20C375.904026,521.000658%20375.808647,521.01513%20375.716797,521.042969%20C375.68976,521.050307%20375.663044,521.058778%20375.636719,521.068359%20L353.650391,528.060547%20L353.650391,528.064453%20C353.259759,528.21022%20353.000562,528.583058%20353,529%20C353.000741,529.349225%20353.183611,529.672765%20353.482422,529.853516%20L360.164062,535.154297%20L373.373047,524.626953%20L362.845703,537.835938%20L368.142578,544.513672%20C368.323084,544.815172%20368.648596,545%20369,545%20C369.416943,544.999438%20369.78978,544.740241%20369.935547,544.349609%20L369.939453,544.349609%20L376.9375,522.34375%20C376.944651,522.32378%20376.951164,522.303587%20376.957031,522.283203%20C376.98487,522.191353%20376.999342,522.095974%20377,522%20C377,521.447715%20376.552285,521%20376,521%20Z'%20id='invia'%3e%3c/path%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
-const defaultHeaderLogoIcon = "data:image/svg+xml,%3c?xml%20version='1.0'%20standalone='no'?%3e%3c!DOCTYPE%20svg%20PUBLIC%20'-//W3C//DTD%20SVG%2020010904//EN'%20'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'%3e%3csvg%20version='1.0'%20xmlns='http://www.w3.org/2000/svg'%20width='564.000000pt'%20height='551.000000pt'%20viewBox='0%200%20564.000000%20551.000000'%20preserveAspectRatio='xMidYMid%20meet'%3e%3cg%20transform='translate(0.000000,551.000000)%20scale(0.100000,-0.100000)'%20fill='%23000000'%20stroke='none'%3e%3cpath%20d='M650%205026%20c-139%20-39%20-182%20-114%20-128%20-225%2097%20-201%20591%20-463%20990%20-526%20252%20-39%20434%20-4%20474%2092%2047%20112%20-120%20295%20-410%20449%20-305%20162%20-741%20261%20-926%20210z'/%3e%3cpath%20d='M4715%205028%20c-349%20-66%20-633%20-181%20-852%20-345%20-134%20-101%20-203%20-195%20-203%20-279%200%20-40%205%20-51%2033%20-78%2046%20-44%2094%20-57%20223%20-63%20222%20-11%20472%2050%20753%20183%20163%2078%20284%20157%20371%20244%20201%20198%20119%20352%20-185%20349%20-49%20-1%20-112%20-6%20-140%20-11z'/%3e%3cpath%20d='M870%203975%20c-151%20-22%20-260%20-76%20-299%20-146%20-26%20-45%20-26%20-72%20-2%20-124%2051%20-114%20262%20-232%20526%20-294%20146%20-35%20236%20-43%20426%20-39%20166%204%20192%207%20264%2031%20106%2035%20169%2076%20195%20126%2027%2054%2025%2076%20-10%20139%20-46%2080%20-160%20158%20-313%20216%20-241%2091%20-550%20127%20-787%2091z'/%3e%3cpath%20d='M4365%203975%20c-306%20-40%20-588%20-163%20-676%20-294%20-37%20-57%20-40%20-122%20-6%20-172%2029%20-44%20126%20-93%20236%20-120%2075%20-19%20105%20-21%20290%20-17%20176%204%20223%209%20321%2031%20258%2059%20450%20155%20532%20267%2026%2036%2032%2053%2033%2098%200%2053%20-1%2055%20-51%20101%20-113%20104%20-375%20145%20-679%20106z'/%3e%3cpath%20d='M2130%203023%20c-36%20-1%20-182%20-7%20-325%20-13%20-348%20-14%20-678%20-46%20-884%20-85%20-156%20-30%20-253%20-59%20-308%20-93%20-190%20-119%2072%20-232%20677%20-292%20769%20-77%202243%20-79%203030%20-5%20312%2030%20607%2087%20702%20136%2038%2019%2078%2061%2078%2082%200%2071%20-114%20124%20-365%20171%20-393%2074%20-1014%20107%20-1950%20104%20-324%20-1%20-619%20-3%20-655%20-5z'/%3e%3cpath%20d='M1300%202140%20c-162%20-16%20-391%20-79%20-515%20-142%20-91%20-47%20-172%20-114%20-205%20-170%20-16%20-29%20-30%20-63%20-30%20-76%20-1%20-152%20276%20-248%20637%20-221%20143%2011%20161%2013%20289%2044%20194%2047%20341%20116%20435%20203%2072%2067%2098%20124%2080%20181%20-21%2070%20-118%20134%20-255%20166%20-75%2018%20-321%2027%20-436%2015z'/%3e%3cpath%20d='M4009%202140%20c-134%20-13%20-270%20-68%20-323%20-131%20-20%20-24%20-26%20-41%20-26%20-80%200%20-64%2016%20-95%2083%20-156%20120%20-109%20372%20-204%20624%20-234%20116%20-14%20319%20-15%20414%20-1%20162%2024%20287%2093%20310%20173%2072%20239%20-538%20481%20-1082%20429z'/%3e%3cpath%20d='M1610%201254%20c-14%20-2%20-67%20-11%20-119%20-20%20-172%20-28%20-346%20-86%20-537%20-179%20-398%20-196%20-570%20-444%20-372%20-539%2086%20-41%20183%20-51%20315%20-32%20239%2033%20446%2097%20657%20203%20231%20116%20391%20255%20432%20376%2013%2040%2013%2049%201%2080%20-17%2040%20-66%2079%20-122%2096%20-42%2013%20-212%2023%20-255%2015z'/%3e%3cpath%20d='M3835%201251%20c-208%20-45%20-233%20-171%20-69%20-336%20214%20-214%20668%20-404%201049%20-440%20121%20-11%20273%2029%20315%2083%2026%2032%2026%2094%200%20150%20-74%20163%20-422%20379%20-780%20484%20-171%2050%20-422%2079%20-515%2059z'/%3e%3c/g%3e%3c/svg%3e";
-const _hoisted_1$3 = ["src", "alt"];
-const _sfc_main$3 = /* @__PURE__ */ defineComponent({
-  __name: "IconLoader",
-  props: {
-    name: {},
-    alt: {},
-    className: {}
-  },
-  setup(__props) {
-    const options = useOptions();
-    const props = __props;
-    const defaultIcons = {
-      openChat: defaultOpenChatIcon,
-      closeChat: defaultCloseChatIcon,
-      send: defaultSendIcon,
-      headerLogo: defaultHeaderLogoIcon
-    };
-    const iconSrc = computed(() => {
-      var _a2, _b;
-      return ((_b = (_a2 = options.value) == null ? void 0 : _a2.icons) == null ? void 0 : _b[props.name]) || defaultIcons[props.name];
-    });
-    const defaultAltTexts = {
-      openChat: "Apri chat",
-      closeChat: "Chiudi chat",
-      send: "Invia messaggio",
-      headerLogo: "Logo"
-    };
-    const altText = computed(() => props.alt || defaultAltTexts[props.name]);
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("img", {
-        src: iconSrc.value,
-        alt: altText.value,
-        class: normalizeClass(__props.className)
-      }, null, 10, _hoisted_1$3);
-    };
-  }
-});
-const _hoisted_1$2 = { class: "tt-chat-toggle-container" };
+const _hoisted_1$1 = { class: "tt-chat-toggle-container" };
 const _hoisted_2$1 = { class: "tooltip-text" };
 const _hoisted_3 = ["aria-label"];
 const _hoisted_4 = { class: "icon-box" };
-const _sfc_main$2 = /* @__PURE__ */ defineComponent({
+const _sfc_main$1 = /* @__PURE__ */ defineComponent({
   __name: "ChatToggle",
   props: {
     isOpen: { type: Boolean }
@@ -37027,7 +36751,7 @@ const _sfc_main$2 = /* @__PURE__ */ defineComponent({
       tooltipClosed.value = true;
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$2, [
+      return openBlock(), createElementBlock("div", _hoisted_1$1, [
         createVNode(Transition, { name: "tooltip-fade" }, {
           default: withCtx(() => [
             tooltip.value.show && !__props.isOpen ? (openBlock(), createElementBlock("div", {
@@ -37082,7 +36806,7 @@ const _sfc_main$2 = /* @__PURE__ */ defineComponent({
         }, [
           _cache[2] || (_cache[2] = createBaseVNode("span", { class: "toggle-glow" }, null, -1)),
           createBaseVNode("div", _hoisted_4, [
-            createVNode(_sfc_main$3, {
+            createVNode(_sfc_main$d, {
               name: iconName.value,
               className: "tt-chat-toggle-icon"
             }, null, 8, ["name"])
@@ -37092,12 +36816,12 @@ const _sfc_main$2 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$1 = { class: "tt-chat-window-wrapper" };
+const _hoisted_1 = { class: "tt-chat-window-wrapper" };
 const _hoisted_2 = {
   key: 0,
   class: "tt-chat-window"
 };
-const _sfc_main$1 = /* @__PURE__ */ defineComponent({
+const _sfc_main = /* @__PURE__ */ defineComponent({
   __name: "ChatWindow",
   setup(__props) {
     const isOpen = /* @__PURE__ */ ref(false);
@@ -37105,16 +36829,16 @@ const _sfc_main$1 = /* @__PURE__ */ defineComponent({
       isOpen.value = !isOpen.value;
     }
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$1, [
+      return openBlock(), createElementBlock("div", _hoisted_1, [
         createVNode(Transition, { name: "tt-chat-window-transition" }, {
           default: withCtx(() => [
             isOpen.value ? (openBlock(), createElementBlock("div", _hoisted_2, [
-              createVNode(_sfc_main$4, { onClose: toggleChat })
+              createVNode(_sfc_main$2, { onClose: toggleChat })
             ])) : createCommentVNode("", true)
           ]),
           _: 1
         }),
-        createVNode(_sfc_main$2, {
+        createVNode(_sfc_main$1, {
           isOpen: isOpen.value,
           onToggle: toggleChat
         }, null, 8, ["isOpen"])
@@ -37122,109 +36846,35 @@ const _sfc_main$1 = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1 = { class: "tt-chat-app" };
-const _sfc_main = /* @__PURE__ */ defineComponent({
-  __name: "App",
-  setup(__props) {
-    const options = useOptions();
-    const mode = computed(() => {
-      var _a2;
-      return ((_a2 = options.value) == null ? void 0 : _a2.mode) || "window";
-    });
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1, [
-        mode.value === "fullscreen" ? (openBlock(), createBlock(_sfc_main$4, { key: 0 })) : (openBlock(), createBlock(_sfc_main$1, { key: 1 }))
-      ]);
-    };
-  }
-});
-const DEFAULT_TARGET = "#tt-chat-n8n";
-let currentAppInstance = null;
-let currentContainer = null;
 function ensureWidgetCssLoaded() {
-  if (typeof document === "undefined") return;
-  const existingLink = document.querySelector('link[href*="widget.css"], link[href*="style.css"], #tt-chat-auto-style');
-  if (existingLink) return;
-  let cssUrl = "https://chat.healthyline.com/widget.css";
-  try {
-    const script = document.currentScript;
-    if (script && script.src) {
-      cssUrl = script.src.replace(/\/(widget|tt-chat\.bundle)(\.umd|\.es)?\.js(\?.*)?$/i, "/widget.css");
-      if (!cssUrl.endsWith("/widget.css")) {
-        cssUrl = new URL("widget.css", script.src).href;
-      }
-    }
-  } catch {
-    cssUrl = "https://chat.healthyline.com/widget.css";
-  }
-  const link2 = document.createElement("link");
-  link2.id = "tt-chat-auto-style";
-  link2.rel = "stylesheet";
-  link2.type = "text/css";
-  link2.href = cssUrl;
-  document.head.appendChild(link2);
 }
-function createChat(options) {
-  ensureWidgetCssLoaded();
-  console.log("Creating chat widget with options:", options);
-  if (!options.webhookUrl) {
-    options.webhookUrl = "https://app.healthyline.com/webhook/ai-chat";
-  }
-  const target = options.target || DEFAULT_TARGET;
-  const targetElement = typeof target === "string" ? createMountingElement(target) : target;
-  if (currentAppInstance && currentContainer === targetElement) {
-    console.log("Instance already exists for this target, reusing it");
-    return {
-      unmount: () => currentAppInstance == null ? void 0 : currentAppInstance.unmount(),
-      _app: currentAppInstance,
-      _container: targetElement
-    };
-  }
-  if (currentAppInstance) {
-    console.log("Unmounting previous instance");
-    currentAppInstance.unmount();
-    currentAppInstance = null;
-    currentContainer = null;
-  }
-  if (options.theme) {
-    applyTheme(options.theme);
-  }
-  const app = createApp(_sfc_main);
-  app.use(ChatPlugin, options);
-  app.mount(targetElement);
-  currentAppInstance = app;
-  currentContainer = targetElement;
-  console.log("Chat widget created and mounted on:", targetElement);
+function createChat(_options) {
   return {
     unmount: () => {
-      app.unmount();
-      currentAppInstance = null;
-      currentContainer = null;
     },
-    _app: app,
-    _container: targetElement
+    _app: null,
+    _container: typeof document !== "undefined" ? document.createElement("div") : {}
   };
 }
 if (typeof window !== "undefined") {
-  ensureWidgetCssLoaded();
   window.SimpleChatN8N = {
     createChat,
     ensureWidgetCssLoaded
   };
 }
 export {
-  _sfc_main$4 as Chat,
-  _sfc_main$a as ChatInput,
-  _sfc_main$e as ChatMessage,
-  _sfc_main$2 as ChatToggle,
-  _sfc_main$1 as ChatWindow,
-  _sfc_main$9 as ConfirmPrivacy,
-  _sfc_main$7 as Datepicker,
-  _sfc_main$3 as IconLoader,
+  _sfc_main$2 as Chat,
+  _sfc_main$8 as ChatInput,
+  _sfc_main$c as ChatMessage,
+  _sfc_main$1 as ChatToggle,
+  _sfc_main as ChatWindow,
+  _sfc_main$7 as ConfirmPrivacy,
+  _sfc_main$5 as Datepicker,
+  _sfc_main$d as IconLoader,
   ProductCatalog,
-  _sfc_main$8 as SelectProvince,
-  _sfc_main$c as SeriesComparison,
-  _sfc_main$6 as SpecialInput,
+  _sfc_main$6 as SelectProvince,
+  _sfc_main$a as SeriesComparison,
+  _sfc_main$4 as SpecialInput,
   createChat,
   ensureWidgetCssLoaded
 };
