@@ -1,8 +1,0 @@
-{
-  "name": "TourTools Chat N8N",
-  "description": "A simplified chat widget for n8n workflows and TourTools integrations",
-  "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
-}
