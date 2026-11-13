@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TourTools Chat N8N</title>
+  <meta name="description" content="A simplified chat widget for n8n workflows and TourTools integrations">
+  <meta property="og:title" content="TourTools Chat N8N">
+  <meta property="og:description" content="A simplified chat widget for n8n workflows and TourTools integrations">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    /* Top Trust & Beta Announcement Bar */
+    .beta-announcement-bar {
+      background: linear-gradient(90deg, #0f2728 0%, #1a3b3d 50%, #112d2f 100%);
+      color: #f1f5f9;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 2px 10px rgba(15, 39, 40, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 10px 20px;
+    }
+    .beta-announcement-content {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .beta-left-cluster {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 280px;
+    }
+    .beta-pill {
+      background: rgba(13, 148, 136, 0.25);
+      border: 1px solid rgba(45, 212, 191, 0.4);
+      color: #5eead4;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .beta-announcement-message {
+      margin: 0;
+      font-size: 13.5px;
+      line-height: 1.45;
+      color: #e2e8f0;
+    }
+    .beta-announcement-message strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .beta-trust-indicators {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .beta-trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #99f6e4;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 4px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .beta-live-pulse {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #cbd5e1;
+      white-space: nowrap;
+    }
+    .beta-bar-close {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 4px;
+      margin-left: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .beta-bar-close:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #34d399;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+      animation: pulse-ring 2s infinite;
+    }
+    @keyframes pulse-ring {
+      0% {
+        box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 7px rgba(52, 211, 153, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
+      }
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 24px 24px;
+    }
+    h1 {
+      color: #0f172a;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    p.sub {
+      color: #64748b;
+      margin-top: 0;
+      margin-bottom: 24px;
+    }
+    .test-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .test-card h2 {
+      margin-top: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    button.primary-btn {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.15s;
+    }
+    button.primary-btn:hover {
+      background-color: #1d4ed8;
+    }
+    button.secondary-btn {
+      background-color: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    button.secondary-btn:hover {
+      background-color: #e2e8f0;
+      color: #0f172a;
+    }
+    .badge {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1e40af;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-family: monospace;
+    }
+    .info-box {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      font-size: 13px;
+      color: #1e3a8a;
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+    #tt-chat-n8n {
+      margin-top: 20px;
+    }
+    .deals-test-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .deals-test-controls label {
+      font-size: 13px;
+      color: #475569;
+    }
+    .deals-test-controls select,
+    .deals-test-controls input {
+      font: inherit;
+      font-size: 14px;
+      padding: 9px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #0f172a;
+    }
+    .info-box.is-preview {
+      background: #fdf4f4;
+      border-left-color: #7b1f25;
+      color: #5b171c;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Trust & Beta Announcement Bar -->
+  <aside class="beta-announcement-bar" id="betaAnnouncementBar" aria-label="Beta preview notification">
+    <div class="beta-announcement-content">
+      <div class="beta-left-cluster">
+        <span class="beta-pill">BETA PREVIEW</span>
+        <p class="beta-announcement-message">
+          <strong>Official Beta Preview:</strong> You are experiencing the upgraded HealthyLine AI Assistant in active public testing. All recommendations, chat responses, and order verifications are active, verified, and 100% secure.
+        </p>
+      </div>
+      <div class="beta-trust-indicators">
+        <span class="beta-trust-badge" title="Official verified integration">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+          </svg>
+          HealthyLine Verified
+        </span>
+        <span class="beta-live-pulse" title="System running active test mode">
+          <span class="pulse-dot"></span>
+          Active Preview
+        </span>
+        <button id="closeTopBetaBarBtn" class="beta-bar-close" aria-label="Close beta banner" title="Dismiss">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="container">
+    <h1>TourTools & HealthyLine AI Chat Widget</h1>
+    <p class="sub">Тестовая среда для проверки функций чата и RAG Action</p>
+    
+    <div class="test-card">
+      <h2>🚀 Быстрый тест: <span class="badge">[ACTION:customer_auth]</span></h2>
+      <p style="font-size: 14px; color: #475569; margin: 6px 0;">
+        Нажмите кнопку ниже, чтобы мгновенно симулировать RAG-ответ с вызовом действия авторизации аккаунта клиента:
+      </p>
+      
+      <div class="btn-row">
+        <button id="testRagActionBtn" class="primary-btn">
+          ✨ Запустить тест [ACTION:customer_auth]
+        </button>
+        <button id="openChatBtn" class="secondary-btn">
+          💬 Открыть / Закрыть чат
+        </button>
+        <button id="resetSessionBtn" class="secondary-btn">
+          🔄 Сбросить сессию чата
+        </button>
+      </div>
+
+      <div class="info-box">
+        <strong>Что произойдет:</strong> В чат добавится сообщение от AI: <em>«To continue, please verify your account.»</em>. Тег <code>[ACTION:customer_auth]</code> будет скрыт, и прямо в диалоге откроется форма ввода Email и OTP кода.
+      </div>
+    </div>
+    
+    <div class="test-card">
+      <h2>🏷️ Вкладка Deals: <span class="badge">Google Sheet → виджет</span></h2>
+      <p style="font-size: 14px; color: #475569; margin: 6px 0; line-height: 1.5;">
+        Все акции читаются напрямую из Google-таблицы: одна строка — одна акция, каждая ячейка показывается как есть.
+        Строка появляется в виджете в день из колонки <code>Date</code> в <span id="dealsLaunchInfo">9:00 по Нью-Йорку</span>
+        и остаётся до конца месяца; строка без даты не показывается.
+      </p>
+      <p style="font-size: 13px; color: #475569; margin: 6px 0; line-height: 1.6;">
+        <code>Image</code> — картинка · <code>Frontend</code> — ссылка кнопки View Deal · <code>Bundle name</code> — заголовок ·
+        <code>Short line</code> — описание · <code>Bundle regular total</code> — зачёркнутая цена ·
+        <code>Bundle sale price</code> — цена. Объединённая ячейка относится ко всем строкам, которые она покрывает.
+      </p>
+      <p style="font-size: 14px; color: #475569; margin: 6px 0; line-height: 1.5;">
+        Здесь можно посмотреть, как виджет будет выглядеть в любой день:
+      </p>
+
+      <div class="deals-test-controls">
+        <label for="dealsDaySelect">День из таблицы:</label>
+        <select id="dealsDaySelect">
+          <option value="">загрузка…</option>
+        </select>
+        <label for="dealsMomentInput">или точное время (Нью-Йорк):</label>
+        <input type="datetime-local" id="dealsMomentInput">
+        <button id="dealsMomentApplyBtn" class="secondary-btn">Показать</button>
+      </div>
+      <div class="deals-test-controls">
+        <button id="dealsRealTimeBtn" class="secondary-btn">Вернуть реальное время</button>
+        <button id="dealsReloadBtn" class="secondary-btn">Перечитать таблицу сейчас</button>
+      </div>
+
+      <div class="info-box" id="dealsStatusBox">Загружаю таблицу…</div>
+      <div class="info-box is-preview" id="dealsClickBox" style="display: none;"></div>
+      <p style="font-size: 13px; color: #64748b; margin: 12px 0 0; line-height: 1.5;">
+        Таблица на этой странице перечитывается сама каждые 30 секунд: измените ячейку в Google-таблице — и виджет обновится без перезагрузки.
+      </p>
+    </div>
+
+    <div id="tt-chat-n8n"></div>
+  </div>
+
+  <script type="module">
+    import { createChat, setDealsPreviewDate } from './src/main.ts';
+    import { getDealsSnapshot, refreshDeals } from './src/composables/useDeals.ts';
+    
+    const VITE_WEBHOOK = import.meta.env?.VITE_WEBHOOK_URL;
+    const DEMO_WEBHOOK_URL = '/api/webhook';
+    const ACTIVE_WEBHOOK_URL = VITE_WEBHOOK || DEMO_WEBHOOK_URL;
+
+    function startChat() {
+      createChat({
+        webhookUrl: ACTIVE_WEBHOOK_URL,
+        mode: 'window',
+        title: 'HealthyLine',
+        subtitle: 'Chat with AI Assistant',
+        placeholder: 'Type your message...',
+        initialMessages: [],
+        loadPreviousSession: true,
+        showTooltip: true,
+        tooltipText: "Got questions? We're here 24/7",
+        // Test page only: re-read the Google Sheet every 30 s (the website default is 5 minutes)
+        dealsRefreshSeconds: 30,
+        icons: {
+          headerLogo: "https://healthyline.com/images/logo.svg"
+        }
+      });
+    }
+
+    // Auto initialize on load
+    startChat();
+
+    // Top Announcement Bar Close Handler
+    const topBar = document.getElementById('betaAnnouncementBar');
+    if (sessionStorage.getItem('tt-hide-top-beta-bar') === 'true' && topBar) {
+      topBar.style.display = 'none';
+    }
+    document.getElementById('closeTopBetaBarBtn')?.addEventListener('click', () => {
+      if (topBar) {
+        topBar.style.display = 'none';
+        try {
+          sessionStorage.setItem('tt-hide-top-beta-bar', 'true');
+        } catch (e) {}
+      }
+    });
+
+    document.getElementById('openChatBtn')?.addEventListener('click', () => {
+      const toggle = document.querySelector('.tt-chat-toggle-button');
+      if (toggle) toggle.click();
+    });
+
+    document.getElementById('resetSessionBtn')?.addEventListener('click', () => {
+      localStorage.clear();
+      window.location.reload();
+    });
+
+    // ---------------------------------------------------------------------
+    // Deals tab test tools (this page only; the widget itself reads the sheet)
+    // ---------------------------------------------------------------------
+    const dealsDaySelect = document.getElementById('dealsDaySelect');
+    const dealsMomentInput = document.getElementById('dealsMomentInput');
+    const dealsStatusBox = document.getElementById('dealsStatusBox');
+    const dealsLaunchInfo = document.getElementById('dealsLaunchInfo');
+    const RU_MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+    const pad2 = (n) => String(n).padStart(2, '0');
+    const ruDay = (iso) => {
+      const [, m, d] = iso.split('-').map(Number);
+      return `${d} ${RU_MONTHS[m - 1]}`;
+    };
+    const ruDeals = (n) => {
+      const mod10 = n % 10;
+      const mod100 = n % 100;
+      if (mod10 === 1 && mod100 !== 11) return `${n} акция`;
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${n} акции`;
+      return `${n} акций`;
+    };
+
+    let dealsDaysKey = '';
+    let dealsAutoPreviewDone = false;
+
+    function renderDealsStatus() {
+      const state = getDealsSnapshot();
+      if (!dealsStatusBox || !dealsDaySelect) return;
+
+      if (dealsLaunchInfo) dealsLaunchInfo.textContent = `${state.launchTime} (${state.timeZone})`;
+
+      // Days found in the sheet -> dropdown (rebuilt only when the sheet changes)
+      const daysKey = state.days.map((day) => `${day.date}:${day.count}`).join('|');
+      if (daysKey !== dealsDaysKey) {
+        dealsDaysKey = daysKey;
+        dealsDaySelect.innerHTML = '';
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = state.days.length ? 'выберите день…' : 'в таблице нет строк с датой';
+        dealsDaySelect.appendChild(placeholder);
+        for (const day of state.days) {
+          const option = document.createElement('option');
+          option.value = day.date;
+          option.textContent = `${ruDay(day.date)} — ${ruDeals(day.count)}`;
+          dealsDaySelect.appendChild(option);
+        }
+      }
+
+      // Nothing is live yet in real time: show the first upcoming day so the tab can be checked right away
+      if (!dealsAutoPreviewDone && state.status === 'ready') {
+        dealsAutoPreviewDone = true;
+        const hasUrlPreview = new URLSearchParams(window.location.search).has('hl_deals_date');
+        if (!state.isPreview && !hasUrlPreview && state.liveDeals === 0) {
+          const nextDay = state.days.find((day) => day.date >= state.clock.date);
+          if (nextDay) {
+            setDealsPreviewDate(`${nextDay.date}T${state.launchTime}`);
+            return renderDealsStatus();
+          }
+        }
+      }
+
+      const selectedDay = state.isPreview && state.days.some((day) => day.date === state.clock.date) ? state.clock.date : '';
+      if (dealsDaySelect.value !== selectedDay && document.activeElement !== dealsDaySelect) {
+        dealsDaySelect.value = selectedDay;
+      }
+
+      const moment = `${ruDay(state.clock.date)} ${state.clock.date.slice(0, 4)}, ${pad2(state.clock.hour)}:${pad2(state.clock.minute)}`;
+      dealsStatusBox.classList.toggle('is-preview', state.isPreview);
+
+      if (!state.enabled) {
+        dealsStatusBox.textContent = 'Вкладка Deals выключена (showDeals: false).';
+      } else if (state.status === 'error') {
+        dealsStatusBox.textContent = 'Таблицу не удалось прочитать. Проверьте, что доступ открыт: «Все, у кого есть ссылка — Читатель».';
+      } else if (state.status !== 'ready') {
+        dealsStatusBox.textContent = 'Загружаю таблицу…';
+      } else {
+        const mode = state.isPreview
+          ? `<strong>Предпросмотр:</strong> виджет показан так, как будет выглядеть ${moment} по времени ${state.timeZone}.`
+          : `<strong>Реальное время:</strong> сейчас ${moment} по времени ${state.timeZone}.`;
+        const live = state.liveDeals > 0
+          ? `Показывается ${ruDeals(state.liveDeals)} из ${state.totalDeals} в таблице; в последнем ежедневном запуске — ${state.newToday}.`
+          : `В этот момент активных акций нет (в таблице ${ruDeals(state.totalDeals)}), поэтому вкладка Deals, блок на главной и строка в подсказке скрыты.`;
+        const merged = state.mergedBlocks === null
+          ? '⚠️ Объединённые ячейки прочитать не удалось: их значение сейчас есть только у первой строки блока, а строки без собственной даты скрыты. Нажмите «Перечитать таблицу сейчас».'
+          : state.mergedBlocks > 0
+            ? `Объединённых ячеек в таблице: ${state.mergedBlocks} — значение каждой относится ко всем её строкам.`
+            : 'Объединённых ячеек в таблице нет.';
+        dealsStatusBox.innerHTML = `${mode}<br>${live}<br>${merged}`;
+      }
+    }
+
+    dealsDaySelect?.addEventListener('change', () => {
+      if (!dealsDaySelect.value) return;
+      const { launchTime } = getDealsSnapshot();
+      setDealsPreviewDate(`${dealsDaySelect.value}T${launchTime}`);
+      renderDealsStatus();
+    });
+
+    document.getElementById('dealsMomentApplyBtn')?.addEventListener('click', () => {
+      if (!dealsMomentInput?.value) return;
+      setDealsPreviewDate(dealsMomentInput.value.slice(0, 16));
+      renderDealsStatus();
+    });
+
+    document.getElementById('dealsRealTimeBtn')?.addEventListener('click', () => {
+      setDealsPreviewDate(null);
+      renderDealsStatus();
+    });
+
+    document.getElementById('dealsReloadBtn')?.addEventListener('click', async () => {
+      await refreshDeals(true);
+      renderDealsStatus();
+    });
+
+    setInterval(renderDealsStatus, 1000);
+    renderDealsStatus();
+
+    // Test page only: show where a deal link leads. The link itself opens in a new
+    // tab; an embedded preview window may block new tabs, and then nothing seems to happen.
+    const dealsClickBox = document.getElementById('dealsClickBox');
+    document.addEventListener('click', (event) => {
+      const link = event.target instanceof Element ? event.target.closest('a.tt-deal-card-cta, a.tt-deal-row') : null;
+      if (!link || !dealsClickBox) return;
+      dealsClickBox.textContent = '';
+      const lead = document.createElement('strong');
+      lead.textContent = 'Нажата ссылка акции: ';
+      const anchor = document.createElement('a');
+      anchor.href = link.href;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
+      anchor.textContent = link.href;
+      const note = document.createElement('div');
+      note.textContent = 'Адрес взят из колонки Frontend. На сайте он открывается в новой вкладке. Если здесь, во встроенном окне предпросмотра, вкладка не открылась — новые вкладки блокирует само окно предпросмотра.';
+      dealsClickBox.append(lead, anchor, note);
+      dealsClickBox.style.display = '';
+    });
+
+    document.getElementById('testRagActionBtn')?.addEventListener('click', () => {
+      // Открываем окно чата, если оно свернуто
+      const chatWindow = document.querySelector('.tt-chat-window');
+      const toggle = document.querySelector('.tt-chat-toggle-button');
+      if (!chatWindow && toggle) {
+        toggle.click();
+      }
+
+      // Переключаемся на вкладку Messages
+      const msgTabBtn = document.querySelector('.nav-item:nth-child(2)');
+      if (msgTabBtn) msgTabBtn.click();
+
+      // Находим инпут и отправляем 'auth'
+      setTimeout(() => {
+        const input = document.querySelector('.tt-chat-input textarea, .tt-chat-input input');
+        const sendBtn = document.querySelector('.tt-chat-send-button');
+        if (input && sendBtn) {
+          input.value = 'auth';
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+          sendBtn.click();
+        }
+      }, 300);
+    });
+  </script>
+</body>
+</html>
