@@ -41,6 +41,11 @@ export class MessageProcessor {
    * Estrae i testi di risposta dall'oggetto response
    */
   extractResponseTexts(response: any): string[] {
+    // A live-chat acknowledgement is intentionally empty; do not render its JSON as a bot bubble.
+    if (response?.live === true && Array.isArray(response.output) && response.output.length === 0) {
+      return [];
+    }
+
     // Gestisce array di messaggi
     if (Array.isArray(response.output)) {
       return response.output.filter((msg: any) => typeof msg === 'string' && msg.trim() !== '');

@@ -16,6 +16,7 @@ import { useChat } from '../composables/useChat';
 import { useOptions } from '../composables/useOptions';
 import { useDeals } from '../composables/useDeals';
 import type { ChatAction, ChatMessage as ChatMessageType } from '../types';
+import { pollLiveMessages as fetchLiveMessages } from '../utils/api';
 
 type ChatTab = 'home' | 'messages' | 'catalog' | 'compare' | 'deals';
 
@@ -90,6 +91,75 @@ const showInputComponent = ref(false);
 const currentInputAction = ref<ChatAction | null>(null);
 
 const lastProcessedMessageId = ref<string | null>(null);
+
+// Pull agent replies from n8n while the chat window is open.
+let livePollTimer: ReturnType<typeof setTimeout> | null = null;
+let livePollStopped = false;
+let livePollSessionId = '';
+let lastLivePollId = 0;
+
+function scheduleLivePoll(delay = 2500) {
+  if (livePollStopped) return;
+  if (livePollTimer) clearTimeout(livePollTimer);
+  livePollTimer = setTimeout(pollForAgentReplies, delay);
+}
+
+async function pollForAgentReplies() {
+  if (livePollStopped) return;
+  const sessionId = currentSessionId.value;
+
+  if (!sessionId) {
+    scheduleLivePoll();
+    return;
+  }
+
+  if (sessionId !== livePollSessionId) {
+    livePollSessionId = sessionId;
+    lastLivePollId = 0;
+  }
+
+  try {
+    const pollOptions = options.value;
+    if (!pollOptions) {
+      scheduleLivePoll();
+      return;
+    }
+    const result = await fetchLiveMessages(sessionId, lastLivePollId, pollOptions);
+    const rows = Array.isArray(result?.messages) ? result.messages : [];
+
+    for (const row of rows) {
+      const rowId = Number(row.id);
+      if (Number.isFinite(rowId)) lastLivePollId = Math.max(lastLivePollId, rowId);
+      if (row.role !== 'agent') continue;
+
+      const body = String(row.text || '').trim();
+      if (!body) continue;
+      // History may already contain this reply; avoid showing it twice after reopening the widget.
+      const alreadyShown = messages.value.some(
+        message => message.sender === 'bot' && message.text.includes(body)
+      );
+      if (alreadyShown) continue;
+
+      const author = String(row.author || '').trim();
+      messages.value.push({
+        id: `gorgias-${row.id}`,
+        text: author ? `**${author} · HealthyLine Support**\n\n${body}` : body,
+        sender: 'bot',
+        createdAt: row.created_at || new Date().toISOString(),
+      });
+    }
+
+    const responseLastId = Number(result?.lastId || 0);
+    if (Number.isFinite(responseLastId)) {
+      lastLivePollId = Math.max(lastLivePollId, responseLastId);
+    }
+  } catch (error) {
+    // Keep the chat usable if a poll temporarily fails; the next poll will retry.
+    console.warn('[HealthyLine chat] livePoll failed:', error);
+  } finally {
+    scheduleLivePoll();
+  }
+}
 
 const headerTitle = computed(() => options.value?.title || 'HealthyLine');
 const headerSubtitle = computed(() => {
@@ -396,9 +466,15 @@ onMounted(async () => {
       await chatStore.startNewSession();
     }
   }
+
+  livePollStopped = false;
+  scheduleLivePoll(0);
 });
 
 onBeforeUnmount(() => {
+  livePollStopped = true;
+  if (livePollTimer) clearTimeout(livePollTimer);
+  livePollTimer = null;
   document.removeEventListener('click', handleClickOutside);
 });
 
