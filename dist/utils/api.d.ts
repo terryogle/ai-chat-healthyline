@@ -1,4 +1,4 @@
-import { ChatOptions, LoadPreviousSessionResponse, SendMessageResponse, CatalogResponse, OtpResponse } from '../types';
+import { ChatOptions, LoadPreviousSessionResponse, SendMessageResponse, CatalogResponse, OtpResponse, LivePollResponse } from '../types';
 
 export declare const LOCAL_STORAGE_SESSION_KEY = "tt-chat-n8n-session-id";
 /**
@@ -9,6 +9,10 @@ export declare function loadPreviousSession(sessionId: string, options: ChatOpti
  * Funzione per inviare un messaggio
  */
 export declare function sendMessage(message: string, files: File[], sessionId: string, options: ChatOptions, privacy?: boolean, callback?: string | null): Promise<SendMessageResponse>;
+/**
+ * Poll the n8n webhook for new Gorgias agent replies.
+ */
+export declare function pollLiveMessages(sessionId: string, lastId: number, options: ChatOptions): Promise<LivePollResponse>;
 /**
  * Funzione per caricare il catalogo prodotti dal webhook n8n
  * (che a sua volta legge i dati dalla Google Sheet)

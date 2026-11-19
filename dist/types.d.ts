@@ -115,6 +115,19 @@ export interface SendMessageResponse {
     text?: string;
     actions?: ChatAction[];
 }
+/** Messages returned by the n8n livePoll branch. */
+export interface LivePollMessage {
+    id: number | string;
+    role: 'visitor' | 'agent' | 'system';
+    author?: string;
+    text?: string;
+    created_at?: string;
+}
+export interface LivePollResponse {
+    messages: LivePollMessage[];
+    lastId: number;
+    live?: boolean;
+}
 export interface CatalogProduct {
     id: string;
     name: string;

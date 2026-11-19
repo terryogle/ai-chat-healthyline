@@ -8327,6 +8327,9 @@ function mockLocalWebhook(url, options) {
     });
   }
   const action = parsedBody.action;
+  if (action === "livePoll") {
+    return { messages: [], lastId: Number(parsedBody.lastId || 0), live: true };
+  }
   if (action === "requestOtp") {
     const email = (parsedBody.email || "").trim().toLowerCase();
     return {
@@ -8506,6 +8509,31 @@ async function sendMessage(message2, files, sessionId, options, privacy, callbac
       }
     );
   }
+}
+async function pollLiveMessages(sessionId, lastId, options) {
+  var _a2, _b, _c;
+  const method = ((_a2 = options.webhookConfig) == null ? void 0 : _a2.method) === "POST" ? "POST" : "GET";
+  const body = {
+    action: "livePoll",
+    [options.chatSessionKey || "sessionId"]: sessionId,
+    lastId
+  };
+  if (method === "POST") {
+    return await fetchApi(options.webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(_b = options.webhookConfig) == null ? void 0 : _b.headers
+      },
+      body: JSON.stringify(body)
+    });
+  }
+  const params = new URLSearchParams();
+  Object.entries(body).forEach(([key, value]) => params.append(key, String(value)));
+  return await fetchApi(`${options.webhookUrl}?${params.toString()}`, {
+    method: "GET",
+    headers: (_c = options.webhookConfig) == null ? void 0 : _c.headers
+  });
 }
 async function getCatalog(options, filters) {
   var _a2, _b, _c;
@@ -8758,6 +8786,9 @@ class MessageProcessor {
    * Estrae i testi di risposta dall'oggetto response
    */
   extractResponseTexts(response) {
+    if ((response == null ? void 0 : response.live) === true && Array.isArray(response.output) && response.output.length === 0) {
+      return [];
+    }
     if (Array.isArray(response.output)) {
       return response.output.filter((msg) => typeof msg === "string" && msg.trim() !== "");
     }
@@ -38005,6 +38036,64 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
     const showInputComponent = /* @__PURE__ */ ref(false);
     const currentInputAction = /* @__PURE__ */ ref(null);
     const lastProcessedMessageId = /* @__PURE__ */ ref(null);
+    let livePollTimer = null;
+    let livePollStopped = false;
+    let livePollSessionId = "";
+    let lastLivePollId = 0;
+    function scheduleLivePoll(delay = 2500) {
+      if (livePollStopped) return;
+      if (livePollTimer) clearTimeout(livePollTimer);
+      livePollTimer = setTimeout(pollForAgentReplies, delay);
+    }
+    async function pollForAgentReplies() {
+      if (livePollStopped) return;
+      const sessionId = currentSessionId.value;
+      if (!sessionId) {
+        scheduleLivePoll();
+        return;
+      }
+      if (sessionId !== livePollSessionId) {
+        livePollSessionId = sessionId;
+        lastLivePollId = 0;
+      }
+      try {
+        const pollOptions = options.value;
+        if (!pollOptions) {
+          scheduleLivePoll();
+          return;
+        }
+        const result = await pollLiveMessages(sessionId, lastLivePollId, pollOptions);
+        const rows = Array.isArray(result == null ? void 0 : result.messages) ? result.messages : [];
+        for (const row of rows) {
+          const rowId = Number(row.id);
+          if (Number.isFinite(rowId)) lastLivePollId = Math.max(lastLivePollId, rowId);
+          if (row.role !== "agent") continue;
+          const body = String(row.text || "").trim();
+          if (!body) continue;
+          const alreadyShown = messages.value.some(
+            (message2) => message2.sender === "bot" && message2.text.includes(body)
+          );
+          if (alreadyShown) continue;
+          const author = String(row.author || "").trim();
+          messages.value.push({
+            id: `gorgias-${row.id}`,
+            text: author ? `**${author} · HealthyLine Support**
+
+${body}` : body,
+            sender: "bot",
+            createdAt: row.created_at || (/* @__PURE__ */ new Date()).toISOString()
+          });
+        }
+        const responseLastId = Number((result == null ? void 0 : result.lastId) || 0);
+        if (Number.isFinite(responseLastId)) {
+          lastLivePollId = Math.max(lastLivePollId, responseLastId);
+        }
+      } catch (error2) {
+        console.warn("[HealthyLine chat] livePoll failed:", error2);
+      } finally {
+        scheduleLivePoll();
+      }
+    }
     const headerTitle = computed(() => {
       var _a2;
       return ((_a2 = options.value) == null ? void 0 : _a2.title) || "HealthyLine";
@@ -38304,8 +38393,13 @@ const _sfc_main$4 = /* @__PURE__ */ defineComponent({
           await chatStore.startNewSession();
         }
       }
+      livePollStopped = false;
+      scheduleLivePoll(0);
     });
     onBeforeUnmount(() => {
+      livePollStopped = true;
+      if (livePollTimer) clearTimeout(livePollTimer);
+      livePollTimer = null;
       document.removeEventListener("click", handleClickOutside);
     });
     watch(() => deals.newTodayCount.value, (count) => {
