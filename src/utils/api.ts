@@ -3,7 +3,8 @@ import type {
   LoadPreviousSessionResponse,
   SendMessageResponse,
   CatalogResponse,
-  OtpResponse
+  OtpResponse,
+  LivePollResponse
 } from '../types';
 
 // Costante per l'ID della sessione in localStorage
@@ -36,6 +37,10 @@ function mockLocalWebhook<T>(url: string, options: RequestInit): T {
   }
 
   const action = parsedBody.action;
+
+  if (action === 'livePoll') {
+    return { messages: [], lastId: Number(parsedBody.lastId || 0), live: true } as T;
+  }
 
   if (action === 'requestOtp') {
     const email = (parsedBody.email || '').trim().toLowerCase();
@@ -256,6 +261,40 @@ export async function sendMessage(
       }
     );
   }
+}
+
+/**
+ * Poll the n8n webhook for new Gorgias agent replies.
+ */
+export async function pollLiveMessages(
+  sessionId: string,
+  lastId: number,
+  options: ChatOptions
+): Promise<LivePollResponse> {
+  const method = options.webhookConfig?.method === 'POST' ? 'POST' : 'GET';
+  const body = {
+    action: 'livePoll',
+    [options.chatSessionKey || 'sessionId']: sessionId,
+    lastId,
+  };
+
+  if (method === 'POST') {
+    return await fetchApi<LivePollResponse>(options.webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.webhookConfig?.headers,
+      },
+      body: JSON.stringify(body),
+    });
+  }
+
+  const params = new URLSearchParams();
+  Object.entries(body).forEach(([key, value]) => params.append(key, String(value)));
+  return await fetchApi<LivePollResponse>(`${options.webhookUrl}?${params.toString()}`, {
+    method: 'GET',
+    headers: options.webhookConfig?.headers,
+  });
 }
 
 /**
